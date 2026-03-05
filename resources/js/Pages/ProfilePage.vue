@@ -44,6 +44,13 @@ const totalEntries = computed(() => {
                 </div>
             </div>
             <p v-if="profile.bio" class="text-gray-300 mt-4 whitespace-pre-line">{{ profile.bio }}</p>
+            <Link
+                v-if="profile.list_is_public"
+                :href="route('profile.list', { user: profile.username })"
+                class="text-primary-400 hover:text-primary-300 text-sm mt-3 inline-block"
+            >
+                View Anime List &rarr;
+            </Link>
         </div>
 
         <!-- Stats -->

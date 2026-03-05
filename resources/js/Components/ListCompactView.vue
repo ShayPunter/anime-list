@@ -5,6 +5,7 @@ import Select from 'primevue/select'
 
 defineProps<{
     entries: ListEntryResource[]
+    readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -41,6 +42,7 @@ function incrementProgress(entry: ListEntryResource) {
                 {{ displayTitle(entry) }}
             </Link>
             <Select
+                v-if="!readonly"
                 :model-value="entry.status"
                 :options="statusOptions"
                 option-label="label"
@@ -48,6 +50,7 @@ function incrementProgress(entry: ListEntryResource) {
                 class="w-32 text-xs"
                 @update:model-value="(v: ListStatus) => handleStatusChange(entry, v)"
             />
+            <span v-else class="w-32 text-gray-300 text-xs">{{ LIST_STATUS_LABELS[entry.status] }}</span>
             <span class="w-12 text-center text-gray-400">
                 {{ entry.display_score ?? '-' }}
             </span>
@@ -55,6 +58,7 @@ function incrementProgress(entry: ListEntryResource) {
                 <span class="text-gray-300">{{ entry.progress }}</span>
                 <span class="text-gray-600">/{{ entry.anime?.episodes ?? '?' }}</span>
                 <button
+                    v-if="!readonly"
                     class="rounded bg-gray-700 px-1 text-gray-300 hover:bg-gray-600 transition"
                     @click="incrementProgress(entry)"
                 >+</button>

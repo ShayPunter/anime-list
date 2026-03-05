@@ -22,10 +22,12 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
+                    'username' => $request->user()->username,
                     'email' => $request->user()->email,
                     'avatar_url' => $request->user()->avatar_url,
                     'bio' => $request->user()->bio,
                     'timezone' => $request->user()->timezone,
+                    'list_is_public' => (bool) $request->user()->list_is_public,
                 ] : null,
             ],
             'flash' => [

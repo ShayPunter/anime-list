@@ -5,6 +5,7 @@ import Select from 'primevue/select'
 
 defineProps<{
     entries: ListEntryResource[]
+    readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -76,6 +77,7 @@ function incrementProgress(entry: ListEntryResource) {
                     </td>
                     <td class="py-2 pr-4">
                         <Select
+                            v-if="!readonly"
                             :model-value="entry.status"
                             :options="statusOptions"
                             option-label="label"
@@ -83,9 +85,11 @@ function incrementProgress(entry: ListEntryResource) {
                             class="w-full text-xs"
                             @update:model-value="(v: ListStatus) => handleStatusChange(entry, v)"
                         />
+                        <span v-else class="text-gray-300 text-xs">{{ LIST_STATUS_LABELS[entry.status] }}</span>
                     </td>
                     <td class="py-2 pr-4">
                         <input
+                            v-if="!readonly"
                             type="number"
                             min="0"
                             max="10"
@@ -94,6 +98,7 @@ function incrementProgress(entry: ListEntryResource) {
                             class="w-16 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-center text-gray-200 text-xs"
                             @change="handleScoreChange(entry, $event)"
                         />
+                        <span v-else class="text-gray-300 text-xs">{{ entry.display_score ?? '-' }}</span>
                     </td>
                     <td class="py-2 pr-4">
                         <div class="flex items-center gap-1">
@@ -101,6 +106,7 @@ function incrementProgress(entry: ListEntryResource) {
                             <span class="text-gray-500">/</span>
                             <span class="text-gray-500">{{ entry.anime?.episodes ?? '?' }}</span>
                             <button
+                                v-if="!readonly"
                                 class="ml-1 rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300 hover:bg-gray-600 transition"
                                 @click="incrementProgress(entry)"
                             >

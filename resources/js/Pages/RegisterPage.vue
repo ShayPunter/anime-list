@@ -6,6 +6,7 @@ defineOptions({ layout: AppLayout })
 
 const form = useForm({
     name: '',
+    username: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -32,6 +33,18 @@ function submit() {
                     autofocus
                 />
                 <p v-if="form.errors.name" class="text-red-400 text-sm mt-1">{{ form.errors.name }}</p>
+            </div>
+            <div>
+                <label for="username" class="block text-sm text-gray-400 mb-1">Username</label>
+                <input
+                    id="username"
+                    v-model="form.username"
+                    type="text"
+                    class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-primary-500 focus:outline-none"
+                    required
+                    placeholder="letters, numbers, hyphens, underscores"
+                />
+                <p v-if="form.errors.username" class="text-red-400 text-sm mt-1">{{ form.errors.username }}</p>
             </div>
             <div>
                 <label for="email" class="block text-sm text-gray-400 mb-1">Email</label>

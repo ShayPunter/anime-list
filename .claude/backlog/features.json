@@ -1,0 +1,585 @@
+{
+  "features": [
+    {
+      "id": "F-001",
+      "title": "Anime episode & status notifications",
+      "status": "deferred",
+      "priority": "medium",
+      "effort": "L",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "user",
+      "summary": "Allow users to subscribe to anime and receive in-app and email notifications when new episodes air or anime status changes.",
+      "user_stories": [
+        "As a user, I want to be notified when a new episode of an anime I'm watching airs so that I don't miss it",
+        "As a user, I want to receive an email digest of upcoming episodes so I can plan my watching schedule",
+        "As a user, I want to auto-subscribe to anime on my watching list so I don't have to manually follow each one"
+      ],
+      "requirements": [
+        "Subscribe/unsubscribe button on anime detail page",
+        "In-app notification bell with unread count in navbar",
+        "Email notifications with configurable frequency (immediate, daily, weekly)",
+        "Auto-subscribe option for anime on user's watching list",
+        "Notification preferences page in account settings",
+        "Detect new episodes via airing schedule sync comparison",
+        "Detect status changes via anime sync comparison"
+      ],
+      "acceptance_criteria": [
+        "User can subscribe to an anime from its detail page",
+        "When a new episode airs for a subscribed anime, user sees in-app notification within 1 hour",
+        "Email digests are sent at user's configured frequency",
+        "User can disable all notifications globally",
+        "Bulk sync operations do not spam notifications"
+      ],
+      "technical_notes": "Requires email infrastructure (Mailgun/SES on Forge), Laravel Notifications (database + mail channels), and ideally WebSockets for real-time in-app delivery (Laravel Echo + Pusher/Soketi). New tables: anime_subscriptions, notifications, notification_preferences. Hooks into SyncAiringSchedulePage and SyncAnimePage completion.",
+      "dependencies": [],
+      "risks": [
+        "Notification volume during bulk syncs could spam users",
+        "Email deliverability setup (SPF/DKIM/DMARC) adds infrastructure complexity",
+        "Real-time in-app notifications need WebSocket server"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Feature proposed by user. Deferred to v1.1 — requires email infrastructure, WebSocket setup, and careful volume management. Full spec added to PROJECT_PLAN.md."
+        }
+      ]
+    },
+    {
+      "id": "F-002",
+      "title": "Manga tracking",
+      "status": "deferred",
+      "priority": "medium",
+      "effort": "XL",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Add manga as a trackable media type alongside anime, with its own catalog, detail pages, and user list management.",
+      "user_stories": [
+        "As a user, I want to track manga I'm reading alongside my anime list so I have one unified tracker",
+        "As a user, I want to browse and search manga the same way I browse anime"
+      ],
+      "requirements": [
+        "Manga model with AniList manga fields (chapters, volumes, status, etc.)",
+        "Manga sync pipeline from AniList (type: MANGA)",
+        "Manga detail pages with chapter/volume info",
+        "User manga list with reading statuses and chapter progress",
+        "Search includes manga results (filterable by type)",
+        "Profile stats include manga statistics"
+      ],
+      "acceptance_criteria": [
+        "User can browse, search, and view manga detail pages",
+        "User can add manga to their list with chapter/volume progress",
+        "Manga and anime lists are separate but accessible from the same profile",
+        "MAL XML import handles manga exports"
+      ],
+      "technical_notes": "Effectively doubles the data model. Could reuse the Anime model with a 'type' discriminator or create a separate Manga model. AniList uses the same GraphQL schema with type: MANGA. Sync pipeline can be extended with a --type flag. Major UI work for manga-specific fields (chapters vs episodes).",
+      "dependencies": [],
+      "risks": [
+        "Doubles sync time and storage requirements",
+        "UI complexity — manga has different metadata than anime (chapters, volumes, no airing schedule)",
+        "Scope creep risk — light novels, one-shots, manhwa subtypes"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Doubles the data model and UI surface area. Get anime tracking solid first."
+        }
+      ]
+    },
+    {
+      "id": "F-003",
+      "title": "MAL OAuth2 sync",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "M",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Two-way sync with MyAnimeList via OAuth2 API, allowing users to keep their MAL and AniTrack lists in sync automatically.",
+      "user_stories": [
+        "As a user, I want to connect my MAL account so my list stays in sync without manual XML exports",
+        "As a user, I want changes I make on AniTrack to reflect on MAL automatically"
+      ],
+      "requirements": [
+        "MAL OAuth2 authorization flow (redirect, callback, token storage)",
+        "Pull user's MAL list and merge with local list",
+        "Push local list changes back to MAL",
+        "Conflict resolution strategy (last-write-wins or user choice)",
+        "Token refresh handling"
+      ],
+      "acceptance_criteria": [
+        "User can link their MAL account via OAuth",
+        "Initial sync imports full MAL list",
+        "Subsequent syncs detect and merge changes from both sides",
+        "User can disconnect MAL account"
+      ],
+      "technical_notes": "MAL OAuth2 approval can take weeks. XML import covers 90% of the use case. Two-way sync has inherent conflict resolution complexity. Laravel Socialite or manual OAuth2 flow. Need to store refresh tokens securely (encrypted in DB).",
+      "dependencies": [],
+      "risks": [
+        "MAL OAuth API approval process is slow and unpredictable",
+        "Two-way sync conflict resolution is complex",
+        "MAL API rate limits are strict (few requests/second)"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. XML import covers the primary use case. OAuth approval timeline is unpredictable."
+        }
+      ]
+    },
+    {
+      "id": "F-004",
+      "title": "Jikan (MAL) data integration",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "M",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Integrate Jikan v4 REST API as a secondary data source to supplement AniList with MAL-specific data like character details, reviews, and recommendations.",
+      "user_stories": [
+        "As a user, I want to see MAL scores alongside AniList scores for a broader perspective",
+        "As a user, I want to see character and voice actor information on anime detail pages"
+      ],
+      "requirements": [
+        "Jikan API client service with rate limiting",
+        "Map MAL IDs to AniList IDs (mal_id field already stored)",
+        "Fetch and cache supplementary data (characters, staff, reviews)",
+        "Display MAL score on detail page alongside AniList score"
+      ],
+      "acceptance_criteria": [
+        "Anime detail page shows MAL score when available",
+        "Character/staff data loads without impacting page performance",
+        "Jikan failures don't break the page (graceful degradation)"
+      ],
+      "technical_notes": "AniList already covers 95% of data needs. Jikan is useful for characters, voice actors, and MAL community data. Rate limit: 3 req/sec, 60 req/min. Could be fetched on-demand rather than bulk synced. mal_id is already stored on the anime model.",
+      "dependencies": [],
+      "risks": [
+        "Jikan is an unofficial MAL API — could break without notice",
+        "Additional API dependency increases failure surface",
+        "Data mapping between AniList and MAL IDs isn't always 1:1"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. AniList covers 95% of data needs. Low priority supplement."
+        }
+      ]
+    },
+    {
+      "id": "F-005",
+      "title": "Recommendations engine",
+      "status": "deferred",
+      "priority": "medium",
+      "effort": "L",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Suggest anime to users based on their watch history, scores, and genre preferences. Could use collaborative filtering or content-based approaches.",
+      "user_stories": [
+        "As a user, I want to discover new anime based on what I've enjoyed so far",
+        "As a user, I want to see 'if you liked X, you'll like Y' suggestions on anime detail pages"
+      ],
+      "requirements": [
+        "Algorithm to generate recommendations (content-based or collaborative filtering)",
+        "Recommendations section on anime detail page",
+        "Personalized recommendations page/section on dashboard",
+        "Ability to dismiss/hide recommendations"
+      ],
+      "acceptance_criteria": [
+        "User with 10+ rated anime sees relevant recommendations",
+        "Recommendations update as user adds ratings",
+        "Recommendations don't include anime already on user's list"
+      ],
+      "technical_notes": "For MVP of this feature, could start with AniList's built-in recommendations data (already in relations). True collaborative filtering needs user volume. Content-based (genre/studio similarity scoring) is feasible with current data. DB schema already planned for recommendations table.",
+      "dependencies": [],
+      "risks": [
+        "Cold start problem — needs enough user ratings to be useful",
+        "Algorithm quality directly impacts perceived value",
+        "Computational cost if doing real-time collaborative filtering"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Needs user volume for collaborative filtering. Can start with content-based similarity using existing genre/studio data."
+        }
+      ]
+    },
+    {
+      "id": "F-006",
+      "title": "User reviews",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "M",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Allow users to write and publish reviews for anime they've watched, with ratings and helpful/not-helpful voting.",
+      "user_stories": [
+        "As a user, I want to write a review for anime I've completed to share my thoughts",
+        "As a user, I want to read other users' reviews to help decide what to watch"
+      ],
+      "requirements": [
+        "Review form on anime detail page (text, overall score, optional category scores)",
+        "Reviews list on anime detail page (sorted by helpfulness/recency)",
+        "One review per user per anime",
+        "Helpful/not-helpful voting on reviews",
+        "User's reviews visible on their profile"
+      ],
+      "acceptance_criteria": [
+        "User can write, edit, and delete their own review",
+        "Reviews display with author, date, score, and text",
+        "Reviews are sorted by helpfulness by default",
+        "User must have the anime on their list to review it"
+      ],
+      "technical_notes": "DB schema already planned for reviews table. Requires moderation tooling (report button, admin review queue) if opening to multiple users. For personal use, moderation is unnecessary. Markdown support for review text would be nice.",
+      "dependencies": [],
+      "risks": [
+        "Moderation burden if user base grows",
+        "Spam/abuse potential without moderation",
+        "Low value for personal use — mainly useful with community"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Requires moderation tooling. Limited value for personal/small use."
+        }
+      ]
+    },
+    {
+      "id": "F-007",
+      "title": "Forums / clubs",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "XL",
+      "target_version": "v2.0",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Community features including discussion forums organized by anime/topic, and user-created clubs/groups.",
+      "user_stories": [
+        "As a user, I want to discuss anime with other users in dedicated forums",
+        "As a user, I want to join clubs based on shared interests"
+      ],
+      "requirements": [
+        "Forum boards organized by category (per-anime, general, off-topic)",
+        "Thread creation, replies, quoting",
+        "Clubs with member lists, descriptions, and private discussion boards",
+        "Moderation tools (ban, mute, delete, lock threads)"
+      ],
+      "acceptance_criteria": [
+        "Users can create and participate in forum discussions",
+        "Forum threads are linked to relevant anime pages",
+        "Moderation tools prevent spam and abuse"
+      ],
+      "technical_notes": "Major feature requiring significant new models (boards, threads, posts, clubs, memberships), real-time updates, moderation queue, and notification integration. Completely separate domain from the core tracker. Consider if a Discord server would serve the same purpose with zero dev effort.",
+      "dependencies": ["F-001"],
+      "risks": [
+        "Massive scope — effectively building a second product",
+        "Moderation burden scales with user count",
+        "Could distract from core tracker value proposition"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v2.0. Major feature with heavy moderation burden. A Discord server may serve the same purpose."
+        }
+      ]
+    },
+    {
+      "id": "F-008",
+      "title": "Custom list themes",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "L",
+      "target_version": "v2.0",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Allow users to customize the appearance of their public anime list page with custom CSS themes, colors, and layouts.",
+      "user_stories": [
+        "As a user, I want to personalize my list page so it reflects my style",
+        "As a user, I want to choose from pre-made themes or create my own"
+      ],
+      "requirements": [
+        "Theme selector in profile settings",
+        "Pre-built theme options (5-10 starter themes)",
+        "Optional custom CSS editor for advanced users",
+        "Theme preview before applying",
+        "CSS sanitization to prevent XSS"
+      ],
+      "acceptance_criteria": [
+        "User can select a theme and it applies to their public list page",
+        "Custom CSS is sanitized and cannot execute scripts",
+        "Themes don't break list functionality"
+      ],
+      "technical_notes": "Security is the main concern — custom CSS can be used for XSS attacks (url(), expression(), behavior). Need a CSS sanitizer/whitelist. Safer approach: predefined theme variables (colors, fonts, spacing) rather than raw CSS. Could use CSS custom properties scoped to the list container.",
+      "dependencies": [],
+      "risks": [
+        "XSS via custom CSS (expression(), url(), background-image data URIs)",
+        "Maintenance burden of CSS sanitization",
+        "Performance impact of user-injected styles"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v2.0. Security implications require careful CSS sanitization. Low priority for personal use."
+        }
+      ]
+    },
+    {
+      "id": "F-009",
+      "title": "Native mobile apps",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "XL",
+      "target_version": "v2.0",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Native iOS and Android apps for AniTrack, providing a mobile-optimized experience with push notifications and offline support.",
+      "user_stories": [
+        "As a user, I want a native app so I can quickly update my list from my phone",
+        "As a user, I want push notifications for new episodes on my mobile device"
+      ],
+      "requirements": [
+        "iOS and Android apps (React Native, Flutter, or native)",
+        "Core features: browse, search, list management, anime detail",
+        "Push notifications for subscribed anime",
+        "Offline list viewing and queued updates"
+      ],
+      "acceptance_criteria": [
+        "App provides feature parity with core web functionality",
+        "Push notifications work reliably",
+        "Offline mode allows viewing list without connection"
+      ],
+      "technical_notes": "The web app must be mobile-responsive first — this validates the UX before investing in native. Could consider a PWA as an intermediate step (service worker, manifest, installable). React Native or Flutter would allow code sharing. Requires a public API (F-013).",
+      "dependencies": ["F-013"],
+      "risks": [
+        "Massive development effort — effectively a second frontend",
+        "App store approval and maintenance overhead",
+        "Requires public API to exist first"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v2.0+. SPA must be mobile-responsive first. Consider PWA as intermediate step."
+        }
+      ]
+    },
+    {
+      "id": "F-010",
+      "title": "Email verification",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "S",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Require users to verify their email address after registration before accessing full functionality.",
+      "user_stories": [
+        "As an admin, I want users to verify their email so I know accounts are legitimate",
+        "As a user, I want to recover my account via email if I forget my password"
+      ],
+      "requirements": [
+        "Verification email sent on registration",
+        "Verification link with signed URL and expiry",
+        "Resend verification email option",
+        "Restrict certain actions until verified (optional)"
+      ],
+      "acceptance_criteria": [
+        "New users receive a verification email within 1 minute",
+        "Clicking the link verifies the account",
+        "Expired links can be resent",
+        "Verified status shown in user profile"
+      ],
+      "technical_notes": "Laravel has this built-in (MustVerifyEmail contract, verification routes). Minimal code effort. Main blocker is email infrastructure — need a mail provider configured on Forge (Mailgun, SES, Postmark). Shares infra dependency with F-001 (notifications).",
+      "dependencies": [],
+      "risks": [
+        "Requires email delivery infrastructure",
+        "Could friction the registration flow for a personal use app"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Not needed for personal use. Implement when spam accounts become an issue."
+        }
+      ]
+    },
+    {
+      "id": "F-011",
+      "title": "SEO (meta tags, OG images, sitemap)",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "S",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Add proper SEO meta tags, Open Graph images, Twitter Cards, and a sitemap for search engine visibility and social sharing.",
+      "user_stories": [
+        "As a user, I want anime pages to show a rich preview when I share links on Discord/Twitter",
+        "As an admin, I want anime pages to be indexable by search engines"
+      ],
+      "requirements": [
+        "Dynamic meta tags (title, description) on anime detail pages",
+        "Open Graph and Twitter Card meta tags with cover images",
+        "XML sitemap generated for all anime pages",
+        "robots.txt configuration",
+        "Structured data (JSON-LD) for anime entries"
+      ],
+      "acceptance_criteria": [
+        "Sharing an anime link on Discord/Twitter shows title, image, and description",
+        "Google Search Console shows pages being indexed",
+        "Sitemap is accessible and auto-updates with new anime"
+      ],
+      "technical_notes": "Inertia.js supports SSR for SEO, but adds Node server complexity. Alternative: use Inertia's Head component for meta tags (works for social crawlers that execute JS). Sitemap can be generated via a scheduled artisan command. OG images could use AniList cover images directly.",
+      "dependencies": [],
+      "risks": [
+        "Inertia SPA may not be crawled well without SSR",
+        "OG image generation adds complexity if not using AniList images directly"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Personal use first. Implement when sharing publicly matters."
+        }
+      ]
+    },
+    {
+      "id": "F-012",
+      "title": "Monitoring (Sentry, uptime checks)",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "S",
+      "target_version": "v1.1",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Add error tracking (Sentry), uptime monitoring, and performance monitoring to catch issues proactively.",
+      "user_stories": [
+        "As an admin, I want to be alerted when errors occur in production so I can fix them quickly",
+        "As an admin, I want to know if the site goes down before users tell me"
+      ],
+      "requirements": [
+        "Sentry integration for PHP and JS error tracking",
+        "Uptime monitoring with alerting (UptimeRobot, Oh Dear, or similar)",
+        "Performance monitoring (slow queries, slow requests)",
+        "Alert notifications via email or Slack"
+      ],
+      "acceptance_criteria": [
+        "Unhandled exceptions appear in Sentry within 1 minute",
+        "Downtime triggers an alert within 5 minutes",
+        "Slow queries (>1s) are logged and trackable"
+      ],
+      "technical_notes": "Sentry has a free tier and official Laravel SDK. Forge has built-in server monitoring. Could also use Laravel Telescope for local debugging. Quick wins: Sentry SDK install + .env config, UptimeRobot free tier for HTTP checks.",
+      "dependencies": [],
+      "risks": [
+        "Sentry free tier has event limits",
+        "Alert fatigue if thresholds are too sensitive"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.1. Add when reliability matters at scale. Quick to implement when needed."
+        }
+      ]
+    },
+    {
+      "id": "F-013",
+      "title": "Public API",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "L",
+      "target_version": "v2.0",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Expose a public REST or GraphQL API for third-party integrations, mobile apps, and browser extensions.",
+      "user_stories": [
+        "As a developer, I want an API to build integrations with AniTrack",
+        "As a user, I want browser extensions or mobile apps to interact with my list"
+      ],
+      "requirements": [
+        "Versioned REST API (v1) with JSON responses",
+        "API authentication (API keys or OAuth2 tokens)",
+        "Rate limiting per API key",
+        "API documentation (OpenAPI/Swagger)",
+        "Endpoints for: anime catalog, search, user list CRUD"
+      ],
+      "acceptance_criteria": [
+        "API docs are accessible and accurate",
+        "Third-party clients can authenticate and query anime data",
+        "Rate limiting prevents abuse",
+        "API versioning allows non-breaking evolution"
+      ],
+      "technical_notes": "Currently using Inertia.js (no separate API routes). Would need dedicated API routes in routes/api.php with Sanctum token auth. Laravel has built-in rate limiting, API Resources already exist. Could generate OpenAPI docs from code annotations.",
+      "dependencies": [],
+      "risks": [
+        "Maintenance burden of API backwards compatibility",
+        "Security surface area increases significantly",
+        "Rate limiting and abuse prevention complexity"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v2.0. Needs rate limiting, docs, versioning. No current external consumers."
+        }
+      ]
+    },
+    {
+      "id": "F-014",
+      "title": "i18n / multi-language support",
+      "status": "deferred",
+      "priority": "low",
+      "effort": "L",
+      "target_version": "v1.2",
+      "proposed_date": "2026-03-05",
+      "updated_date": "2026-03-05",
+      "proposer": "pm",
+      "summary": "Internationalize the UI to support multiple languages, starting with English as default and adding community translations.",
+      "user_stories": [
+        "As a non-English-speaking user, I want to use AniTrack in my native language",
+        "As an admin, I want the app to be translatable without code changes"
+      ],
+      "requirements": [
+        "Extract all UI strings to translation files (Laravel lang + Vue i18n)",
+        "Language switcher in UI",
+        "Persist language preference per user",
+        "RTL support for Arabic/Hebrew (if applicable)",
+        "Anime titles already have romaji/english/native — surface native titles based on language"
+      ],
+      "acceptance_criteria": [
+        "All UI text is translatable via language files",
+        "User can switch language and it persists across sessions",
+        "Missing translations fall back to English"
+      ],
+      "technical_notes": "Laravel has built-in localization. Vue i18n (vue-i18n) for frontend strings. Biggest effort is extracting all hardcoded strings. Anime titles already store romaji, english, and native variants — could auto-select based on user language. Community translation via Crowdin or similar.",
+      "dependencies": [],
+      "risks": [
+        "String extraction is tedious and error-prone",
+        "RTL layouts require significant CSS adjustments",
+        "Translation quality without professional translators"
+      ],
+      "decision_log": [
+        {
+          "date": "2026-03-05",
+          "decision": "Deferred to v1.2. English-only for launch. Extract strings early if possible to reduce future effort."
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "last_updated": "2026-03-05",
+    "total_features": 14,
+    "next_id": 15
+  }
+}

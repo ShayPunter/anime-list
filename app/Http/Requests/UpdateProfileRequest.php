@@ -21,6 +21,14 @@ class UpdateProfileRequest extends FormRequest
                 'max:255',
                 Rule::unique('users')->ignore($this->user()->id),
             ],
+            'username' => [
+                'required',
+                'string',
+                'min:3',
+                'max:30',
+                'regex:/^[a-zA-Z0-9_-]+$/',
+                Rule::unique('users')->ignore($this->user()->id),
+            ],
             'email' => [
                 'required',
                 'email',
@@ -30,6 +38,7 @@ class UpdateProfileRequest extends FormRequest
             'bio' => ['nullable', 'string', 'max:1000'],
             'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'avatar_url' => ['nullable', 'url:https', 'max:2048'],
+            'list_is_public' => ['sometimes', 'boolean'],
         ];
     }
 }

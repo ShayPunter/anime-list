@@ -4,6 +4,7 @@ import { LIST_STATUS_LABELS } from '@/types'
 
 defineProps<{
     entries: ListEntryResource[]
+    readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -59,6 +60,7 @@ function displayTitle(entry: ListEntryResource): string {
 
             <!-- Edit button -->
             <button
+                v-if="!readonly"
                 class="absolute top-1 right-1 rounded bg-gray-900/80 p-1 text-gray-400 opacity-0 group-hover:opacity-100 transition hover:text-gray-200"
                 @click.stop="emit('edit', entry)"
             >

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserProfileResource;
 use App\Models\User;
+use App\Services\UserListService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,6 +31,26 @@ class ProfileController extends Controller
             'stats' => $stats,
             'avg_score' => $scoreData?->avg_score ? round($scoreData->avg_score / 10, 2) : null,
             'episodes_watched' => $episodesWatched,
+        ]);
+    }
+
+    public function list(User $user, UserListService $listService): Response
+    {
+        if (! $user->list_is_public) {
+            return Inertia::render('PublicListPage', [
+                'profile' => new UserProfileResource($user),
+                'is_public' => false,
+                'entries' => [],
+                'counts' => (object) [],
+            ]);
+        }
+
+        $data = $listService->getPublicListForPage($user);
+
+        return Inertia::render('PublicListPage', [
+            'profile' => new UserProfileResource($user),
+            'is_public' => true,
+            ...$data,
         ]);
     }
 }

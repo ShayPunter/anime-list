@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import { useListMutations } from '@/composables/useListMutations'
 import type { AnimeCard, ListEntryResource, ListStatus } from '@/types'
 import { LIST_STATUS_LABELS } from '@/types'
@@ -17,7 +18,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     close: []
-    saved: []
+    saved: [entry: ListEntryResource]
     deleted: []
 }>()
 
@@ -33,6 +34,7 @@ const completedAt = ref<string>(props.entry?.completed_at ?? '')
 const notes = ref<string>(props.entry?.notes ?? '')
 const showNotes = ref(!!props.entry?.notes)
 
+const toast = useToast()
 const { storeMutation, updateMutation, destroyMutation } = useListMutations()
 
 const saving = computed(() => storeMutation.isPending.value || updateMutation.isPending.value)
@@ -48,15 +50,24 @@ function save() {
         notes: notes.value || null,
     }
 
+    const onError = () => {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to save. Please try again.',
+            life: 4000,
+        })
+    }
+
     if (props.entry) {
         updateMutation.mutate(
             { id: props.entry.id, ...payload },
-            { onSuccess: () => emit('saved') },
+            { onSuccess: (data) => emit('saved', data), onError },
         )
     } else {
         storeMutation.mutate(
             { anime_id: props.anime.id, ...payload },
-            { onSuccess: () => emit('saved') },
+            { onSuccess: (data) => emit('saved', data), onError },
         )
     }
 }
@@ -65,6 +76,14 @@ function remove() {
     if (!props.entry) return
     destroyMutation.mutate(props.entry.id, {
         onSuccess: () => emit('deleted'),
+        onError: () => {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to remove. Please try again.',
+                life: 4000,
+            })
+        },
     })
 }
 

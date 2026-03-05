@@ -29,8 +29,30 @@ class UserListService
         ];
     }
 
+    public function getPublicListForPage(User $user): array
+    {
+        $entries = $user->animeList()
+            ->where('is_private', false)
+            ->with(['anime:id,title_romaji,title_english,format,episodes,cover_image_medium,cover_image_color,average_score,status as anime_status'])
+            ->with(['anime.genres'])
+            ->get();
+
+        $counts = $user->animeList()
+            ->where('is_private', false)
+            ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        return [
+            'entries' => ListEntryResource::collection($entries),
+            'counts' => $counts,
+        ];
+    }
+
     public function store(User $user, array $data): UserAnimeList
     {
+        $data['score'] = $data['score'] ?? 0;
         $entry = $user->animeList()->create($data);
         $entry->load('anime');
 
@@ -39,6 +61,9 @@ class UserListService
 
     public function update(UserAnimeList $entry, array $data): UserAnimeList
     {
+        if (array_key_exists('score', $data)) {
+            $data['score'] = $data['score'] ?? 0;
+        }
         $entry->update($data);
         $entry->load('anime');
 

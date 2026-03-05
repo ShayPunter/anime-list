@@ -22,3 +22,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# pnpm content-addressable store
+.pnpm-store
+
+# Docker volumes
+/docker/volumes
+
+# Compass / Claude artifacts
+compass_artifact_*

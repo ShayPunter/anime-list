@@ -8,6 +8,7 @@ import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
+import ToggleSwitch from 'primevue/toggleswitch'
 
 defineOptions({ layout: AppLayout })
 
@@ -20,10 +21,12 @@ const user = computed(() => page.props.auth.user)
 
 const profileForm = useForm({
     name: user.value.name,
+    username: user.value.username,
     email: user.value.email,
     bio: user.value.bio ?? '',
     timezone: user.value.timezone,
     avatar_url: user.value.avatar_url ?? '',
+    list_is_public: user.value.list_is_public ?? false,
 })
 
 const passwordForm = useForm({
@@ -81,6 +84,19 @@ const timezoneOptions = computed(() =>
                 </div>
 
                 <div>
+                    <label class="block text-sm text-gray-400 mb-1">Username</label>
+                    <InputText
+                        v-model="profileForm.username"
+                        class="w-full"
+                        :invalid="!!profileForm.errors.username"
+                    />
+                    <p class="text-gray-500 text-xs mt-1">Your profile URL: /user/{{ profileForm.username || '...' }}</p>
+                    <p v-if="profileForm.errors.username" class="text-red-400 text-sm mt-1">
+                        {{ profileForm.errors.username }}
+                    </p>
+                </div>
+
+                <div>
                     <label class="block text-sm text-gray-400 mb-1">Email</label>
                     <InputText
                         v-model="profileForm.email"
@@ -133,6 +149,11 @@ const timezoneOptions = computed(() =>
                     <p v-if="profileForm.errors.avatar_url" class="text-red-400 text-sm mt-1">
                         {{ profileForm.errors.avatar_url }}
                     </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <ToggleSwitch v-model="profileForm.list_is_public" />
+                    <label class="text-sm text-gray-400">Make my anime list public</label>
                 </div>
 
                 <Button

@@ -27,7 +27,8 @@ Route::get('/search', fn () => Inertia::render('SearchPage'))->name('search');
 Route::get('/api/search', SearchController::class)->middleware('throttle:api')->name('api.search');
 
 // Public profile
-Route::get('/user/{user:name}', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/user/{user:username}/list', [ProfileController::class, 'list'])->name('profile.list');
+Route::get('/user/{user:username}', [ProfileController::class, 'show'])->name('profile.show');
 
 // Guest-only (auth)
 Route::middleware('guest')->group(function () {

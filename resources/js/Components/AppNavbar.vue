@@ -48,7 +48,7 @@ function handleLogout() {
                             class="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-xl py-1"
                         >
                             <Link
-                                :href="route('profile.show', { user: user.name })"
+                                :href="route('profile.show', { user: user.username })"
                                 class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-gray-100"
                             >
                                 Profile

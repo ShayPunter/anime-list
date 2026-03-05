@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import type { AnimeCard, ListEntryResource } from '@/types'
 import { LIST_STATUS_LABELS } from '@/types'
 import ListEntryModal from '@/Components/ListEntryModal.vue'
@@ -10,17 +11,31 @@ const props = defineProps<{
     initialEntry: ListEntryResource | null
 }>()
 
+const toast = useToast()
 const showModal = ref(false)
 const currentEntry = ref<ListEntryResource | null>(props.initialEntry)
 
-function onSaved() {
+function onSaved(entry: ListEntryResource) {
     showModal.value = false
-    // The page will be refreshed by Inertia query invalidation
+    const isNew = !currentEntry.value
+    currentEntry.value = entry
+    toast.add({
+        severity: 'success',
+        summary: isNew ? 'Added to List' : 'List Updated',
+        detail: `${props.anime.title_english || props.anime.title_romaji} — ${LIST_STATUS_LABELS[entry.status]}`,
+        life: 3000,
+    })
 }
 
 function onDeleted() {
     showModal.value = false
     currentEntry.value = null
+    toast.add({
+        severity: 'info',
+        summary: 'Removed from List',
+        detail: props.anime.title_english || props.anime.title_romaji,
+        life: 3000,
+    })
 }
 </script>
 

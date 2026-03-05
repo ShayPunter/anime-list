@@ -38,14 +38,16 @@ function seasonLabel(season: string): string {
     <Head :title="isAuthenticated ? 'Dashboard' : 'Home'" />
 
     <div class="space-y-10">
-        <!-- Landing: Hero search (anonymous only) -->
+        <!-- Landing: Welcome text (anonymous only) -->
         <section v-if="!isAuthenticated" class="py-8 text-center">
             <h1 class="mb-2 text-4xl font-bold text-gray-100">Welcome to AniTrack</h1>
             <p class="mb-6 text-gray-400">Discover and track your favorite anime.</p>
-            <div class="mx-auto max-w-lg">
-                <SearchBar />
-            </div>
         </section>
+
+        <!-- Search bar (always visible) -->
+        <div class="mx-auto max-w-lg">
+            <SearchBar />
+        </div>
 
         <!-- Dashboard: Stats + personalized sections (authenticated only) -->
         <template v-if="isAuthenticated && stats">

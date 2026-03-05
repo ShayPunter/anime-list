@@ -12,9 +12,11 @@ class UserProfileResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'username' => $this->username,
             'avatar_url' => $this->avatar_url,
             'bio' => $this->bio,
             'timezone' => $this->timezone,
+            'list_is_public' => (bool) $this->list_is_public,
             'created_at' => $this->created_at->toISOString(),
         ];
     }
