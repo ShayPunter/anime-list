@@ -45,7 +45,7 @@ function animeUrl(anime: AnimeCard): string {
                 <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">
                     <img
                         v-if="item.cover_image_large || item.cover_image_medium"
-                        :src="item.cover_image_large || item.cover_image_medium"
+                        :src="(item.cover_image_large || item.cover_image_medium) ?? undefined"
                         :alt="displayTitle(item)"
                         class="h-full w-full object-cover transition-transform group-hover:scale-105"
                         loading="lazy"

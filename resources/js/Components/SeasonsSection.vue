@@ -32,7 +32,7 @@ function displayTitle(entry: SeasonEntry): string {
                 >
                     <img
                         v-if="season.cover_image_large || season.cover_image_medium"
-                        :src="season.cover_image_large || season.cover_image_medium"
+                        :src="(season.cover_image_large || season.cover_image_medium) ?? undefined"
                         :alt="displayTitle(season)"
                         class="h-full w-full object-cover transition-transform group-hover:scale-105"
                         loading="lazy"

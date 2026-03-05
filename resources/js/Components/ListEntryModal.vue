@@ -66,7 +66,7 @@ function save() {
         )
     } else {
         storeMutation.mutate(
-            { anime_id: props.anime.id, ...payload },
+            { anime_id: props.anime.id!, ...payload },
             { onSuccess: (data) => emit('saved', data), onError },
         )
     }

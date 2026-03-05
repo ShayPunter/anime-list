@@ -34,7 +34,7 @@ function progressPercent(entry: ListEntryResource): number {
                 <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">
                     <img
                         v-if="entry.anime?.cover_image_large || entry.anime?.cover_image_medium"
-                        :src="entry.anime.cover_image_large || entry.anime.cover_image_medium"
+                        :src="(entry.anime.cover_image_large || entry.anime.cover_image_medium) ?? undefined"
                         :alt="displayTitle(entry)"
                         class="h-full w-full object-cover transition-transform group-hover:scale-105"
                         loading="lazy"

@@ -100,7 +100,7 @@ const showMobileFilters = ref(false)
                 >
                     <AnimeCard
                         v-for="item in anime.data"
-                        :key="item.id"
+                        :key="item.id ?? item.anilist_id"
                         :anime="item"
                         :view-mode="viewMode"
                     />

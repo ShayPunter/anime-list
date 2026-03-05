@@ -44,7 +44,7 @@ onMounted(() => {
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 <AnimeCard
                     v-for="anime in results"
-                    :key="anime.id"
+                    :key="anime.id ?? anime.anilist_id"
                     :anime="anime"
                     view-mode="grid"
                 />
