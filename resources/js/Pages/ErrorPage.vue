@@ -8,6 +8,7 @@ const props = defineProps<{
 const titles: Record<number, string> = {
     403: 'Forbidden',
     404: 'Not Found',
+    419: 'Session Expired',
     500: 'Server Error',
     503: 'Service Unavailable',
 }
@@ -15,6 +16,7 @@ const titles: Record<number, string> = {
 const descriptions: Record<number, string> = {
     403: 'You don\'t have permission to access this page.',
     404: 'The page you\'re looking for doesn\'t exist.',
+    419: 'Your session has expired. Please refresh the page and try again.',
     500: 'Something went wrong on our end. Please try again later.',
     503: 'We\'re currently undergoing maintenance. Please check back soon.',
 }
