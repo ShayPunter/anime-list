@@ -1,0 +1,36 @@
+import { computed, ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import axios from 'axios'
+import { useDebounce } from './useDebounce'
+import type { SearchResponse } from '@/types'
+
+export function useAnimeSearch() {
+    const query = ref('')
+    const debouncedQuery = useDebounce(query, 300)
+
+    const enabled = computed(() => debouncedQuery.value.length >= 2)
+
+    const { data, isLoading, isError } = useQuery<SearchResponse>({
+        queryKey: ['anime-search', debouncedQuery],
+        queryFn: async () => {
+            const { data } = await axios.get<SearchResponse>('/api/search', {
+                params: { q: debouncedQuery.value },
+            })
+            return data
+        },
+        enabled,
+        staleTime: 15 * 60 * 1000,
+    })
+
+    const results = computed(() => data.value?.data ?? [])
+    const total = computed(() => data.value?.total ?? 0)
+
+    return {
+        query,
+        debouncedQuery,
+        results,
+        total,
+        isLoading,
+        isError,
+    }
+}

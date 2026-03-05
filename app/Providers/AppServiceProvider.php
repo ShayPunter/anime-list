@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Providers;
+
+use App\Services\AniListClient;
+use GuzzleHttp\Client;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->app->singleton(AniListClient::class, function ($app) {
+            $guzzle = new Client([
+                'base_uri' => config('anilist.endpoint'),
+                'timeout' => config('anilist.http.timeout'),
+                'connect_timeout' => config('anilist.http.connect_timeout'),
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            return new AniListClient(
+                http: $guzzle,
+                requestsPerMinute: config('anilist.rate_limit.requests_per_minute'),
+                maxRetries: config('anilist.retry.max_attempts'),
+                backoffBase: config('anilist.retry.backoff_base_seconds'),
+                rateLimitBackoff: config('anilist.retry.rate_limit_backoff_seconds'),
+                storeRawResponses: config('anilist.sync.store_raw_responses'),
+            );
+        });
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        JsonResource::withoutWrapping();
+
+        ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
+            return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
+        });
+
+        RateLimiter::for('auth', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip()),
+            Limit::perMinute(5)->by($request->string('email')->lower()->toString()),
+        ]);
+
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
+    }
+}

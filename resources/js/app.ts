@@ -1,0 +1,42 @@
+import { createApp, h, type DefineComponent } from 'vue'
+import { createInertiaApp, Link, Head } from '@inertiajs/vue3'
+import { createPinia } from 'pinia'
+import { VueQueryPlugin } from '@tanstack/vue-query'
+import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
+import Aura from '@primevue/themes/aura'
+import { ZiggyVue } from 'ziggy-js'
+import '../css/app.css'
+
+createInertiaApp({
+    resolve: (name) => {
+        const pages = import.meta.glob<DefineComponent>('./Pages/**/*.vue')
+        const page = pages[`./Pages/${name}.vue`]
+        if (!page) throw new Error(`Page not found: ${name}`)
+        return page()
+    },
+    setup({ el, App, props, plugin }) {
+        const app = createApp({ render: () => h(App, props) })
+
+        app.use(plugin)
+        app.use(ZiggyVue)
+        app.use(createPinia())
+        app.use(VueQueryPlugin)
+        app.use(PrimeVue, {
+            unstyled: false,
+            theme: {
+                preset: Aura,
+                options: {
+                    darkModeSelector: '.dark',
+                },
+            },
+        })
+
+        app.use(ToastService)
+
+        app.component('Link', Link)
+        app.component('Head', Head)
+
+        app.mount(el)
+    },
+})

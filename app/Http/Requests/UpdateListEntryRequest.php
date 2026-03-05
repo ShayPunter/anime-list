@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\UserAnimeList;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateListEntryRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        $entry = $this->route('entry');
+
+        return $entry instanceof \App\Models\UserAnimeList
+            && $this->user()?->id === $entry->user_id;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'status' => ['sometimes', 'string', Rule::in(UserAnimeList::STATUSES)],
+            'score' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'progress' => ['nullable', 'integer', 'min:0'],
+            'started_at' => ['nullable', 'date'],
+            'completed_at' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'is_private' => ['boolean'],
+            'is_rewatching' => ['boolean'],
+            'rewatch_count' => ['nullable', 'integer', 'min:0'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'max:50'],
+        ];
+    }
+}
