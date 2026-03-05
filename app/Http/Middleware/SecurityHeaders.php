@@ -11,6 +11,11 @@ class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Horizon serves its own assets; skip CSP for its routes
+        if ($request->is('horizon*')) {
+            return $next($request);
+        }
+
         $nonce = base64_encode(random_bytes(16));
         app()->instance('csp-nonce', $nonce);
         Vite::useCspNonce($nonce);
