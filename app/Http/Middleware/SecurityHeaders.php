@@ -4,12 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $nonce = base64_encode(random_bytes(16));
+        app()->instance('csp-nonce', $nonce);
+        Vite::useCspNonce($nonce);
+
         $response = $next($request);
 
         $response->headers->set('X-Frame-Options', 'DENY');
@@ -20,8 +25,8 @@ class SecurityHeaders
         $isLocal = app()->environment('local');
 
         $scriptSrc = $isLocal
-            ? "script-src 'self' http://localhost:5173 'unsafe-inline'; "
-            : "script-src 'self'; ";
+            ? "script-src 'self' http://localhost:5173 'unsafe-inline' 'nonce-{$nonce}'; "
+            : "script-src 'self' 'nonce-{$nonce}'; ";
 
         $connectSrc = $isLocal
             ? "connect-src 'self' ws://localhost:5173; "
