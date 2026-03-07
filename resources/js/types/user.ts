@@ -6,6 +6,7 @@ export interface User {
     avatar_url: string | null
     bio: string | null
     timezone: string
+    is_admin: boolean
     list_is_public: boolean
 }
 

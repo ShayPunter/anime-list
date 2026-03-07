@@ -23,6 +23,7 @@ class User extends Authenticatable
         'timezone',
         'mal_id',
         'mal_username',
+        'is_admin',
         'list_is_public',
     ];
 
@@ -39,6 +40,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'mal_token_expires_at' => 'datetime',
+            'is_admin' => 'boolean',
             'list_is_public' => 'boolean',
         ];
     }

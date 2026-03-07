@@ -3,6 +3,8 @@
 use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\TopAnimeController;
@@ -61,4 +63,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+
+// Admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users');
+    Route::patch('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });

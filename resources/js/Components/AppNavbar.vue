@@ -60,6 +60,13 @@ function handleLogout() {
                             >
                                 Settings
                             </Link>
+                            <Link
+                                v-if="user.is_admin"
+                                :href="route('admin.dashboard')"
+                                class="block px-4 py-2 text-sm text-primary-400 hover:bg-gray-800 hover:text-primary-300"
+                            >
+                                Admin
+                            </Link>
                             <hr class="border-gray-700 my-1" />
                             <button
                                 class="block w-full text-left px-4 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-100"

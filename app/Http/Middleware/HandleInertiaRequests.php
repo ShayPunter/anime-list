@@ -27,6 +27,7 @@ class HandleInertiaRequests extends Middleware
                     'avatar_url' => $request->user()->avatar_url,
                     'bio' => $request->user()->bio,
                     'timezone' => $request->user()->timezone,
+                    'is_admin' => (bool) $request->user()->is_admin,
                     'list_is_public' => (bool) $request->user()->list_is_public,
                 ] : null,
             ],
