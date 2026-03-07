@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import ToggleSwitch from 'primevue/toggleswitch'
 import ListStatusTabs from '@/Components/ListStatusTabs.vue'
 import ListTableView from '@/Components/ListTableView.vue'
 import ListCardView from '@/Components/ListCardView.vue'
@@ -63,6 +65,29 @@ const filteredEntries = computed(() => {
     })
 })
 
+const page = usePage<{ auth: { user: import('@/types').User } }>()
+const user = computed(() => page.props.auth.user)
+const publicUrl = computed(() => {
+    if (!user.value?.list_is_public || !user.value?.username) return null
+    return `${window.location.origin}/user/${user.value.username}/list`
+})
+
+const listIsPublic = ref(user.value?.list_is_public ?? false)
+
+function togglePublic() {
+    router.patch(route('settings.profile'), {
+        list_is_public: listIsPublic.value,
+    }, { preserveState: true, preserveScroll: true })
+}
+
+const copied = ref(false)
+function copyUrl() {
+    if (!publicUrl.value) return
+    navigator.clipboard.writeText(publicUrl.value)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+}
+
 const { updateMutation, destroyMutation } = useListMutations()
 
 function handleUpdate(id: number, patch: Record<string, unknown>) {
@@ -94,7 +119,25 @@ const sortOptions = [
     <div class="space-y-4">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold">My Anime List</h1>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <ToggleSwitch v-model="listIsPublic" @update:model-value="togglePublic" />
+                    <span class="text-sm text-gray-400">Public</span>
+                </div>
+                <button
+                    v-if="publicUrl"
+                    class="flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-sm transition hover:border-gray-600 hover:bg-gray-750"
+                    :class="copied ? 'text-green-400' : 'text-gray-300'"
+                    @click="copyUrl"
+                >
+                    <svg v-if="!copied" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    {{ copied ? 'Copied!' : 'Share' }}
+                </button>
                 <a
                     :href="route('list.export')"
                     class="text-sm text-gray-400 hover:text-gray-200 transition"
