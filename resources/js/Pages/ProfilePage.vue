@@ -31,7 +31,13 @@ const totalEntries = computed(() => {
 </script>
 
 <template>
-    <Head :title="profile.name" />
+    <Head :title="profile.name">
+        <meta property="og:title" :content="`${profile.name}'s Profile — AniTrack`" />
+        <meta property="og:description" :content="profile.bio || `Check out ${profile.name}'s anime profile on AniTrack.`" />
+        <meta v-if="profile.avatar_url" property="og:image" :content="profile.avatar_url" />
+        <meta property="og:type" content="profile" />
+        <meta name="twitter:card" content="summary" />
+    </Head>
     <div class="max-w-4xl mx-auto">
         <!-- Profile Header -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-6">

@@ -71,7 +71,13 @@ const sortOptions = [
 </script>
 
 <template>
-    <Head :title="`${profile.name}'s Anime List`" />
+    <Head :title="`${profile.name}'s Anime List`">
+        <meta property="og:title" :content="`${profile.name}'s Anime List — AniTrack`" />
+        <meta property="og:description" :content="`Browse ${profile.name}'s anime list on AniTrack.`" />
+        <meta v-if="profile.avatar_url" property="og:image" :content="profile.avatar_url" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+    </Head>
     <div class="space-y-4">
         <!-- Private list message -->
         <div v-if="!is_public" class="max-w-4xl mx-auto text-center py-16">

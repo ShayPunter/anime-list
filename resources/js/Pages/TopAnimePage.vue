@@ -31,7 +31,12 @@ function animeUrl(anime: AnimeCard): string {
 </script>
 
 <template>
-    <Head :title="metric === 'rated' ? 'Top Rated Anime' : 'Most Popular Anime'" />
+    <Head :title="metric === 'rated' ? 'Top Rated Anime' : 'Most Popular Anime'">
+        <meta property="og:title" :content="metric === 'rated' ? 'Top 100 Rated Anime — AniTrack' : 'Top 100 Most Popular Anime — AniTrack'" />
+        <meta property="og:description" :content="metric === 'rated' ? 'The highest rated anime of all time.' : 'The most popular anime of all time.'" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+    </Head>
 
     <div class="mx-auto max-w-5xl space-y-6">
         <h1 class="text-3xl font-bold text-gray-100 text-center">Top 100 Anime</h1>

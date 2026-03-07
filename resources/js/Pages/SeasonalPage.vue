@@ -24,7 +24,12 @@ function formatLabel(format: string): string {
 </script>
 
 <template>
-    <Head :title="`${seasonLabel(season)} ${year} Anime`" />
+    <Head :title="`${seasonLabel(season)} ${year} Anime`">
+        <meta property="og:title" :content="`${seasonLabel(season)} ${year} Anime — AniTrack`" />
+        <meta property="og:description" :content="`Browse all anime airing in ${seasonLabel(season)} ${year}.`" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+    </Head>
 
     <div class="space-y-8">
         <div class="flex flex-col items-center gap-4">

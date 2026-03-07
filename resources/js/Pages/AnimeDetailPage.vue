@@ -13,10 +13,18 @@ import type { ListEntryResource, User } from '@/types'
 
 defineOptions({ layout: AppLayout })
 
+interface OgMeta {
+    title: string
+    description: string
+    image: string | null
+    url: string
+}
+
 const props = defineProps<{
     anime: AnimeDetail
     list_entry: ListEntryResource | null
     seasons: SeasonEntry[]
+    og: OgMeta
 }>()
 
 const page = usePage<{ auth: { user: User | null } }>()
@@ -80,7 +88,17 @@ function embedUrl(url: string): string | null {
 </script>
 
 <template>
-    <Head :title="displayTitle(anime)" />
+    <Head :title="displayTitle(anime)">
+        <meta property="og:title" :content="og.title" />
+        <meta property="og:description" :content="og.description" />
+        <meta v-if="og.image" property="og:image" :content="og.image" />
+        <meta property="og:url" :content="og.url" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="og.title" />
+        <meta name="twitter:description" :content="og.description" />
+        <meta v-if="og.image" name="twitter:image" :content="og.image" />
+    </Head>
 
     <div>
         <!-- Banner -->

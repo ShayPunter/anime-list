@@ -105,10 +105,22 @@ class AnimeController extends Controller
                 ->first();
         }
 
+        $title = $model->title_english ?: $model->title_romaji;
+        $description = $model->synopsis
+            ? \Illuminate\Support\Str::limit(strip_tags($model->synopsis), 200)
+            : "View {$title} on AniTrack";
+        $image = $model->cover_image_large ?: $model->cover_image_medium;
+
         return Inertia::render('AnimeDetailPage', [
             'anime' => (new AnimeResource($model))->resolve(),
             'list_entry' => $listEntry ? (new ListEntryResource($listEntry))->resolve() : null,
             'seasons' => $this->getSeasonChain($model),
+            'og' => [
+                'title' => $title,
+                'description' => $description,
+                'image' => $image,
+                'url' => route('anime.show', $model->id),
+            ],
         ]);
     }
 

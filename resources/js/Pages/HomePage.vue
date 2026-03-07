@@ -36,7 +36,12 @@ function seasonLabel(season: string): string {
 </script>
 
 <template>
-    <Head :title="isAuthenticated ? 'Dashboard' : 'Home'" />
+    <Head :title="isAuthenticated ? 'Dashboard' : 'Home'">
+        <meta property="og:title" content="AniTrack — Discover and track your favorite anime" />
+        <meta property="og:description" content="Track your anime watching progress, discover new shows, and share your list with friends." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+    </Head>
 
     <div class="space-y-10">
         <!-- Landing: Welcome text (anonymous only) -->
