@@ -37,6 +37,8 @@ Route::get('/anime/{anime:slug}', [AnimeController::class, 'show'])->name('anime
 Route::get('/seasonal', [SeasonalController::class, 'index'])->name('seasonal');
 Route::get('/schedule', ScheduleController::class)->name('schedule');
 Route::get('/search', fn () => Inertia::render('SearchPage'))->name('search');
+Route::get('/terms', fn () => Inertia::render('TermsPage'))->name('terms');
+Route::get('/privacy', fn () => Inertia::render('PrivacyPage'))->name('privacy');
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
 Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
 

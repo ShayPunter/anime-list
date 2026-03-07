@@ -32,6 +32,8 @@ class SitemapController extends Controller
         $urls[] = $this->url(route('search'), 'weekly', '0.5');
         $urls[] = $this->url(route('top.rated'), 'daily', '0.8');
         $urls[] = $this->url(route('top.popular'), 'daily', '0.8');
+        $urls[] = $this->url(route('terms'), 'monthly', '0.3');
+        $urls[] = $this->url(route('privacy'), 'monthly', '0.3');
 
         // Anime pages
         Anime::query()

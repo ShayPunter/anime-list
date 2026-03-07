@@ -13,6 +13,7 @@ createServer((page) =>
     createInertiaApp({
         page,
         render: renderToString,
+        title: (title) => title ? `${title} — AniTrack` : 'AniTrack',
         resolve: (name) => {
             const pages = import.meta.glob<DefineComponent>('./Pages/**/*.vue', { eager: true })
             return pages[`./Pages/${name}.vue`]

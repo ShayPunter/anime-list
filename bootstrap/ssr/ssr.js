@@ -19,7 +19,7 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Aura from "@primevue/themes/aura";
-const _sfc_main$H = /* @__PURE__ */ defineComponent({
+const _sfc_main$K = /* @__PURE__ */ defineComponent({
   __name: "UserAvatar",
   __ssrInlineRender: true,
   props: {
@@ -66,13 +66,13 @@ const _sfc_main$H = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$H = _sfc_main$H.setup;
-_sfc_main$H.setup = (props, ctx) => {
+const _sfc_setup$K = _sfc_main$K.setup;
+_sfc_main$K.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/UserAvatar.vue");
-  return _sfc_setup$H ? _sfc_setup$H(props, ctx) : void 0;
+  return _sfc_setup$K ? _sfc_setup$K(props, ctx) : void 0;
 };
-const _sfc_main$G = /* @__PURE__ */ defineComponent({
+const _sfc_main$J = /* @__PURE__ */ defineComponent({
   __name: "AppNavbar",
   __ssrInlineRender: true,
   props: {
@@ -179,7 +179,7 @@ const _sfc_main$G = /* @__PURE__ */ defineComponent({
           _: 1
         }, _parent));
         _push(`<div class="relative"><button class="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition">`);
-        _push(ssrRenderComponent(_sfc_main$H, {
+        _push(ssrRenderComponent(_sfc_main$K, {
           name: __props.user.name,
           "avatar-url": __props.user.avatar_url,
           size: "sm"
@@ -279,12 +279,143 @@ const _sfc_main$G = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$G = _sfc_main$G.setup;
-_sfc_main$G.setup = (props, ctx) => {
+const _sfc_setup$J = _sfc_main$J.setup;
+_sfc_main$J.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppNavbar.vue");
-  return _sfc_setup$G ? _sfc_setup$G(props, ctx) : void 0;
+  return _sfc_setup$J ? _sfc_setup$J(props, ctx) : void 0;
 };
+const _export_sfc = (sfc, props) => {
+  const target = sfc.__vccOpts || sfc;
+  for (const [key, val] of props) {
+    target[key] = val;
+  }
+  return target;
+};
+const _sfc_main$I = {};
+function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
+  const _component_Link = resolveComponent("Link");
+  _push(`<footer${ssrRenderAttrs(mergeProps({ class: "mt-16 border-t border-gray-800 bg-gray-950" }, _attrs))}><div class="container mx-auto px-4 py-10"><div class="grid grid-cols-1 gap-8 sm:grid-cols-3"><div><h3 class="mb-3 text-sm font-semibold text-gray-300">Navigate</h3><ul class="space-y-2 text-sm"><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("home"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Home`);
+      } else {
+        return [
+          createTextVNode("Home")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("anime.index"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Browse Anime`);
+      } else {
+        return [
+          createTextVNode("Browse Anime")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("seasonal"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Seasonal`);
+      } else {
+        return [
+          createTextVNode("Seasonal")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("schedule"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Schedule`);
+      } else {
+        return [
+          createTextVNode("Schedule")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("top.rated"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Top Anime`);
+      } else {
+        return [
+          createTextVNode("Top Anime")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li></ul></div><div><h3 class="mb-3 text-sm font-semibold text-gray-300">Legal</h3><ul class="space-y-2 text-sm"><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("terms"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Terms of Service`);
+      } else {
+        return [
+          createTextVNode("Terms of Service")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li>`);
+  _push(ssrRenderComponent(_component_Link, {
+    href: _ctx.route("privacy"),
+    class: "text-gray-500 transition hover:text-gray-200"
+  }, {
+    default: withCtx((_2, _push2, _parent2, _scopeId) => {
+      if (_push2) {
+        _push2(`Privacy Policy`);
+      } else {
+        return [
+          createTextVNode("Privacy Policy")
+        ];
+      }
+    }),
+    _: 1
+  }, _parent));
+  _push(`</li><li><a href="/sitemap.xml" class="text-gray-500 transition hover:text-gray-200">Sitemap</a></li></ul></div><div><h3 class="mb-3 text-sm font-semibold text-gray-300">AniTrack</h3><p class="text-sm text-gray-500"> Track your anime, discover new shows, and share your list with friends. </p><p class="mt-2 text-xs text-gray-600"> Anime data provided by <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-gray-500 transition hover:text-gray-200">AniList</a>. </p></div></div><div class="mt-8 border-t border-gray-800/50 pt-6 text-center text-xs text-gray-600"> © ${ssrInterpolate((/* @__PURE__ */ new Date()).getFullYear())} AniTrack </div></div></footer>`);
+}
+const _sfc_setup$I = _sfc_main$I.setup;
+_sfc_main$I.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppFooter.vue");
+  return _sfc_setup$I ? _sfc_setup$I(props, ctx) : void 0;
+};
+const AppFooter = /* @__PURE__ */ _export_sfc(_sfc_main$I, [["ssrRender", _sfc_ssrRender]]);
 function useFlashToast() {
   const page = usePage();
   const toast = useToast();
@@ -309,7 +440,7 @@ function useFlashToast() {
   );
   onUnmounted(stop);
 }
-const _sfc_main$F = /* @__PURE__ */ defineComponent({
+const _sfc_main$H = /* @__PURE__ */ defineComponent({
   __name: "AppLayout",
   __ssrInlineRender: true,
   setup(__props) {
@@ -319,26 +450,27 @@ const _sfc_main$F = /* @__PURE__ */ defineComponent({
     useFlashToast();
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "min-h-screen bg-gray-950 text-gray-100 dark" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$G, {
+      _push(ssrRenderComponent(_sfc_main$J, {
         user: user.value,
         "is-authenticated": isAuthenticated.value
       }, null, _parent));
       _push(`<main class="container mx-auto px-4 py-6">`);
       ssrRenderSlot(_ctx.$slots, "default", {}, null, _push, _parent);
       _push(`</main>`);
+      _push(ssrRenderComponent(AppFooter, null, null, _parent));
       _push(ssrRenderComponent(unref(Toast), { position: "top-right" }, null, _parent));
       _push(`</div>`);
     };
   }
 });
-const _sfc_setup$F = _sfc_main$F.setup;
-_sfc_main$F.setup = (props, ctx) => {
+const _sfc_setup$H = _sfc_main$H.setup;
+_sfc_main$H.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/AppLayout.vue");
-  return _sfc_setup$F ? _sfc_setup$F(props, ctx) : void 0;
+  return _sfc_setup$H ? _sfc_setup$H(props, ctx) : void 0;
 };
-const _sfc_main$E = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$G = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "DashboardPage",
   __ssrInlineRender: true,
   props: {
@@ -395,17 +527,17 @@ const _sfc_main$E = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$E = _sfc_main$E.setup;
-_sfc_main$E.setup = (props, ctx) => {
+const _sfc_setup$G = _sfc_main$G.setup;
+_sfc_main$G.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/DashboardPage.vue");
-  return _sfc_setup$E ? _sfc_setup$E(props, ctx) : void 0;
+  return _sfc_setup$G ? _sfc_setup$G(props, ctx) : void 0;
 };
 const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$E
+  default: _sfc_main$G
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$D = /* @__PURE__ */ defineComponent({
+const _sfc_main$F = /* @__PURE__ */ defineComponent({
   __name: "PaginationBar",
   __ssrInlineRender: true,
   props: {
@@ -459,14 +591,14 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$D = _sfc_main$D.setup;
-_sfc_main$D.setup = (props, ctx) => {
+const _sfc_setup$F = _sfc_main$F.setup;
+_sfc_main$F.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/PaginationBar.vue");
-  return _sfc_setup$D ? _sfc_setup$D(props, ctx) : void 0;
+  return _sfc_setup$F ? _sfc_setup$F(props, ctx) : void 0;
 };
-const _sfc_main$C = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$E = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "UsersPage",
   __ssrInlineRender: true,
   props: {
@@ -518,7 +650,7 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
       _push(`</div><input${ssrRenderAttr("value", search.value)} type="text" placeholder="Search by name, email, or username..." class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><div class="overflow-x-auto rounded-xl border border-gray-800"><table class="w-full"><thead class="border-b border-gray-800 bg-gray-900"><tr><th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">Email</th><th class="hidden px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-400 sm:table-cell">Anime</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">Joined</th><th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th></tr></thead><tbody class="divide-y divide-gray-800"><!--[-->`);
       ssrRenderList(__props.users.data, (user) => {
         _push(`<tr class="bg-gray-950 transition hover:bg-gray-900"><td class="px-4 py-3"><div class="flex items-center gap-3">`);
-        _push(ssrRenderComponent(_sfc_main$H, {
+        _push(ssrRenderComponent(_sfc_main$K, {
           name: user.name,
           "avatar-url": user.avatar_url,
           size: "sm"
@@ -538,7 +670,7 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
         _push(`</div></td></tr>`);
       });
       _push(`<!--]--></tbody></table></div>`);
-      _push(ssrRenderComponent(_sfc_main$D, {
+      _push(ssrRenderComponent(_sfc_main$F, {
         "current-page": __props.users.meta.current_page,
         "last-page": __props.users.meta.last_page,
         total: __props.users.meta.total
@@ -547,17 +679,17 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$C = _sfc_main$C.setup;
-_sfc_main$C.setup = (props, ctx) => {
+const _sfc_setup$E = _sfc_main$E.setup;
+_sfc_main$E.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/UsersPage.vue");
-  return _sfc_setup$C ? _sfc_setup$C(props, ctx) : void 0;
+  return _sfc_setup$E ? _sfc_setup$E(props, ctx) : void 0;
 };
 const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$C
+  default: _sfc_main$E
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$B = /* @__PURE__ */ defineComponent({
+const _sfc_main$D = /* @__PURE__ */ defineComponent({
   __name: "ScoreBadge",
   __ssrInlineRender: true,
   props: {
@@ -589,13 +721,13 @@ const _sfc_main$B = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$B = _sfc_main$B.setup;
-_sfc_main$B.setup = (props, ctx) => {
+const _sfc_setup$D = _sfc_main$D.setup;
+_sfc_main$D.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ScoreBadge.vue");
-  return _sfc_setup$B ? _sfc_setup$B(props, ctx) : void 0;
+  return _sfc_setup$D ? _sfc_setup$D(props, ctx) : void 0;
 };
-const _sfc_main$A = /* @__PURE__ */ defineComponent({
+const _sfc_main$C = /* @__PURE__ */ defineComponent({
   __name: "GenreBadge",
   __ssrInlineRender: true,
   props: {
@@ -622,13 +754,13 @@ const _sfc_main$A = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$A = _sfc_main$A.setup;
-_sfc_main$A.setup = (props, ctx) => {
+const _sfc_setup$C = _sfc_main$C.setup;
+_sfc_main$C.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/GenreBadge.vue");
-  return _sfc_setup$A ? _sfc_setup$A(props, ctx) : void 0;
+  return _sfc_setup$C ? _sfc_setup$C(props, ctx) : void 0;
 };
-const _sfc_main$z = /* @__PURE__ */ defineComponent({
+const _sfc_main$B = /* @__PURE__ */ defineComponent({
   __name: "SeasonsSection",
   __ssrInlineRender: true,
   props: {
@@ -657,7 +789,7 @@ const _sfc_main$z = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}><div class="flex items-center justify-between"${_scopeId}><span class="rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-semibold text-gray-200"${_scopeId}> S${ssrInterpolate(index + 1)}</span>`);
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: season.average_score,
                   size: "sm"
                 }, null, _parent2, _scopeId));
@@ -688,7 +820,7 @@ const _sfc_main$z = /* @__PURE__ */ defineComponent({
                     createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
                       createVNode("div", { class: "flex items-center justify-between" }, [
                         createVNode("span", { class: "rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-semibold text-gray-200" }, " S" + toDisplayString(index + 1), 1),
-                        createVNode(_sfc_main$B, {
+                        createVNode(_sfc_main$D, {
                           score: season.average_score,
                           size: "sm"
                         }, null, 8, ["score"])
@@ -723,13 +855,13 @@ const _sfc_main$z = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$z = _sfc_main$z.setup;
-_sfc_main$z.setup = (props, ctx) => {
+const _sfc_setup$B = _sfc_main$B.setup;
+_sfc_main$B.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SeasonsSection.vue");
-  return _sfc_setup$z ? _sfc_setup$z(props, ctx) : void 0;
+  return _sfc_setup$B ? _sfc_setup$B(props, ctx) : void 0;
 };
-const _sfc_main$y = /* @__PURE__ */ defineComponent({
+const _sfc_main$A = /* @__PURE__ */ defineComponent({
   __name: "RelatedAnimeRow",
   __ssrInlineRender: true,
   props: {
@@ -784,11 +916,11 @@ const _sfc_main$y = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$y = _sfc_main$y.setup;
-_sfc_main$y.setup = (props, ctx) => {
+const _sfc_setup$A = _sfc_main$A.setup;
+_sfc_main$A.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/RelatedAnimeRow.vue");
-  return _sfc_setup$y ? _sfc_setup$y(props, ctx) : void 0;
+  return _sfc_setup$A ? _sfc_setup$A(props, ctx) : void 0;
 };
 let refCount = 0;
 let intervalId = null;
@@ -856,7 +988,7 @@ function useCountdown() {
   }
   return { now, formatCountdown, formatLocalTime, formatLocalDate };
 }
-const _sfc_main$x = /* @__PURE__ */ defineComponent({
+const _sfc_main$z = /* @__PURE__ */ defineComponent({
   __name: "AiringScheduleTable",
   __ssrInlineRender: true,
   props: {
@@ -877,11 +1009,11 @@ const _sfc_main$x = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$x = _sfc_main$x.setup;
-_sfc_main$x.setup = (props, ctx) => {
+const _sfc_setup$z = _sfc_main$z.setup;
+_sfc_main$z.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AiringScheduleTable.vue");
-  return _sfc_setup$x ? _sfc_setup$x(props, ctx) : void 0;
+  return _sfc_setup$z ? _sfc_setup$z(props, ctx) : void 0;
 };
 const LIST_STATUS_LABELS = {
   watching: "Watching",
@@ -924,7 +1056,7 @@ function useListMutations() {
     destroyMutation
   };
 }
-const _sfc_main$w = /* @__PURE__ */ defineComponent({
+const _sfc_main$y = /* @__PURE__ */ defineComponent({
   __name: "ListEntryModal",
   __ssrInlineRender: true,
   props: {
@@ -1198,13 +1330,13 @@ const _sfc_main$w = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$w = _sfc_main$w.setup;
-_sfc_main$w.setup = (props, ctx) => {
+const _sfc_setup$y = _sfc_main$y.setup;
+_sfc_main$y.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListEntryModal.vue");
-  return _sfc_setup$w ? _sfc_setup$w(props, ctx) : void 0;
+  return _sfc_setup$y ? _sfc_setup$y(props, ctx) : void 0;
 };
-const _sfc_main$v = /* @__PURE__ */ defineComponent({
+const _sfc_main$x = /* @__PURE__ */ defineComponent({
   __name: "AddToListButton",
   __ssrInlineRender: true,
   props: {
@@ -1249,7 +1381,7 @@ const _sfc_main$v = /* @__PURE__ */ defineComponent({
         _push(`<button class="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition flex items-center justify-between"><span>${ssrInterpolate(unref(LIST_STATUS_LABELS)[currentEntry.value.status])}</span><svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`);
       }
       if (showModal.value) {
-        _push(ssrRenderComponent(_sfc_main$w, {
+        _push(ssrRenderComponent(_sfc_main$y, {
           anime: __props.anime,
           entry: currentEntry.value,
           onClose: ($event) => showModal.value = false,
@@ -1263,14 +1395,14 @@ const _sfc_main$v = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$v = _sfc_main$v.setup;
-_sfc_main$v.setup = (props, ctx) => {
+const _sfc_setup$x = _sfc_main$x.setup;
+_sfc_main$x.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AddToListButton.vue");
-  return _sfc_setup$v ? _sfc_setup$v(props, ctx) : void 0;
+  return _sfc_setup$x ? _sfc_setup$x(props, ctx) : void 0;
 };
-const _sfc_main$u = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$w = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "AnimeDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -1419,7 +1551,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
       _push(`</div>`);
       if (isAuthenticated.value) {
         _push(`<div class="mt-4">`);
-        _push(ssrRenderComponent(_sfc_main$v, {
+        _push(ssrRenderComponent(_sfc_main$x, {
           anime: __props.anime,
           "initial-entry": __props.list_entry
         }, null, _parent));
@@ -1445,7 +1577,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
         _push(`<!---->`);
       }
       _push(`</div><div class="rounded-lg border border-gray-800 p-3 space-y-2"><div class="flex items-center justify-between"><span class="text-gray-500">Score</span>`);
-      _push(ssrRenderComponent(_sfc_main$B, {
+      _push(ssrRenderComponent(_sfc_main$D, {
         score: __props.anime.average_score
       }, null, _parent));
       _push(`</div>`);
@@ -1498,7 +1630,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
       if (__props.anime.genres?.length) {
         _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
         ssrRenderList(__props.anime.genres, (genre) => {
-          _push(ssrRenderComponent(_sfc_main$A, {
+          _push(ssrRenderComponent(_sfc_main$C, {
             key: genre.id,
             name: genre.name
           }, null, _parent));
@@ -1507,7 +1639,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$z, { seasons: __props.seasons }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$B, { seasons: __props.seasons }, null, _parent));
       if (__props.anime.synopsis) {
         _push(`<div class="prose prose-invert max-w-none"><div>${__props.anime.synopsis ?? ""}</div></div>`);
       } else {
@@ -1518,27 +1650,27 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$y, {
+      _push(ssrRenderComponent(_sfc_main$A, {
         relations: __props.anime.relations ?? []
       }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$x, {
+      _push(ssrRenderComponent(_sfc_main$z, {
         schedules: __props.anime.airing_schedules ?? []
       }, null, _parent));
       _push(`</div></div></div><!--]-->`);
     };
   }
 });
-const _sfc_setup$u = _sfc_main$u.setup;
-_sfc_main$u.setup = (props, ctx) => {
+const _sfc_setup$w = _sfc_main$w.setup;
+_sfc_main$w.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeDetailPage.vue");
-  return _sfc_setup$u ? _sfc_setup$u(props, ctx) : void 0;
+  return _sfc_setup$w ? _sfc_setup$w(props, ctx) : void 0;
 };
 const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$u
+  default: _sfc_main$w
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$t = /* @__PURE__ */ defineComponent({
+const _sfc_main$v = /* @__PURE__ */ defineComponent({
   __name: "AnimeCard",
   __ssrInlineRender: true,
   props: {
@@ -1584,7 +1716,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
                 _push2(`<div class="flex h-full items-center justify-center text-gray-600"${_scopeId}><span class="text-4xl"${_scopeId}>?</span></div>`);
               }
               _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}>`);
-              _push2(ssrRenderComponent(_sfc_main$B, {
+              _push2(ssrRenderComponent(_sfc_main$D, {
                 score: __props.anime.average_score,
                 size: "sm"
               }, null, _parent2, _scopeId));
@@ -1629,13 +1761,13 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
               } else {
                 _push2(`<!---->`);
               }
-              _push2(ssrRenderComponent(_sfc_main$B, {
+              _push2(ssrRenderComponent(_sfc_main$D, {
                 score: __props.anime.average_score,
                 size: "sm"
               }, null, _parent2, _scopeId));
               _push2(`</div><div class="flex flex-wrap gap-1"${_scopeId}><!--[-->`);
               ssrRenderList(__props.anime.genres.slice(0, 3), (genre) => {
-                _push2(ssrRenderComponent(_sfc_main$A, {
+                _push2(ssrRenderComponent(_sfc_main$C, {
                   key: genre.id,
                   name: genre.name
                 }, null, _parent2, _scopeId));
@@ -1662,7 +1794,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
                     createVNode("span", { class: "text-4xl" }, "?")
                   ])),
                   createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
-                    createVNode(_sfc_main$B, {
+                    createVNode(_sfc_main$D, {
                       score: __props.anime.average_score,
                       size: "sm"
                     }, null, 8, ["score"])
@@ -1700,14 +1832,14 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
                   createVNode("div", { class: "flex items-center gap-2 text-xs text-gray-500" }, [
                     __props.anime.format ? (openBlock(), createBlock("span", { key: 0 }, toDisplayString(formatLabel(__props.anime.format)), 1)) : createCommentVNode("", true),
                     __props.anime.episodes ? (openBlock(), createBlock("span", { key: 1 }, toDisplayString(episodeText(__props.anime)), 1)) : createCommentVNode("", true),
-                    createVNode(_sfc_main$B, {
+                    createVNode(_sfc_main$D, {
                       score: __props.anime.average_score,
                       size: "sm"
                     }, null, 8, ["score"])
                   ]),
                   createVNode("div", { class: "flex flex-wrap gap-1" }, [
                     (openBlock(true), createBlock(Fragment, null, renderList(__props.anime.genres.slice(0, 3), (genre) => {
-                      return openBlock(), createBlock(_sfc_main$A, {
+                      return openBlock(), createBlock(_sfc_main$C, {
                         key: genre.id,
                         name: genre.name
                       }, null, 8, ["name"]);
@@ -1723,13 +1855,13 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$t = _sfc_main$t.setup;
-_sfc_main$t.setup = (props, ctx) => {
+const _sfc_setup$v = _sfc_main$v.setup;
+_sfc_main$v.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AnimeCard.vue");
-  return _sfc_setup$t ? _sfc_setup$t(props, ctx) : void 0;
+  return _sfc_setup$v ? _sfc_setup$v(props, ctx) : void 0;
 };
-const _sfc_main$s = /* @__PURE__ */ defineComponent({
+const _sfc_main$u = /* @__PURE__ */ defineComponent({
   __name: "FilterSidebar",
   __ssrInlineRender: true,
   props: {
@@ -1845,13 +1977,13 @@ const _sfc_main$s = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$s = _sfc_main$s.setup;
-_sfc_main$s.setup = (props, ctx) => {
+const _sfc_setup$u = _sfc_main$u.setup;
+_sfc_main$u.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FilterSidebar.vue");
-  return _sfc_setup$s ? _sfc_setup$s(props, ctx) : void 0;
+  return _sfc_setup$u ? _sfc_setup$u(props, ctx) : void 0;
 };
-const _sfc_main$r = /* @__PURE__ */ defineComponent({
+const _sfc_main$t = /* @__PURE__ */ defineComponent({
   __name: "SortBar",
   __ssrInlineRender: true,
   props: {
@@ -1885,11 +2017,11 @@ const _sfc_main$r = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$r = _sfc_main$r.setup;
-_sfc_main$r.setup = (props, ctx) => {
+const _sfc_setup$t = _sfc_main$t.setup;
+_sfc_main$t.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SortBar.vue");
-  return _sfc_setup$r ? _sfc_setup$r(props, ctx) : void 0;
+  return _sfc_setup$t ? _sfc_setup$t(props, ctx) : void 0;
 };
 function useBrowseFilters() {
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
@@ -1936,8 +2068,8 @@ function useBrowseFilters() {
     hasActiveFilters
   };
 }
-const _sfc_main$q = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$s = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "AnimeIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -1987,7 +2119,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="flex gap-6"><aside class="hidden w-56 shrink-0 lg:block"><div class="sticky top-20"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">Filters</h2>`);
-      _push(ssrRenderComponent(_sfc_main$s, {
+      _push(ssrRenderComponent(_sfc_main$u, {
         filters: unref(filters),
         genres: __props.genres,
         studios: __props.studios,
@@ -1998,7 +2130,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
       _push(`</div></aside><div class="min-w-0 flex-1"><button class="mb-4 rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-400 lg:hidden"> Filters </button>`);
       if (showMobileFilters.value) {
         _push(`<div class="mb-4 rounded-lg border border-gray-800 p-4 lg:hidden">`);
-        _push(ssrRenderComponent(_sfc_main$s, {
+        _push(ssrRenderComponent(_sfc_main$u, {
           filters: unref(filters),
           genres: __props.genres,
           studios: __props.studios,
@@ -2010,7 +2142,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$r, {
+      _push(ssrRenderComponent(_sfc_main$t, {
         sort: unref(filters).sort,
         total: __props.anime.meta.total,
         "view-mode": viewMode.value,
@@ -2021,7 +2153,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
       if (__props.anime.data.length) {
         _push(`<div class="${ssrRenderClass(viewMode.value === "grid" ? "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" : "space-y-3")}"><!--[-->`);
         ssrRenderList(__props.anime.data, (item) => {
-          _push(ssrRenderComponent(_sfc_main$t, {
+          _push(ssrRenderComponent(_sfc_main$v, {
             key: item.id ?? item.anilist_id,
             anime: item,
             "view-mode": viewMode.value
@@ -2032,7 +2164,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
         _push(`<div class="py-16 text-center"><p class="text-gray-500">No anime found matching your filters.</p><button class="mt-2 text-sm text-primary-400 hover:text-primary-300"> Clear all filters </button></div>`);
       }
       _push(`</div><div class="mt-8">`);
-      _push(ssrRenderComponent(_sfc_main$D, {
+      _push(ssrRenderComponent(_sfc_main$F, {
         "current-page": __props.anime.meta.current_page,
         "last-page": __props.anime.meta.last_page,
         total: __props.anime.meta.total
@@ -2041,17 +2173,17 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$q = _sfc_main$q.setup;
-_sfc_main$q.setup = (props, ctx) => {
+const _sfc_setup$s = _sfc_main$s.setup;
+_sfc_main$s.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeIndexPage.vue");
-  return _sfc_setup$q ? _sfc_setup$q(props, ctx) : void 0;
+  return _sfc_setup$s ? _sfc_setup$s(props, ctx) : void 0;
 };
 const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$q
+  default: _sfc_main$s
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$p = /* @__PURE__ */ defineComponent({
+const _sfc_main$r = /* @__PURE__ */ defineComponent({
   ...{ layout: false },
   __name: "ErrorPage",
   __ssrInlineRender: true,
@@ -2083,17 +2215,17 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$p = _sfc_main$p.setup;
-_sfc_main$p.setup = (props, ctx) => {
+const _sfc_setup$r = _sfc_main$r.setup;
+_sfc_main$r.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ErrorPage.vue");
-  return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
+  return _sfc_setup$r ? _sfc_setup$r(props, ctx) : void 0;
 };
 const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$p
+  default: _sfc_main$r
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$o = /* @__PURE__ */ defineComponent({
+const _sfc_main$q = /* @__PURE__ */ defineComponent({
   __name: "AnimeHeroSection",
   __ssrInlineRender: true,
   props: {
@@ -2153,7 +2285,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}>`);
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: item.average_score,
                   size: "sm"
                 }, null, _parent2, _scopeId));
@@ -2169,7 +2301,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
                       loading: "lazy"
                     }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
                     createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
-                      createVNode(_sfc_main$B, {
+                      createVNode(_sfc_main$D, {
                         score: item.average_score,
                         size: "sm"
                       }, null, 8, ["score"])
@@ -2189,11 +2321,11 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$o = _sfc_main$o.setup;
-_sfc_main$o.setup = (props, ctx) => {
+const _sfc_setup$q = _sfc_main$q.setup;
+_sfc_main$q.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AnimeHeroSection.vue");
-  return _sfc_setup$o ? _sfc_setup$o(props, ctx) : void 0;
+  return _sfc_setup$q ? _sfc_setup$q(props, ctx) : void 0;
 };
 function useDebounce(source, delay = 300) {
   const debounced = ref(source.value);
@@ -2233,7 +2365,7 @@ function useAnimeSearch() {
     isError
   };
 }
-const _sfc_main$n = /* @__PURE__ */ defineComponent({
+const _sfc_main$p = /* @__PURE__ */ defineComponent({
   __name: "SearchBar",
   __ssrInlineRender: true,
   setup(__props) {
@@ -2350,13 +2482,13 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$n = _sfc_main$n.setup;
-_sfc_main$n.setup = (props, ctx) => {
+const _sfc_setup$p = _sfc_main$p.setup;
+_sfc_main$p.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SearchBar.vue");
-  return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
+  return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
 };
-const _sfc_main$m = /* @__PURE__ */ defineComponent({
+const _sfc_main$o = /* @__PURE__ */ defineComponent({
   __name: "DashboardStatsBar",
   __ssrInlineRender: true,
   props: {
@@ -2371,13 +2503,13 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$m = _sfc_main$m.setup;
-_sfc_main$m.setup = (props, ctx) => {
+const _sfc_setup$o = _sfc_main$o.setup;
+_sfc_main$o.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/DashboardStatsBar.vue");
-  return _sfc_setup$m ? _sfc_setup$m(props, ctx) : void 0;
+  return _sfc_setup$o ? _sfc_setup$o(props, ctx) : void 0;
 };
-const _sfc_main$l = /* @__PURE__ */ defineComponent({
+const _sfc_main$n = /* @__PURE__ */ defineComponent({
   __name: "ContinueWatchingRow",
   __ssrInlineRender: true,
   props: {
@@ -2463,13 +2595,13 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$l = _sfc_main$l.setup;
-_sfc_main$l.setup = (props, ctx) => {
+const _sfc_setup$n = _sfc_main$n.setup;
+_sfc_main$n.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ContinueWatchingRow.vue");
-  return _sfc_setup$l ? _sfc_setup$l(props, ctx) : void 0;
+  return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
 };
-const _sfc_main$k = /* @__PURE__ */ defineComponent({
+const _sfc_main$m = /* @__PURE__ */ defineComponent({
   __name: "AiringTodaySection",
   __ssrInlineRender: true,
   props: {
@@ -2519,7 +2651,7 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><p class="line-clamp-1 text-sm font-medium text-gray-200 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(slot))}</p><p class="mt-0.5 text-xs text-gray-500"${_scopeId}> Episode ${ssrInterpolate(slot.episode)} · ${ssrInterpolate(unref(formatLocalTime)(slot.airs_at, timezone.value))}</p><p class="text-xs font-semibold text-primary-400"${_scopeId}>${ssrInterpolate(unref(formatCountdown)(slot.airs_at))}</p></div>`);
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: slot.anime.average_score,
                   size: "sm"
                 }, null, _parent2, _scopeId));
@@ -2539,7 +2671,7 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
                     createVNode("p", { class: "mt-0.5 text-xs text-gray-500" }, " Episode " + toDisplayString(slot.episode) + " · " + toDisplayString(unref(formatLocalTime)(slot.airs_at, timezone.value)), 1),
                     createVNode("p", { class: "text-xs font-semibold text-primary-400" }, toDisplayString(unref(formatCountdown)(slot.airs_at)), 1)
                   ]),
-                  createVNode(_sfc_main$B, {
+                  createVNode(_sfc_main$D, {
                     score: slot.anime.average_score,
                     size: "sm"
                   }, null, 8, ["score"])
@@ -2556,14 +2688,14 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$k = _sfc_main$k.setup;
-_sfc_main$k.setup = (props, ctx) => {
+const _sfc_setup$m = _sfc_main$m.setup;
+_sfc_main$m.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AiringTodaySection.vue");
-  return _sfc_setup$k ? _sfc_setup$k(props, ctx) : void 0;
+  return _sfc_setup$m ? _sfc_setup$m(props, ctx) : void 0;
 };
-const _sfc_main$j = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$l = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "HomePage",
   __ssrInlineRender: true,
   props: {
@@ -2628,23 +2760,23 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
         _push(`<!---->`);
       }
       _push(`<div class="mx-auto max-w-lg">`);
-      _push(ssrRenderComponent(_sfc_main$n, null, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$p, null, null, _parent));
       _push(`</div>`);
       if (__props.isAuthenticated && __props.stats) {
         _push(`<!--[-->`);
-        _push(ssrRenderComponent(_sfc_main$m, {
+        _push(ssrRenderComponent(_sfc_main$o, {
           "total-anime": __props.stats.totalAnime,
           "episodes-watched": __props.stats.episodesWatched,
           "avg-score": __props.stats.avgScore,
           "watching-count": __props.stats.watchingCount
         }, null, _parent));
         if (__props.airingToday && __props.airingToday.length) {
-          _push(ssrRenderComponent(_sfc_main$k, { slots: __props.airingToday }, null, _parent));
+          _push(ssrRenderComponent(_sfc_main$m, { slots: __props.airingToday }, null, _parent));
         } else {
           _push(`<!---->`);
         }
         if (__props.continueWatching && __props.continueWatching.length) {
-          _push(ssrRenderComponent(_sfc_main$l, { entries: __props.continueWatching }, null, _parent));
+          _push(ssrRenderComponent(_sfc_main$n, { entries: __props.continueWatching }, null, _parent));
         } else {
           _push(`<!---->`);
         }
@@ -2652,18 +2784,18 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$o, {
+      _push(ssrRenderComponent(_sfc_main$q, {
         anime: __props.seasonalShowcase,
         title: `${seasonLabel(__props.currentSeason)} ${__props.currentYear} Anime`,
         "see-all-route": _ctx.route("seasonal", { year: __props.currentYear, season: __props.currentSeason.toLowerCase() })
       }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$o, {
+      _push(ssrRenderComponent(_sfc_main$q, {
         anime: __props.airingNow,
         title: "Currently Airing",
         "see-all-route": _ctx.route("anime.index", { "filter[status]": "RELEASING", sort: "-popularity" })
       }, null, _parent));
       if (__props.topRated.length) {
-        _push(ssrRenderComponent(_sfc_main$o, {
+        _push(ssrRenderComponent(_sfc_main$q, {
           anime: __props.topRated,
           title: "Top Rated",
           "see-all-route": _ctx.route("top.rated")
@@ -2675,17 +2807,17 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$j = _sfc_main$j.setup;
-_sfc_main$j.setup = (props, ctx) => {
+const _sfc_setup$l = _sfc_main$l.setup;
+_sfc_main$l.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/HomePage.vue");
-  return _sfc_setup$j ? _sfc_setup$j(props, ctx) : void 0;
+  return _sfc_setup$l ? _sfc_setup$l(props, ctx) : void 0;
 };
 const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$j
+  default: _sfc_main$l
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$i = /* @__PURE__ */ defineComponent({
+const _sfc_main$k = /* @__PURE__ */ defineComponent({
   __name: "ImportWizard",
   __ssrInlineRender: true,
   setup(__props) {
@@ -2834,14 +2966,14 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$i = _sfc_main$i.setup;
-_sfc_main$i.setup = (props, ctx) => {
+const _sfc_setup$k = _sfc_main$k.setup;
+_sfc_main$k.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ImportWizard.vue");
-  return _sfc_setup$i ? _sfc_setup$i(props, ctx) : void 0;
+  return _sfc_setup$k ? _sfc_setup$k(props, ctx) : void 0;
 };
-const _sfc_main$h = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$j = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "ImportPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -2850,23 +2982,23 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "Import from MAL" }, null, _parent));
       _push(`<div><h1 class="text-2xl font-bold mb-6">Import from MAL</h1>`);
-      _push(ssrRenderComponent(_sfc_main$i, null, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$k, null, null, _parent));
       _push(`</div><!--]-->`);
     };
   }
 });
-const _sfc_setup$h = _sfc_main$h.setup;
-_sfc_main$h.setup = (props, ctx) => {
+const _sfc_setup$j = _sfc_main$j.setup;
+_sfc_main$j.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ImportPage.vue");
-  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
+  return _sfc_setup$j ? _sfc_setup$j(props, ctx) : void 0;
 };
 const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$h
+  default: _sfc_main$j
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$i = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "LoginPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -2911,17 +3043,17 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$g = _sfc_main$g.setup;
-_sfc_main$g.setup = (props, ctx) => {
+const _sfc_setup$i = _sfc_main$i.setup;
+_sfc_main$i.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/LoginPage.vue");
-  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
+  return _sfc_setup$i ? _sfc_setup$i(props, ctx) : void 0;
 };
 const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$g
+  default: _sfc_main$i
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$f = /* @__PURE__ */ defineComponent({
+const _sfc_main$h = /* @__PURE__ */ defineComponent({
   __name: "ListStatusTabs",
   __ssrInlineRender: true,
   props: {
@@ -2949,13 +3081,13 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$f = _sfc_main$f.setup;
-_sfc_main$f.setup = (props, ctx) => {
+const _sfc_setup$h = _sfc_main$h.setup;
+_sfc_main$h.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListStatusTabs.vue");
-  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
+  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
 };
-const _sfc_main$e = /* @__PURE__ */ defineComponent({
+const _sfc_main$g = /* @__PURE__ */ defineComponent({
   __name: "ListTableView",
   __ssrInlineRender: true,
   props: {
@@ -3039,13 +3171,13 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$e = _sfc_main$e.setup;
-_sfc_main$e.setup = (props, ctx) => {
+const _sfc_setup$g = _sfc_main$g.setup;
+_sfc_main$g.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListTableView.vue");
-  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
+  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
 };
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
+const _sfc_main$f = /* @__PURE__ */ defineComponent({
   __name: "ListCardView",
   __ssrInlineRender: true,
   props: {
@@ -3120,13 +3252,13 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$d = _sfc_main$d.setup;
-_sfc_main$d.setup = (props, ctx) => {
+const _sfc_setup$f = _sfc_main$f.setup;
+_sfc_main$f.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCardView.vue");
-  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
+  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
 };
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
+const _sfc_main$e = /* @__PURE__ */ defineComponent({
   __name: "ListCompactView",
   __ssrInlineRender: true,
   props: {
@@ -3197,14 +3329,14 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$c = _sfc_main$c.setup;
-_sfc_main$c.setup = (props, ctx) => {
+const _sfc_setup$e = _sfc_main$e.setup;
+_sfc_main$e.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCompactView.vue");
-  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
+  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
 };
-const _sfc_main$b = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "MyListPage",
   __ssrInlineRender: true,
   props: {
@@ -3323,7 +3455,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`</div></div>`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$h, {
         "active-status": activeStatus.value,
         counts: __props.counts,
         onChange: ($event) => activeStatus.value = $event
@@ -3338,25 +3470,25 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
       });
       _push(`<!--]--></div></div>`);
       if (viewMode.value === "table") {
-        _push(ssrRenderComponent(_sfc_main$e, {
+        _push(ssrRenderComponent(_sfc_main$g, {
           entries: filteredEntries.value,
           onUpdate: handleUpdate,
           onDelete: handleDelete,
           onEdit: openEdit
         }, null, _parent));
       } else if (viewMode.value === "card") {
-        _push(ssrRenderComponent(_sfc_main$d, {
+        _push(ssrRenderComponent(_sfc_main$f, {
           entries: filteredEntries.value,
           onEdit: openEdit
         }, null, _parent));
       } else {
-        _push(ssrRenderComponent(_sfc_main$c, {
+        _push(ssrRenderComponent(_sfc_main$e, {
           entries: filteredEntries.value,
           onUpdate: handleUpdate
         }, null, _parent));
       }
       if (showEditModal.value && editingEntry.value?.anime) {
-        _push(ssrRenderComponent(_sfc_main$w, {
+        _push(ssrRenderComponent(_sfc_main$y, {
           anime: editingEntry.value.anime,
           entry: editingEntry.value,
           onClose: ($event) => showEditModal.value = false,
@@ -3370,18 +3502,18 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$b = _sfc_main$b.setup;
-_sfc_main$b.setup = (props, ctx) => {
+const _sfc_setup$d = _sfc_main$d.setup;
+_sfc_main$d.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/MyListPage.vue");
-  return _sfc_setup$b ? _sfc_setup$b(props, ctx) : void 0;
+  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
 };
 const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$b
+  default: _sfc_main$d
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "NotFoundPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3410,18 +3542,59 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$a = _sfc_main$a.setup;
-_sfc_main$a.setup = (props, ctx) => {
+const _sfc_setup$c = _sfc_main$c.setup;
+_sfc_main$c.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/NotFoundPage.vue");
-  return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
+  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
 };
 const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$a
+  default: _sfc_main$c
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$b = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
+  __name: "PrivacyPage",
+  __ssrInlineRender: true,
+  setup(__props) {
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Privacy Policy" }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<meta name="description" content="AniTrack Privacy Policy."${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("privacy"))}${_scopeId}>`);
+          } else {
+            return [
+              createVNode("meta", {
+                name: "description",
+                content: "AniTrack Privacy Policy."
+              }),
+              createVNode("link", {
+                rel: "canonical",
+                href: _ctx.route("privacy")
+              }, null, 8, ["href"])
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="mx-auto max-w-3xl space-y-8 py-4"><h1 class="text-3xl font-bold">Privacy Policy</h1><p class="text-sm text-gray-500">Last updated: March 8, 2026</p><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">1. Information We Collect</h2><p class="text-gray-400 leading-relaxed">When you create an account, we collect:</p><ul class="list-disc pl-6 space-y-1 text-gray-400"><li><strong class="text-gray-300">Account information:</strong> name, email address, and password</li><li><strong class="text-gray-300">Profile information:</strong> username, bio, timezone, and avatar (optional)</li><li><strong class="text-gray-300">Anime list data:</strong> your watchlist entries, scores, progress, and notes</li></ul></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">2. How We Use Your Information</h2><p class="text-gray-400 leading-relaxed">Your information is used to:</p><ul class="list-disc pl-6 space-y-1 text-gray-400"><li>Provide and maintain the AniTrack service</li><li>Display your anime tracking data to you</li><li>Show your public profile and list to other users (if you enable sharing)</li><li>Authenticate your account and secure your data</li></ul><p class="text-gray-400 leading-relaxed"> We do not sell your personal information. We do not use your data for advertising or marketing purposes. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">3. Cookies</h2><p class="text-gray-400 leading-relaxed"> AniTrack uses essential session cookies to keep you logged in and protect against cross-site request forgery. We do not use tracking cookies, analytics cookies, or third-party advertising cookies. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">4. Third-Party Services</h2><p class="text-gray-400 leading-relaxed"> AniTrack retrieves anime information from the <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">AniList API</a>. Anime cover images are served directly from AniList&#39;s CDN. When you view anime pages, your browser may make requests to these external services. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">5. Data Retention</h2><p class="text-gray-400 leading-relaxed"> Your account data is retained for as long as your account is active. If you delete your account, your data will be soft-deleted and may be permanently removed after a reasonable retention period. Anime list entries you have deleted are soft-deleted and not immediately purged. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">6. Data Security</h2><p class="text-gray-400 leading-relaxed"> We take reasonable measures to protect your information. Passwords are hashed using industry-standard algorithms. All traffic is encrypted via HTTPS. However, no method of transmission over the internet is 100% secure. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">7. Your Rights</h2><p class="text-gray-400 leading-relaxed">You have the right to:</p><ul class="list-disc pl-6 space-y-1 text-gray-400"><li>Access your personal data through your account settings</li><li>Update or correct your information at any time</li><li>Export your anime list data</li><li>Delete your account and associated data</li><li>Make your anime list private or public</li></ul></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">8. Changes to This Policy</h2><p class="text-gray-400 leading-relaxed"> We may update this privacy policy from time to time. Continued use of the service after changes constitutes acceptance of the updated policy. We encourage you to review this page periodically. </p></section></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$b = _sfc_main$b.setup;
+_sfc_main$b.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PrivacyPage.vue");
+  return _sfc_setup$b ? _sfc_setup$b(props, ctx) : void 0;
+};
+const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$b
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$a = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "ProfilePage",
   __ssrInlineRender: true,
   props: {
@@ -3496,7 +3669,7 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="max-w-4xl mx-auto"><div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-6"><div class="flex items-center gap-6">`);
-      _push(ssrRenderComponent(_sfc_main$H, {
+      _push(ssrRenderComponent(_sfc_main$K, {
         name: __props.profile.name,
         "avatar-url": __props.profile.avatar_url,
         size: "lg"
@@ -3551,18 +3724,18 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$9 = _sfc_main$9.setup;
-_sfc_main$9.setup = (props, ctx) => {
+const _sfc_setup$a = _sfc_main$a.setup;
+_sfc_main$a.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ProfilePage.vue");
-  return _sfc_setup$9 ? _sfc_setup$9(props, ctx) : void 0;
+  return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
 };
-const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$9
+  default: _sfc_main$a
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$8 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$9 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "PublicListPage",
   __ssrInlineRender: true,
   props: {
@@ -3701,7 +3874,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
           _: 1
         }, _parent));
         _push(`&#39;s Anime List </h1></div>`);
-        _push(ssrRenderComponent(_sfc_main$f, {
+        _push(ssrRenderComponent(_sfc_main$h, {
           "active-status": activeStatus.value,
           counts: __props.counts,
           onChange: ($event) => activeStatus.value = $event
@@ -3716,17 +3889,17 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
         });
         _push(`<!--]--></div></div>`);
         if (viewMode.value === "table") {
-          _push(ssrRenderComponent(_sfc_main$e, {
+          _push(ssrRenderComponent(_sfc_main$g, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
         } else if (viewMode.value === "card") {
-          _push(ssrRenderComponent(_sfc_main$d, {
+          _push(ssrRenderComponent(_sfc_main$f, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
         } else {
-          _push(ssrRenderComponent(_sfc_main$c, {
+          _push(ssrRenderComponent(_sfc_main$e, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
@@ -3737,18 +3910,18 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$8 = _sfc_main$8.setup;
-_sfc_main$8.setup = (props, ctx) => {
+const _sfc_setup$9 = _sfc_main$9.setup;
+_sfc_main$9.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PublicListPage.vue");
-  return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
+  return _sfc_setup$9 ? _sfc_setup$9(props, ctx) : void 0;
 };
-const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$8
+  default: _sfc_main$9
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$7 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "RegisterPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3808,17 +3981,17 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$7 = _sfc_main$7.setup;
-_sfc_main$7.setup = (props, ctx) => {
+const _sfc_setup$8 = _sfc_main$8.setup;
+_sfc_main$8.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/RegisterPage.vue");
-  return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
+  return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
 };
-const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$7
+  default: _sfc_main$8
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "ScheduleDayColumn",
   __ssrInlineRender: true,
   props: {
@@ -3872,7 +4045,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><p class="line-clamp-2 text-xs font-medium text-gray-200 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(slot))}</p><p class="mt-0.5 text-[10px] text-gray-500"${_scopeId}> EP ${ssrInterpolate(slot.episode)} · ${ssrInterpolate(unref(formatLocalTime)(slot.airs_at, timezone.value))}</p><p class="text-[10px] font-medium text-primary-400"${_scopeId}>${ssrInterpolate(unref(formatCountdown)(slot.airs_at))}</p></div>`);
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: slot.anime.average_score,
                   size: "sm",
                   class: "shrink-0"
@@ -3893,7 +4066,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
                     createVNode("p", { class: "mt-0.5 text-[10px] text-gray-500" }, " EP " + toDisplayString(slot.episode) + " · " + toDisplayString(unref(formatLocalTime)(slot.airs_at, timezone.value)), 1),
                     createVNode("p", { class: "text-[10px] font-medium text-primary-400" }, toDisplayString(unref(formatCountdown)(slot.airs_at)), 1)
                   ]),
-                  createVNode(_sfc_main$B, {
+                  createVNode(_sfc_main$D, {
                     score: slot.anime.average_score,
                     size: "sm",
                     class: "shrink-0"
@@ -3912,14 +4085,14 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$6 = _sfc_main$6.setup;
-_sfc_main$6.setup = (props, ctx) => {
+const _sfc_setup$7 = _sfc_main$7.setup;
+_sfc_main$7.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ScheduleDayColumn.vue");
-  return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
+  return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "SchedulePage",
   __ssrInlineRender: true,
   props: {
@@ -3976,7 +4149,7 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
       }
       _push(`<div class="flex items-center gap-1"><button${ssrIncludeBooleanAttr(__props.weekOffset === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-sm text-gray-400 transition hover:text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"> This Week </button><button${ssrIncludeBooleanAttr(__props.weekOffset === 1) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-sm text-gray-400 transition hover:text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"> Next Week </button></div></div></div><div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7"><!--[-->`);
       ssrRenderList(orderedDays.value, (day) => {
-        _push(ssrRenderComponent(_sfc_main$6, {
+        _push(ssrRenderComponent(_sfc_main$7, {
           key: day.utcDate,
           "utc-date": day.utcDate,
           slots: __props.days[day.utcDate] ?? [],
@@ -3993,18 +4166,18 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$5 = _sfc_main$5.setup;
-_sfc_main$5.setup = (props, ctx) => {
+const _sfc_setup$6 = _sfc_main$6.setup;
+_sfc_main$6.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SchedulePage.vue");
-  return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
+  return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$5
+  default: _sfc_main$6
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$4 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "SearchPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4046,7 +4219,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       } else if (unref(results).length) {
         _push(`<div><p class="mb-4 text-sm text-gray-400">${ssrInterpolate(unref(total))} results for &quot;${ssrInterpolate(unref(query))}&quot;</p><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"><!--[-->`);
         ssrRenderList(unref(results), (anime) => {
-          _push(ssrRenderComponent(_sfc_main$t, {
+          _push(ssrRenderComponent(_sfc_main$v, {
             key: anime.id ?? anime.anilist_id,
             anime,
             "view-mode": "grid"
@@ -4060,17 +4233,17 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$4 = _sfc_main$4.setup;
-_sfc_main$4.setup = (props, ctx) => {
+const _sfc_setup$5 = _sfc_main$5.setup;
+_sfc_main$5.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SearchPage.vue");
-  return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
+  return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
 };
-const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$4
+  default: _sfc_main$5
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+const _sfc_main$4 = /* @__PURE__ */ defineComponent({
   __name: "SeasonSelector",
   __ssrInlineRender: true,
   props: {
@@ -4120,14 +4293,14 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$3 = _sfc_main$3.setup;
-_sfc_main$3.setup = (props, ctx) => {
+const _sfc_setup$4 = _sfc_main$4.setup;
+_sfc_main$4.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SeasonSelector.vue");
-  return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
+  return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
 };
-const _sfc_main$2 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "SeasonalPage",
   __ssrInlineRender: true,
   props: {
@@ -4185,7 +4358,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="space-y-8"><div class="flex flex-col items-center gap-4"><h1 class="text-3xl font-bold text-gray-100">Seasonal Anime</h1>`);
-      _push(ssrRenderComponent(_sfc_main$3, {
+      _push(ssrRenderComponent(_sfc_main$4, {
         year: __props.year,
         season: __props.season,
         "adjacent-seasons": __props.adjacentSeasons
@@ -4196,7 +4369,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
         ssrRenderList(__props.groups, (group) => {
           _push(`<section><h2 class="mb-4 text-xl font-semibold text-gray-200">${ssrInterpolate(formatLabel(group.format))} <span class="ml-2 text-sm font-normal text-gray-500">(${ssrInterpolate(group.anime.length)})</span></h2><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"><!--[-->`);
           ssrRenderList(group.anime, (anime) => {
-            _push(ssrRenderComponent(_sfc_main$t, {
+            _push(ssrRenderComponent(_sfc_main$v, {
               key: anime.id ?? anime.anilist_id,
               anime,
               "view-mode": "grid"
@@ -4212,18 +4385,18 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$2 = _sfc_main$2.setup;
-_sfc_main$2.setup = (props, ctx) => {
+const _sfc_setup$3 = _sfc_main$3.setup;
+_sfc_main$3.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SeasonalPage.vue");
-  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
+  return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$2
+  default: _sfc_main$3
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$1 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+const _sfc_main$2 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
   __name: "SettingsPage",
   __ssrInlineRender: true,
   props: {
@@ -4403,18 +4576,59 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
     };
   }
 });
+const _sfc_setup$2 = _sfc_main$2.setup;
+_sfc_main$2.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SettingsPage.vue");
+  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
+};
+const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$2
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$H },
+  __name: "TermsPage",
+  __ssrInlineRender: true,
+  setup(__props) {
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Terms of Service" }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<meta name="description" content="AniTrack Terms of Service."${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("terms"))}${_scopeId}>`);
+          } else {
+            return [
+              createVNode("meta", {
+                name: "description",
+                content: "AniTrack Terms of Service."
+              }),
+              createVNode("link", {
+                rel: "canonical",
+                href: _ctx.route("terms")
+              }, null, 8, ["href"])
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="mx-auto max-w-3xl space-y-8 py-4"><h1 class="text-3xl font-bold">Terms of Service</h1><p class="text-sm text-gray-500">Last updated: March 8, 2026</p><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">1. Acceptance of Terms</h2><p class="text-gray-400 leading-relaxed"> By accessing or using AniTrack, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the service. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">2. Description of Service</h2><p class="text-gray-400 leading-relaxed"> AniTrack is a personal anime tracking platform that allows users to browse anime information, maintain a personal watchlist, track viewing progress, and share their anime list with others. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">3. User Accounts</h2><p class="text-gray-400 leading-relaxed"> You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must provide accurate information when creating an account and keep it up to date. You may not create accounts for the purpose of abusing the service or other users. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">4. Acceptable Use</h2><p class="text-gray-400 leading-relaxed">You agree not to:</p><ul class="list-disc pl-6 space-y-1 text-gray-400"><li>Use the service for any unlawful purpose</li><li>Attempt to gain unauthorised access to any part of the service</li><li>Interfere with or disrupt the service or its infrastructure</li><li>Scrape, crawl, or otherwise extract data from the service in an automated manner beyond normal use</li><li>Impersonate any person or entity</li></ul></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">5. Third-Party Content</h2><p class="text-gray-400 leading-relaxed"> Anime information, metadata, and images displayed on AniTrack are sourced from third-party providers, primarily AniList. AniTrack does not claim ownership of this content. The accuracy and availability of third-party content is not guaranteed. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">6. Limitation of Liability</h2><p class="text-gray-400 leading-relaxed"> AniTrack is provided &quot;as is&quot; without warranties of any kind, either express or implied. We do not guarantee that the service will be uninterrupted, secure, or error-free. In no event shall AniTrack be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the service. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">7. Termination</h2><p class="text-gray-400 leading-relaxed"> We reserve the right to suspend or terminate your account at our discretion, without prior notice, for conduct that we determine violates these terms or is harmful to the service or other users. You may delete your account at any time through the settings page. </p></section><section class="space-y-3"><h2 class="text-xl font-semibold text-gray-200">8. Changes to Terms</h2><p class="text-gray-400 leading-relaxed"> We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the updated terms. We encourage you to review this page periodically. </p></section></div><!--]-->`);
+    };
+  }
+});
 const _sfc_setup$1 = _sfc_main$1.setup;
 _sfc_main$1.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SettingsPage.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TermsPage.vue");
   return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
 };
-const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$1
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$F },
+  ...{ layout: _sfc_main$H },
   __name: "TopAnimePage",
   __ssrInlineRender: true,
   props: {
@@ -4544,7 +4758,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               _push2(`</div></div><div class="flex shrink-0 items-center gap-4"${_scopeId}>`);
               if (__props.metric === "rated") {
                 _push2(`<div class="text-right"${_scopeId}>`);
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: item.bayesian_score ?? item.average_score,
                   size: "md"
                 }, null, _parent2, _scopeId));
@@ -4561,7 +4775,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               if (__props.metric === "rated") {
                 _push2(`<span class="text-xs text-gray-500"${_scopeId}>${ssrInterpolate(item.popularity?.toLocaleString())} pop</span>`);
               } else {
-                _push2(ssrRenderComponent(_sfc_main$B, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   score: item.bayesian_score ?? item.average_score,
                   size: "sm"
                 }, null, _parent2, _scopeId));
@@ -4597,7 +4811,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     key: 0,
                     class: "text-right"
                   }, [
-                    createVNode(_sfc_main$B, {
+                    createVNode(_sfc_main$D, {
                       score: item.bayesian_score ?? item.average_score,
                       size: "md"
                     }, null, 8, ["score"])
@@ -4613,7 +4827,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     __props.metric === "rated" ? (openBlock(), createBlock("span", {
                       key: 0,
                       class: "text-xs text-gray-500"
-                    }, toDisplayString(item.popularity?.toLocaleString()) + " pop", 1)) : (openBlock(), createBlock(_sfc_main$B, {
+                    }, toDisplayString(item.popularity?.toLocaleString()) + " pop", 1)) : (openBlock(), createBlock(_sfc_main$D, {
                       key: 1,
                       score: item.bayesian_score ?? item.average_score,
                       size: "sm"
@@ -4636,7 +4850,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TopAnimePage.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main
 }, Symbol.toStringTag, { value: "Module" }));
@@ -5035,7 +5249,7 @@ createServer(
     page,
     render: renderToString,
     resolve: (name) => {
-      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/DashboardPage.vue": __vite_glob_0_0, "./Pages/Admin/UsersPage.vue": __vite_glob_0_1, "./Pages/AnimeDetailPage.vue": __vite_glob_0_2, "./Pages/AnimeIndexPage.vue": __vite_glob_0_3, "./Pages/ErrorPage.vue": __vite_glob_0_4, "./Pages/HomePage.vue": __vite_glob_0_5, "./Pages/ImportPage.vue": __vite_glob_0_6, "./Pages/LoginPage.vue": __vite_glob_0_7, "./Pages/MyListPage.vue": __vite_glob_0_8, "./Pages/NotFoundPage.vue": __vite_glob_0_9, "./Pages/ProfilePage.vue": __vite_glob_0_10, "./Pages/PublicListPage.vue": __vite_glob_0_11, "./Pages/RegisterPage.vue": __vite_glob_0_12, "./Pages/SchedulePage.vue": __vite_glob_0_13, "./Pages/SearchPage.vue": __vite_glob_0_14, "./Pages/SeasonalPage.vue": __vite_glob_0_15, "./Pages/SettingsPage.vue": __vite_glob_0_16, "./Pages/TopAnimePage.vue": __vite_glob_0_17 });
+      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/DashboardPage.vue": __vite_glob_0_0, "./Pages/Admin/UsersPage.vue": __vite_glob_0_1, "./Pages/AnimeDetailPage.vue": __vite_glob_0_2, "./Pages/AnimeIndexPage.vue": __vite_glob_0_3, "./Pages/ErrorPage.vue": __vite_glob_0_4, "./Pages/HomePage.vue": __vite_glob_0_5, "./Pages/ImportPage.vue": __vite_glob_0_6, "./Pages/LoginPage.vue": __vite_glob_0_7, "./Pages/MyListPage.vue": __vite_glob_0_8, "./Pages/NotFoundPage.vue": __vite_glob_0_9, "./Pages/PrivacyPage.vue": __vite_glob_0_10, "./Pages/ProfilePage.vue": __vite_glob_0_11, "./Pages/PublicListPage.vue": __vite_glob_0_12, "./Pages/RegisterPage.vue": __vite_glob_0_13, "./Pages/SchedulePage.vue": __vite_glob_0_14, "./Pages/SearchPage.vue": __vite_glob_0_15, "./Pages/SeasonalPage.vue": __vite_glob_0_16, "./Pages/SettingsPage.vue": __vite_glob_0_17, "./Pages/TermsPage.vue": __vite_glob_0_18, "./Pages/TopAnimePage.vue": __vite_glob_0_19 });
       return pages[`./Pages/${name}.vue`];
     },
     setup({ App, props, plugin }) {

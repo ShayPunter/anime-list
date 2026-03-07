@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import AppNavbar from '@/Components/AppNavbar.vue'
+import AppFooter from '@/Components/AppFooter.vue'
 import Toast from 'primevue/toast'
 import { useFlashToast } from '@/composables/useFlashToast'
 
@@ -18,6 +19,7 @@ useFlashToast()
         <main class="container mx-auto px-4 py-6">
             <slot />
         </main>
+        <AppFooter />
         <Toast position="top-right" />
     </div>
 </template>

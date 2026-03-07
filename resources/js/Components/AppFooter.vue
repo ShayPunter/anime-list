@@ -1,0 +1,45 @@
+<template>
+    <footer class="mt-16 border-t border-gray-800 bg-gray-950">
+        <div class="container mx-auto px-4 py-10">
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                <!-- Navigation -->
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold text-gray-300">Navigate</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><Link :href="route('home')" class="text-gray-500 transition hover:text-gray-200">Home</Link></li>
+                        <li><Link :href="route('anime.index')" class="text-gray-500 transition hover:text-gray-200">Browse Anime</Link></li>
+                        <li><Link :href="route('seasonal')" class="text-gray-500 transition hover:text-gray-200">Seasonal</Link></li>
+                        <li><Link :href="route('schedule')" class="text-gray-500 transition hover:text-gray-200">Schedule</Link></li>
+                        <li><Link :href="route('top.rated')" class="text-gray-500 transition hover:text-gray-200">Top Anime</Link></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold text-gray-300">Legal</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><Link :href="route('terms')" class="text-gray-500 transition hover:text-gray-200">Terms of Service</Link></li>
+                        <li><Link :href="route('privacy')" class="text-gray-500 transition hover:text-gray-200">Privacy Policy</Link></li>
+                        <li><a href="/sitemap.xml" class="text-gray-500 transition hover:text-gray-200">Sitemap</a></li>
+                    </ul>
+                </div>
+
+                <!-- About -->
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold text-gray-300">AniTrack</h3>
+                    <p class="text-sm text-gray-500">
+                        Track your anime, discover new shows, and share your list with friends.
+                    </p>
+                    <p class="mt-2 text-xs text-gray-600">
+                        Anime data provided by
+                        <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-gray-500 transition hover:text-gray-200">AniList</a>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-800/50 pt-6 text-center text-xs text-gray-600">
+                &copy; {{ new Date().getFullYear() }} AniTrack
+            </div>
+        </div>
+    </footer>
+</template>

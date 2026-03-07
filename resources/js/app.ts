@@ -9,6 +9,7 @@ import { ZiggyVue } from 'ziggy-js'
 import '../css/app.css'
 
 createInertiaApp({
+    title: (title) => title ? `${title} — AniTrack` : 'AniTrack',
     resolve: (name) => {
         const pages = import.meta.glob<DefineComponent>('./Pages/**/*.vue')
         const page = pages[`./Pages/${name}.vue`]
