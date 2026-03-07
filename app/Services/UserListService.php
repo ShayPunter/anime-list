@@ -78,14 +78,33 @@ class UserListService
     private function applyAutoComplete(UserAnimeList $entry): UserAnimeList
     {
         $anime = $entry->anime;
+        $dirty = false;
 
-        if ($anime && $anime->episodes !== null && $entry->progress >= $anime->episodes && $anime->episodes > 0) {
-            if ($entry->status !== UserAnimeList::STATUS_COMPLETED) {
-                $entry->status = UserAnimeList::STATUS_COMPLETED;
+        // When status set to completed, fill progress to total episodes
+        if ($entry->status === UserAnimeList::STATUS_COMPLETED && $anime && $anime->episodes !== null && $anime->episodes > 0) {
+            if ($entry->progress < $anime->episodes) {
+                $entry->progress = $anime->episodes;
+                $dirty = true;
             }
             if ($entry->completed_at === null) {
                 $entry->completed_at = now();
+                $dirty = true;
             }
+        }
+
+        // When progress reaches total, auto-mark as completed
+        if ($anime && $anime->episodes !== null && $entry->progress >= $anime->episodes && $anime->episodes > 0) {
+            if ($entry->status !== UserAnimeList::STATUS_COMPLETED) {
+                $entry->status = UserAnimeList::STATUS_COMPLETED;
+                $dirty = true;
+            }
+            if ($entry->completed_at === null) {
+                $entry->completed_at = now();
+                $dirty = true;
+            }
+        }
+
+        if ($dirty) {
             $entry->save();
         }
 
