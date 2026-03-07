@@ -90,12 +90,19 @@ function copyUrl() {
 
 const { updateMutation, destroyMutation } = useListMutations()
 
+function reloadProps() {
+    router.reload({ only: ['entries', 'counts'] })
+}
+
 function handleUpdate(id: number, patch: Record<string, unknown>) {
-    updateMutation.mutate({ id, ...patch } as Parameters<typeof updateMutation.mutate>[0])
+    updateMutation.mutate(
+        { id, ...patch } as Parameters<typeof updateMutation.mutate>[0],
+        { onSuccess: reloadProps },
+    )
 }
 
 function handleDelete(id: number) {
-    destroyMutation.mutate(id)
+    destroyMutation.mutate(id, { onSuccess: reloadProps })
 }
 
 const editingEntry = ref<ListEntryResource | null>(null)
