@@ -52,7 +52,7 @@ function displayTitle(slot: ValidSlot): string {
             <Link
                 v-for="slot in validSlots"
                 :key="slot.id"
-                :href="route('anime.show', { anime: slot.anime.id })"
+                :href="slot.anime.slug ? route('anime.show', { anime: slot.anime.slug }) : '#'"
                 class="group flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-900/50 p-2 transition hover:border-gray-700 hover:bg-gray-900"
             >
                 <div class="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800">

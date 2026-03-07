@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const activeStatus = ref<ListStatus | 'all'>('all')
 const viewMode = ref<ListViewMode>(
-    (localStorage.getItem('list_view') as ListViewMode) || 'table'
+    (typeof window !== 'undefined' ? localStorage.getItem('list_view') as ListViewMode : null) || 'table'
 )
 const sortField = ref<string>('-updated_at')
 
@@ -72,6 +72,8 @@ const sortOptions = [
 
 <template>
     <Head :title="`${profile.name}'s Anime List`">
+        <meta name="description" :content="`Browse ${profile.name}'s anime list on AniTrack.`" />
+        <link rel="canonical" :href="route('profile.list', { user: profile.username })" />
         <meta property="og:title" :content="`${profile.name}'s Anime List — AniTrack`" />
         <meta property="og:description" :content="`Browse ${profile.name}'s anime list on AniTrack.`" />
         <meta v-if="profile.avatar_url" property="og:image" :content="profile.avatar_url" />

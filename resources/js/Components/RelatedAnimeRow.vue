@@ -17,7 +17,7 @@ function relationLabel(type: string): string {
             <Link
                 v-for="rel in relations"
                 :key="rel.id"
-                :href="rel.related_anime ? route('anime.show', { anime: rel.related_anime.id }) : '#'"
+                :href="rel.related_anime?.slug ? route('anime.show', { anime: rel.related_anime.slug }) : '#'"
                 class="group flex-shrink-0 w-36"
             >
                 <div class="aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">

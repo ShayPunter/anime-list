@@ -12,6 +12,7 @@ class AnimeCardResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'slug' => $this->slug,
             'anilist_id' => $this->anilist_id,
             'title_romaji' => $this->title_romaji,
             'title_english' => $this->title_english,

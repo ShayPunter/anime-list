@@ -14,6 +14,11 @@ class HandleInertiaRequests extends Middleware
         return parent::version($request);
     }
 
+    public function title(string $title): string
+    {
+        return $title ? "{$title} — AniTrack" : 'AniTrack';
+    }
+
     public function share(Request $request): array
     {
         return [

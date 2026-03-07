@@ -37,6 +37,8 @@ function seasonLabel(season: string): string {
 
 <template>
     <Head :title="isAuthenticated ? 'Dashboard' : 'Home'">
+        <meta name="description" content="Track your anime with AniTrack. Browse seasonal anime, discover top rated shows, and manage your watchlist." />
+        <link rel="canonical" :href="route('home')" />
         <meta property="og:title" content="AniTrack — Discover and track your favorite anime" />
         <meta property="og:description" content="Track your anime watching progress, discover new shows, and share your list with friends." />
         <meta property="og:type" content="website" />

@@ -13,8 +13,8 @@ function displayTitle(anime: AnimeCard): string {
 }
 
 function animeUrl(anime: AnimeCard): string {
-    if (anime.id) {
-        return route('anime.show', { anime: anime.id })
+    if (anime.slug) {
+        return route('anime.show', { anime: anime.slug })
     }
     if (anime.anilist_id) {
         return route('anime.show.anilist', { anilistId: anime.anilist_id })

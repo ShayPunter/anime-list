@@ -2,6 +2,7 @@ import type { Genre } from './anime'
 
 export interface ScheduleAnime {
     id: number
+    slug: string | null
     title_romaji: string
     title_english: string | null
     cover_image_medium: string | null

@@ -55,7 +55,10 @@ function toggleWatchingOnly() {
 </script>
 
 <template>
-    <Head title="Airing Schedule" />
+    <Head title="Airing Schedule">
+        <meta name="description" content="See what anime is airing this week on AniTrack." />
+        <link rel="canonical" :href="route('schedule')" />
+    </Head>
 
     <div class="space-y-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

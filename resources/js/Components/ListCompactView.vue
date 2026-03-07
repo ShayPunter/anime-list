@@ -36,7 +36,7 @@ function incrementProgress(entry: ListEntryResource) {
         >
             <Link
                 v-if="entry.anime"
-                :href="route('anime.show', { anime: entry.anime_id })"
+                :href="entry.anime?.slug ? route('anime.show', { anime: entry.anime.slug }) : '#'"
                 class="flex-1 min-w-0 text-gray-200 hover:text-primary-400 transition truncate"
             >
                 {{ displayTitle(entry) }}

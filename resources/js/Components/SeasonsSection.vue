@@ -20,7 +20,7 @@ function displayTitle(entry: SeasonEntry): string {
             <Link
                 v-for="(season, index) in seasons"
                 :key="season.id"
-                :href="route('anime.show', { anime: season.id })"
+                :href="season.slug ? route('anime.show', { anime: season.slug }) : '#'"
                 class="group w-36 flex-shrink-0"
                 :class="{ 'pointer-events-none': season.is_current }"
             >

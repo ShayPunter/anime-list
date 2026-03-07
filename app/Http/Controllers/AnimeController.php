@@ -39,7 +39,7 @@ class AnimeController extends Controller
         $existing = Anime::where('anilist_id', $anilistId)->first();
 
         if ($existing) {
-            return redirect()->route('anime.show', $existing->id);
+            return redirect()->route('anime.show', $existing);
         }
 
         // Fetch from AniList API
@@ -68,34 +68,30 @@ class AnimeController extends Controller
         // Resolve relations so season chains are available immediately
         ResolveAnimeRelations::dispatchSync();
 
-        return redirect()->route('anime.show', $anime->id);
+        return redirect()->route('anime.show', $anime);
     }
 
-    public function show(Request $request, int $anime): Response
+    public function show(Request $request, Anime $anime): Response
     {
-        $model = Cache::get("anime:{$anime}");
+        $cacheKey = "anime:{$anime->id}";
+        $model = Cache::get($cacheKey);
 
         if ($model === null) {
-            $model = Anime::query()
-                ->where('id', $anime)
-                ->where('is_adult', false)
-                ->with([
-                    'genres',
-                    'studios',
-                    'externalIds',
-                    'nextAiringEpisode',
-                    'airingSchedules' => fn ($q) => $q->upcoming()->limit(12),
-                    'relations.relatedAnime.genres',
-                ])
-                ->first();
-
-            if ($model) {
-                Cache::put("anime:{$anime}", $model, 3600);
+            if ($anime->is_adult) {
+                abort(404);
             }
-        }
 
-        if (! $model) {
-            abort(404);
+            $anime->load([
+                'genres',
+                'studios',
+                'externalIds',
+                'nextAiringEpisode',
+                'airingSchedules' => fn ($q) => $q->upcoming()->limit(12),
+                'relations.relatedAnime.genres',
+            ]);
+
+            $model = $anime;
+            Cache::put($cacheKey, $model, 3600);
         }
 
         $listEntry = null;
@@ -119,7 +115,7 @@ class AnimeController extends Controller
                 'title' => $title,
                 'description' => $description,
                 'image' => $image,
-                'url' => route('anime.show', $model->id),
+                'url' => route('anime.show', $model),
             ],
         ]);
     }
@@ -157,7 +153,7 @@ class AnimeController extends Controller
 
         for ($i = 0; $i < $maxTraversal; $i++) {
             $entry = Anime::select([
-                'id', 'title_romaji', 'title_english',
+                'id', 'slug', 'title_romaji', 'title_english',
                 'cover_image_large', 'cover_image_medium',
                 'episodes', 'format', 'status', 'average_score',
             ])->find($currentId);
@@ -168,6 +164,7 @@ class AnimeController extends Controller
 
             $chain[] = [
                 'id' => $entry->id,
+                'slug' => $entry->slug,
                 'title_romaji' => $entry->title_romaji,
                 'title_english' => $entry->title_english,
                 'cover_image_large' => $entry->cover_image_large,

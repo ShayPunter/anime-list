@@ -21,7 +21,7 @@ class ScheduleController extends Controller
         $weekEnd = $weekStart->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
 
         $query = AiringSchedule::query()
-            ->with(['anime:id,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
+            ->with(['anime:id,slug,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
             ->whereBetween('airs_at', [$weekStart, $weekEnd])
             ->orderBy('airs_at');
 

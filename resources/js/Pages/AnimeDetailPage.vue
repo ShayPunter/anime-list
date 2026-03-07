@@ -89,6 +89,8 @@ function embedUrl(url: string): string | null {
 
 <template>
     <Head :title="displayTitle(anime)">
+        <meta name="description" :content="og.description" />
+        <link rel="canonical" :href="og.url" />
         <meta property="og:title" :content="og.title" />
         <meta property="og:description" :content="og.description" />
         <meta v-if="og.image" property="og:image" :content="og.image" />

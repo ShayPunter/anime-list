@@ -20,8 +20,8 @@ function formatLabel(format: string | null): string {
 }
 
 function animeUrl(anime: AnimeCard): string {
-    if (anime.id) {
-        return route('anime.show', { anime: anime.id })
+    if (anime.slug) {
+        return route('anime.show', { anime: anime.slug })
     }
     if (anime.anilist_id) {
         return route('anime.show.anilist', { anilistId: anime.anilist_id })
@@ -32,6 +32,8 @@ function animeUrl(anime: AnimeCard): string {
 
 <template>
     <Head :title="metric === 'rated' ? 'Top Rated Anime' : 'Most Popular Anime'">
+        <meta name="description" :content="metric === 'rated' ? 'The highest rated anime of all time.' : 'The most popular anime of all time.'" />
+        <link rel="canonical" :href="metric === 'rated' ? route('top.rated') : route('top.popular')" />
         <meta property="og:title" :content="metric === 'rated' ? 'Top 100 Rated Anime — AniTrack' : 'Top 100 Most Popular Anime — AniTrack'" />
         <meta property="og:description" :content="metric === 'rated' ? 'The highest rated anime of all time.' : 'The most popular anime of all time.'" />
         <meta property="og:type" content="website" />

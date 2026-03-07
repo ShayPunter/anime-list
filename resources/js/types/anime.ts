@@ -1,5 +1,6 @@
 export interface AnimeCard {
     id: number | null
+    slug: string | null
     anilist_id: number
     title_romaji: string
     title_english: string | null
@@ -87,6 +88,7 @@ export interface AnimeRelationEntry {
 
 export interface RelatedAnimeCard {
     id: number
+    slug: string | null
     title_romaji: string
     title_english: string | null
     format: AnimeFormat | null
@@ -99,6 +101,7 @@ export interface RelatedAnimeCard {
 
 export interface SeasonEntry {
     id: number
+    slug: string | null
     title_romaji: string
     title_english: string | null
     cover_image_large: string | null

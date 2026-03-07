@@ -28,7 +28,7 @@ function progressPercent(entry: ListEntryResource): number {
             <Link
                 v-for="entry in entries"
                 :key="entry.id"
-                :href="route('anime.show', { anime: entry.anime_id })"
+                :href="entry.anime?.slug ? route('anime.show', { anime: entry.anime.slug }) : '#'"
                 class="group w-32 shrink-0"
             >
                 <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">

@@ -69,7 +69,7 @@ function incrementProgress(entry: ListEntryResource) {
                     <td class="py-2 pr-4">
                         <Link
                             v-if="entry.anime"
-                            :href="route('anime.show', { anime: entry.anime_id })"
+                            :href="entry.anime?.slug ? route('anime.show', { anime: entry.anime.slug }) : '#'"
                             class="text-gray-200 hover:text-primary-400 transition"
                         >
                             {{ displayTitle(entry) }}

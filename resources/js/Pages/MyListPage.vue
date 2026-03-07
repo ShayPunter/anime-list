@@ -20,7 +20,7 @@ const props = defineProps<{
 
 const activeStatus = ref<ListStatus | 'all'>('all')
 const viewMode = ref<ListViewMode>(
-    (localStorage.getItem('list_view') as ListViewMode) || 'table'
+    (typeof window !== 'undefined' ? localStorage.getItem('list_view') as ListViewMode : null) || 'table'
 )
 
 const sortField = ref<string>('-updated_at')

@@ -25,7 +25,7 @@ function displayTitle(entry: ListEntryResource): string {
         >
             <Link
                 v-if="entry.anime"
-                :href="route('anime.show', { anime: entry.anime_id })"
+                :href="entry.anime?.slug ? route('anime.show', { anime: entry.anime.slug }) : '#'"
                 class="block"
             >
                 <img

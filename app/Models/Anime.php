@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
 class Anime extends Model
@@ -21,6 +22,7 @@ class Anime extends Model
         'title_romaji',
         'title_english',
         'title_native',
+        'slug',
         'title_synonyms',
         'format',
         'status',
@@ -60,6 +62,36 @@ class Anime extends Model
             'anilist_updated_at' => 'datetime',
             'synced_at' => 'datetime',
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Anime $anime) {
+            if (! $anime->slug || $anime->isDirty(['title_english', 'title_romaji'])) {
+                $anime->slug = static::generateUniqueSlug($anime);
+            }
+        });
+    }
+
+    public static function generateUniqueSlug(Anime $anime): string
+    {
+        $title = $anime->title_english ?: $anime->title_romaji;
+        $base = Str::slug($title) ?: 'anime';
+
+        $slug = $base;
+        $counter = 2;
+
+        while (static::where('slug', $slug)->where('id', '!=', $anime->id ?? 0)->exists()) {
+            $slug = "{$base}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
     }
 
     // Relationships

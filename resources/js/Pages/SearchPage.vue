@@ -18,7 +18,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="Search" />
+    <Head title="Search">
+        <meta name="description" content="Search for anime on AniTrack." />
+        <link rel="canonical" :href="route('search')" />
+    </Head>
 
     <div class="mx-auto max-w-4xl space-y-6">
         <h1 class="text-2xl font-bold text-gray-100">Search Anime</h1>

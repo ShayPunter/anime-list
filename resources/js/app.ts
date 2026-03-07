@@ -1,4 +1,4 @@
-import { createApp, h, type DefineComponent } from 'vue'
+import { createSSRApp, h, type DefineComponent } from 'vue'
 import { createInertiaApp, Link, Head } from '@inertiajs/vue3'
 import { createPinia } from 'pinia'
 import { VueQueryPlugin } from '@tanstack/vue-query'
@@ -16,7 +16,7 @@ createInertiaApp({
         return page()
     },
     setup({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) })
+        const app = createSSRApp({ render: () => h(App, props) })
 
         app.use(plugin)
         app.use(ZiggyVue)

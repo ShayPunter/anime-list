@@ -17,6 +17,7 @@ class AnimeRelationResource extends JsonResource
             'relation_type' => $this->relation_type,
             'related_anime' => $related ? [
                 'id' => $related->id,
+                'slug' => $related->slug,
                 'title_romaji' => $related->title_romaji,
                 'title_english' => $related->title_english,
                 'format' => $related->format,

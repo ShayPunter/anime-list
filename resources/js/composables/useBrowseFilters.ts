@@ -4,7 +4,9 @@ import type { BrowseFilters } from '@/types'
 
 export function useBrowseFilters() {
     // Initialize from current URL query params
-    const params = new URLSearchParams(window.location.search)
+    const params = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams()
 
     const filters = reactive<BrowseFilters>({
         format: (params.get('filter[format]') as BrowseFilters['format']) || undefined,

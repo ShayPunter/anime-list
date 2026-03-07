@@ -103,13 +103,13 @@ class HomeController extends Controller
                     ->where('user_id', $user->id)
                     ->whereNull('deleted_at');
             })
-            ->with(['anime:id,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
+            ->with(['anime:id,slug,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
             ->orderBy('airs_at')
             ->get();
 
         $continueWatching = $user->animeList()
             ->where('status', UserAnimeList::STATUS_WATCHING)
-            ->with(['anime:id,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
+            ->with(['anime:id,slug,title_romaji,title_english,cover_image_medium,cover_image_color,average_score,format,episodes', 'anime.genres'])
             ->orderByDesc('updated_at')
             ->limit(12)
             ->get();

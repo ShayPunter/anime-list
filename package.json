@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vue-tsc --noEmit && vite build",
+        "build": "vue-tsc --noEmit && vite build && vite build --ssr",
         "type-check": "vue-tsc --noEmit"
     },
     "devDependencies": {
@@ -25,6 +25,7 @@
         "@primevue/themes": "^4.5.4",
         "@tailwindcss/vite": "^4.2.1",
         "@tanstack/vue-query": "^5.92.9",
+        "@vue/server-renderer": "^3.5.29",
         "axios": "^1.13.6",
         "pinia": "^3.0.4",
         "primevue": "^4.5.4",

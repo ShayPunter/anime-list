@@ -25,6 +25,8 @@ function formatLabel(format: string): string {
 
 <template>
     <Head :title="`${seasonLabel(season)} ${year} Anime`">
+        <meta name="description" :content="`Browse all anime airing in ${seasonLabel(season)} ${year}.`" />
+        <link rel="canonical" :href="route('seasonal')" />
         <meta property="og:title" :content="`${seasonLabel(season)} ${year} Anime — AniTrack`" />
         <meta property="og:description" :content="`Browse all anime airing in ${seasonLabel(season)} ${year}.`" />
         <meta property="og:type" content="website" />

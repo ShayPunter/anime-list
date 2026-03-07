@@ -28,6 +28,7 @@ class ScheduleDayResource extends JsonResource
             'airs_at' => $this->airs_at->toIso8601String(),
             'anime' => [
                 'id' => $this->anime->id,
+                'slug' => $this->anime->slug,
                 'title_romaji' => $this->anime->title_romaji,
                 'title_english' => $this->anime->title_english,
                 'cover_image_medium' => $this->anime->cover_image_medium,

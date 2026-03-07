@@ -43,7 +43,10 @@ const showMobileFilters = ref(false)
 </script>
 
 <template>
-    <Head title="Browse Anime" />
+    <Head title="Browse Anime">
+        <meta name="description" content="Browse and discover anime by genre, format, season, and more on AniTrack." />
+        <link rel="canonical" :href="route('anime.index')" />
+    </Head>
 
     <div class="flex gap-6">
         <!-- Filter Sidebar (desktop) -->

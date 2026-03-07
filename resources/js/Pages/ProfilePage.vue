@@ -32,6 +32,8 @@ const totalEntries = computed(() => {
 
 <template>
     <Head :title="profile.name">
+        <meta name="description" :content="profile.bio || `${profile.name}'s anime profile on AniTrack.`" />
+        <link rel="canonical" :href="route('profile.show', { user: profile.username })" />
         <meta property="og:title" :content="`${profile.name}'s Profile — AniTrack`" />
         <meta property="og:description" :content="profile.bio || `Check out ${profile.name}'s anime profile on AniTrack.`" />
         <meta v-if="profile.avatar_url" property="og:image" :content="profile.avatar_url" />

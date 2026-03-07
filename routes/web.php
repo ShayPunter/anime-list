@@ -12,16 +12,28 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeasonalController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserListController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Sitemap
+Route::get('/sitemap.xml', SitemapController::class);
+
 // Public pages
 Route::get('/', HomeController::class)->name('home');
 Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
-Route::get('/anime/{anime}', [AnimeController::class, 'show'])->where('anime', '[0-9]+')->name('anime.show');
+Route::get('/anime/{id}', function (int $id) {
+    $anime = \App\Models\Anime::find($id);
+    if (! $anime) {
+        abort(404);
+    }
+
+    return redirect()->route('anime.show', $anime, 301);
+})->where('id', '[0-9]+');
 Route::get('/anime/al/{anilistId}', [AnimeController::class, 'showByAnilistId'])->where('anilistId', '[0-9]+')->name('anime.show.anilist');
+Route::get('/anime/{anime:slug}', [AnimeController::class, 'show'])->name('anime.show');
 Route::get('/seasonal', [SeasonalController::class, 'index'])->name('seasonal');
 Route::get('/schedule', ScheduleController::class)->name('schedule');
 Route::get('/search', fn () => Inertia::render('SearchPage'))->name('search');
