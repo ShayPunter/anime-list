@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
@@ -41,3 +42,10 @@ Schedule::command('sync:schedule')
     ->onFailure(function () {
         Log::error('Scheduled airing schedule sync failed');
     });
+
+// Refresh top anime rankings daily
+Schedule::call(function () {
+    Cache::forget('top:rated:100');
+    Cache::forget('top:popular:100');
+    Cache::forget('home:top_rated');
+})->dailyAt('05:00')->timezone('UTC');

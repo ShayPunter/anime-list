@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SearchController;
@@ -22,6 +23,8 @@ Route::get('/anime/al/{anilistId}', [AnimeController::class, 'showByAnilistId'])
 Route::get('/seasonal', [SeasonalController::class, 'index'])->name('seasonal');
 Route::get('/schedule', ScheduleController::class)->name('schedule');
 Route::get('/search', fn () => Inertia::render('SearchPage'))->name('search');
+Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
+Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
 
 // JSON search endpoint
 Route::get('/api/search', SearchController::class)->middleware('throttle:api')->name('api.search');

@@ -28,6 +28,7 @@ function handleLogout() {
                 <div class="hidden md:flex items-center gap-4">
                     <Link :href="route('seasonal')" class="text-gray-400 hover:text-gray-100 transition">Seasonal</Link>
                     <Link :href="route('schedule')" class="text-gray-400 hover:text-gray-100 transition">Schedule</Link>
+                    <Link :href="route('top.rated')" class="text-gray-400 hover:text-gray-100 transition">Top</Link>
                     <Link :href="route('search')" class="text-gray-400 hover:text-gray-100 transition">Search</Link>
                 </div>
             </div>

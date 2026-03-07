@@ -47,9 +47,25 @@ class HomeController extends Controller
             )->resolve()
         );
 
+        $topRated = Cache::remember(
+            'home:top_rated',
+            21600,
+            fn () => AnimeCardResource::collection(
+                Anime::query()
+                    ->where('is_adult', false)
+                    ->whereNotNull('bayesian_score')
+                    ->where('bayesian_score', '>', 0)
+                    ->orderByDesc('bayesian_score')
+                    ->with(['genres', 'nextAiringEpisode'])
+                    ->limit(6)
+                    ->get()
+            )->resolve()
+        );
+
         $sharedProps = [
             'seasonalShowcase' => $seasonalShowcase,
             'airingNow' => $airingNow,
+            'topRated' => $topRated,
             'currentSeason' => $current['season'],
             'currentYear' => $current['year'],
         ];

@@ -21,6 +21,7 @@ interface DashboardStats {
 const props = defineProps<{
     seasonalShowcase: AnimeCard[]
     airingNow: AnimeCard[]
+    topRated: AnimeCard[]
     currentSeason: AnimeSeason
     currentYear: number
     isAuthenticated: boolean
@@ -81,6 +82,14 @@ function seasonLabel(season: string): string {
             :anime="airingNow"
             title="Currently Airing"
             :see-all-route="route('anime.index', { 'filter[status]': 'RELEASING', sort: '-popularity' })"
+        />
+
+        <!-- Shared: Top Rated -->
+        <AnimeHeroSection
+            v-if="topRated.length"
+            :anime="topRated"
+            title="Top Rated"
+            :see-all-route="route('top.rated')"
         />
     </div>
 </template>
