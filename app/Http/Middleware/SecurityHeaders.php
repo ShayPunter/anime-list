@@ -31,18 +31,18 @@ class SecurityHeaders
 
         $scriptSrc = $isLocal
             ? "script-src 'self' http://localhost:5173 'unsafe-inline' 'nonce-{$nonce}'; "
-            : "script-src 'self' 'nonce-{$nonce}'; ";
+            : "script-src 'self' 'nonce-{$nonce}' https://www.googletagmanager.com; ";
 
         $connectSrc = $isLocal
             ? "connect-src 'self' ws://localhost:5173; "
-            : "connect-src 'self'; ";
+            : "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; ";
 
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; "
             . $scriptSrc
             . "style-src 'self' 'unsafe-inline'; "
-            . "img-src 'self' https://s4.anilist.co https://img.anilist.co https://img1.ak.crunchyroll.com data:; "
+            . "img-src 'self' https://s4.anilist.co https://img.anilist.co https://img1.ak.crunchyroll.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com data:; "
             . "font-src 'self'; "
             . $connectSrc
             . "worker-src 'self' blob:; "

@@ -40,15 +40,25 @@ defineOptions({ layout: AppLayout })
 
         <section class="space-y-3">
             <h2 class="text-xl font-semibold text-gray-200">3. Cookies</h2>
+            <p class="text-gray-400 leading-relaxed">AniTrack uses the following cookies:</p>
+            <ul class="list-disc pl-6 space-y-1 text-gray-400">
+                <li><strong class="text-gray-300">Essential cookies:</strong> session cookies to keep you logged in and protect against cross-site request forgery</li>
+                <li><strong class="text-gray-300">Analytics cookies:</strong> Google Analytics cookies (e.g. <code class="text-gray-300">_ga</code>, <code class="text-gray-300">_ga_*</code>) to help us understand how visitors use the site. These cookies collect anonymous usage data such as pages visited and session duration</li>
+            </ul>
             <p class="text-gray-400 leading-relaxed">
-                AniTrack uses essential session cookies to keep you logged in and protect against cross-site request forgery. We do not use tracking cookies, analytics cookies, or third-party advertising cookies.
+                We do not use third-party advertising cookies.
             </p>
         </section>
 
         <section class="space-y-3">
             <h2 class="text-xl font-semibold text-gray-200">4. Third-Party Services</h2>
+            <p class="text-gray-400 leading-relaxed">AniTrack uses the following third-party services:</p>
+            <ul class="list-disc pl-6 space-y-1 text-gray-400">
+                <li><strong class="text-gray-300">AniList:</strong> we retrieve anime information from the <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">AniList API</a>. Cover images are served directly from AniList's CDN.</li>
+                <li><strong class="text-gray-300">Google Analytics:</strong> we use <a href="https://marketingplatform.google.com/about/analytics/" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Google Analytics 4</a> to collect anonymous usage statistics. This data helps us understand traffic patterns and improve the site. Google may process this data as described in <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Google's Privacy Policy</a>.</li>
+            </ul>
             <p class="text-gray-400 leading-relaxed">
-                AniTrack retrieves anime information from the <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">AniList API</a>. Anime cover images are served directly from AniList's CDN. When you view anime pages, your browser may make requests to these external services.
+                When you visit AniTrack, your browser may make requests to these external services.
             </p>
         </section>
 
