@@ -39,6 +39,11 @@ class AnimeController extends Controller
         $existing = Anime::where('anilist_id', $anilistId)->first();
 
         if ($existing) {
+            if (! $existing->slug) {
+                $existing->slug = Anime::generateUniqueSlug($existing);
+                $existing->saveQuietly();
+            }
+
             return redirect()->route('anime.show', $existing);
         }
 
@@ -64,6 +69,11 @@ class AnimeController extends Controller
         }
 
         $anime = $persistenceService->persistSingle($mediaData);
+
+        if (! $anime->slug) {
+            $anime->slug = Anime::generateUniqueSlug($anime);
+            $anime->saveQuietly();
+        }
 
         // Resolve relations so season chains are available immediately
         ResolveAnimeRelations::dispatchSync();
