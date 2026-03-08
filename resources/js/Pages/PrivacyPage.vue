@@ -21,6 +21,7 @@ defineOptions({ layout: AppLayout })
                 <li><strong class="text-gray-300">Account information:</strong> name, email address, and password</li>
                 <li><strong class="text-gray-300">Profile information:</strong> username, bio, timezone, and avatar (optional)</li>
                 <li><strong class="text-gray-300">Anime list data:</strong> your watchlist entries, scores, progress, and notes</li>
+                <li><strong class="text-gray-300">Error diagnostics:</strong> when errors occur, we may collect your IP address, browser information, and the page you were visiting to help us diagnose and fix issues</li>
             </ul>
         </section>
 
@@ -56,6 +57,7 @@ defineOptions({ layout: AppLayout })
             <ul class="list-disc pl-6 space-y-1 text-gray-400">
                 <li><strong class="text-gray-300">AniList:</strong> we retrieve anime information from the <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">AniList API</a>. Cover images are served directly from AniList's CDN.</li>
                 <li><strong class="text-gray-300">Google Analytics:</strong> we use <a href="https://marketingplatform.google.com/about/analytics/" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Google Analytics 4</a> to collect anonymous usage statistics. This data helps us understand traffic patterns and improve the site. Google may process this data as described in <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Google's Privacy Policy</a>.</li>
+                <li><strong class="text-gray-300">Sentry:</strong> we use <a href="https://sentry.io" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Sentry</a> for error tracking and performance monitoring. When an error occurs, Sentry may receive personally identifiable information including your IP address, browser and OS details, the URL you were visiting, and request data. This data is used solely to diagnose and fix bugs. See <a href="https://sentry.io/privacy/" target="_blank" rel="noopener noreferrer" class="text-primary-400 hover:text-primary-300">Sentry's Privacy Policy</a> for details.</li>
             </ul>
             <p class="text-gray-400 leading-relaxed">
                 When you visit AniTrack, your browser may make requests to these external services.
