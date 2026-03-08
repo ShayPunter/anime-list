@@ -23,9 +23,10 @@ createServer((page) =>
 
             app.use(plugin)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const ziggy = page.props.ziggy as any
             app.use(ZiggyVue, {
-                ...(page.props.ziggy as any),
-                location: new URL((page.props.ziggy as any).location),
+                ...ziggy,
+                location: ziggy?.location ? new URL(ziggy.location) : undefined,
             } as any)
             app.use(createPinia())
             app.use(VueQueryPlugin)
