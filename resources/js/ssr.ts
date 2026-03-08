@@ -23,7 +23,7 @@ createServer((page) =>
 
             app.use(plugin)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ziggy = page.props.ziggy as any
+            const ziggy = (props.initialPage.props as any).ziggy
             app.use(ZiggyVue, {
                 ...ziggy,
                 location: ziggy?.location ? new URL(ziggy.location) : undefined,
