@@ -7,7 +7,7 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Aura from '@primevue/themes/aura'
-import { ZiggyVue, route } from 'ziggy-js'
+import { ZiggyVue } from 'ziggy-js'
 
 createServer((page) =>
     createInertiaApp({
@@ -25,15 +25,18 @@ createServer((page) =>
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const ziggy = (props.initialPage.props as any).ziggy
 
-            // Make Ziggy's route() available as a global in Node SSR
-            // (in the browser, @routes Blade directive sets window.route)
+            // Make Ziggy config available globally for SSR so route() works
+            // (in the browser, @routes Blade directive sets window.Ziggy)
             ;(globalThis as any).Ziggy = ziggy
-            ;(globalThis as any).route = route
 
             app.use(ZiggyVue, {
                 ...ziggy,
                 location: ziggy?.location ? new URL(ziggy.location) : undefined,
             } as any)
+
+            // Expose route() globally for <script setup> blocks
+            // (in the browser, @routes Blade directive sets window.route)
+            ;(globalThis as any).route = app.config.globalProperties.route
             app.use(createPinia())
             app.use(VueQueryPlugin)
             app.use(PrimeVue, {
