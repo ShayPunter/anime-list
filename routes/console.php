@@ -43,9 +43,16 @@ Schedule::command('sync:schedule')
         Log::error('Scheduled airing schedule sync failed');
     });
 
-// Refresh top anime rankings daily
+// Recalculate Bayesian scores twice daily (after syncs finish)
+Schedule::command('anime:recalculate-bayesian')
+    ->twiceDaily(5, 17)
+    ->timezone('UTC')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Bayesian score recalculation failed');
+    });
+
+// Refresh top popular cache daily
 Schedule::call(function () {
-    Cache::forget('top:rated:100');
     Cache::forget('top:popular:100');
-    Cache::forget('home:top_rated');
-})->dailyAt('05:00')->timezone('UTC');
+})->dailyAt('05:15')->timezone('UTC');
