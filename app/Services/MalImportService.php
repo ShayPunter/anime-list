@@ -191,7 +191,14 @@ class MalImportService
         $client = app(AniListClient::class);
         $persistence = app(AnimeDataPersistenceService::class);
 
-        foreach (array_chunk($missingMalIds, 50) as $chunk) {
+        $uniqueMalIds = array_values(array_unique($missingMalIds));
+        $totalFetched = 0;
+
+        Log::info('MAL import: fetching missing anime from AniList', [
+            'missing_count' => count($uniqueMalIds),
+        ]);
+
+        foreach (array_chunk($uniqueMalIds, 50) as $chunkIndex => $chunk) {
             try {
                 foreach ($client->paginatedQuery(
                     AniListQueryBuilder::animeByMalIds(),
@@ -200,17 +207,28 @@ class MalImportService
                 ) as $pageData) {
                     $mediaItems = $pageData['media'] ?? [];
                     if (! empty($mediaItems)) {
+                        $totalFetched += count($mediaItems);
                         $persistence->persistBatch($mediaItems);
                     }
                 }
             } catch (\Throwable $e) {
                 Log::warning('Failed to fetch missing anime from AniList during import', [
+                    'chunk_index' => $chunkIndex,
                     'chunk_size' => count($chunk),
                     'error' => $e->getMessage(),
                 ]);
             }
         }
 
-        return Anime::whereIn('mal_id', $missingMalIds)->pluck('id', 'mal_id')->union($animeMap);
+        $newlyFound = Anime::whereIn('mal_id', $uniqueMalIds)->pluck('id', 'mal_id');
+
+        Log::info('MAL import: AniList fetch complete', [
+            'requested' => count($uniqueMalIds),
+            'fetched_from_api' => $totalFetched,
+            'matched_in_db' => $newlyFound->count(),
+            'still_missing' => count($uniqueMalIds) - $newlyFound->count(),
+        ]);
+
+        return $newlyFound->union($animeMap);
     }
 }
