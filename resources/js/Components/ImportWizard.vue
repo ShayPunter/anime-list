@@ -12,6 +12,7 @@ const preview = ref<MalPreviewEntry[]>([])
 const token = ref('')
 const total = ref(0)
 const progress = ref(0)
+const fetching = ref(false)
 const result = ref<ImportResult | null>(null)
 const overwrite = ref(false)
 const uploading = ref(false)
@@ -88,6 +89,7 @@ function startPolling() {
             })
 
             progress.value = data.processed
+            fetching.value = data.status === 'fetching'
 
             if (data.status === 'done') {
                 result.value = data.result ?? null
@@ -120,6 +122,7 @@ function reset() {
     token.value = ''
     total.value = 0
     progress.value = 0
+    fetching.value = false
     result.value = null
     error.value = ''
     overwrite.value = false
@@ -198,9 +201,12 @@ function reset() {
 
         <!-- Step 3: Processing -->
         <div v-else-if="step === 'processing'" class="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center space-y-4">
-            <h2 class="text-lg font-semibold">Importing...</h2>
-            <ProgressBar :value="total > 0 ? Math.round((progress / total) * 100) : 0" />
-            <p class="text-sm text-gray-400">{{ progress }} / {{ total }} entries processed</p>
+            <h2 class="text-lg font-semibold">{{ fetching ? 'Fetching missing anime...' : 'Importing...' }}</h2>
+            <ProgressBar v-if="!fetching" :value="total > 0 ? Math.round((progress / total) * 100) : 0" />
+            <ProgressBar v-else mode="indeterminate" />
+            <p class="text-sm text-gray-400">
+                {{ fetching ? 'Looking up anime not yet in our database' : `${progress} / ${total} entries processed` }}
+            </p>
         </div>
 
         <!-- Step 4: Done -->
@@ -217,7 +223,7 @@ function reset() {
                 </div>
                 <div class="rounded-lg bg-gray-800 p-4 text-center">
                     <div class="text-2xl font-bold text-red-400">{{ result.errors }}</div>
-                    <div class="text-xs text-gray-400">Errors</div>
+                    <div class="text-xs text-gray-400">Not Found</div>
                 </div>
                 <div class="rounded-lg bg-gray-800 p-4 text-center">
                     <div class="text-2xl font-bold text-gray-300">{{ result.total }}</div>

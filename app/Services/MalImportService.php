@@ -6,6 +6,7 @@ use App\Models\Anime;
 use App\Models\User;
 use App\Models\UserAnimeList;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 
@@ -103,6 +104,11 @@ class MalImportService
         $malIds = array_filter(array_column($entries, 'mal_id'));
         $animeMap = Anime::whereIn('mal_id', $malIds)->pluck('id', 'mal_id');
 
+        $missingMalIds = array_values(array_diff($malIds, $animeMap->keys()->all()));
+        if (! empty($missingMalIds)) {
+            $animeMap = $this->fetchAndPersistMissing($missingMalIds, $animeMap);
+        }
+
         $existing = $user->animeList()
             ->whereIn('anime_id', $animeMap->values())
             ->pluck('anime_id')
@@ -161,5 +167,38 @@ class MalImportService
             'errors' => $errors,
             'total' => count($entries),
         ];
+    }
+
+    /**
+     * Fetch missing anime from AniList by MAL IDs and persist them.
+     *
+     * @return \Illuminate\Support\Collection<int, int> Updated mal_id => anime.id map
+     */
+    public function fetchAndPersistMissing(array $missingMalIds, \Illuminate\Support\Collection $animeMap): \Illuminate\Support\Collection
+    {
+        $client = app(AniListClient::class);
+        $persistence = app(AnimeDataPersistenceService::class);
+
+        foreach (array_chunk($missingMalIds, 50) as $chunk) {
+            try {
+                foreach ($client->paginatedQuery(
+                    AniListQueryBuilder::animeByMalIds(),
+                    ['malIds' => $chunk],
+                    perPage: 50,
+                ) as $pageData) {
+                    $mediaItems = $pageData['media'] ?? [];
+                    if (! empty($mediaItems)) {
+                        $persistence->persistBatch($mediaItems);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Failed to fetch missing anime from AniList during import', [
+                    'chunk_size' => count($chunk),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return Anime::whereIn('mal_id', $missingMalIds)->pluck('id', 'mal_id')->union($animeMap);
     }
 }

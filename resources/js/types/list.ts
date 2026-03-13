@@ -68,7 +68,7 @@ export interface ImportResult {
 }
 
 export interface ImportStatus {
-    status: 'pending' | 'processing' | 'done' | 'failed'
+    status: 'pending' | 'fetching' | 'processing' | 'done' | 'failed'
     processed: number
     total: number
     result?: ImportResult

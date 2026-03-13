@@ -185,4 +185,25 @@ class AniListQueryBuilder
         }
         GRAPHQL;
     }
+
+    public static function animeByMalIds(): string
+    {
+        $fields = self::MEDIA_FIELDS;
+
+        return <<<GRAPHQL
+        query (\$page: Int, \$perPage: Int, \$malIds: [Int]) {
+            Page(page: \$page, perPage: \$perPage) {
+                pageInfo {
+                    hasNextPage
+                    currentPage
+                    lastPage
+                    total
+                }
+                media(type: ANIME, idMal_in: \$malIds) {
+                    {$fields}
+                }
+            }
+        }
+        GRAPHQL;
+    }
 }

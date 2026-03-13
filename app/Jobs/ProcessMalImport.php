@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Anime;
 use App\Models\User;
 use App\Models\UserAnimeList;
+use App\Services\MalImportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +20,7 @@ class ProcessMalImport implements ShouldQueue
 
     public int $tries = 2;
 
-    public int $timeout = 300;
+    public int $timeout = 600;
 
     public function __construct(
         public readonly int $userId,
@@ -52,6 +53,13 @@ class ProcessMalImport implements ShouldQueue
 
         $malIds = array_filter(array_column($entries, 'mal_id'));
         $animeMap = Anime::whereIn('mal_id', $malIds)->pluck('id', 'mal_id');
+
+        $missingMalIds = array_values(array_diff($malIds, $animeMap->keys()->all()));
+        if (! empty($missingMalIds)) {
+            $this->updateProgress('fetching', 0, $total);
+            $importService = app(MalImportService::class);
+            $animeMap = $importService->fetchAndPersistMissing($missingMalIds, $animeMap);
+        }
 
         $existing = $user->animeList()
             ->whereIn('anime_id', $animeMap->values())
