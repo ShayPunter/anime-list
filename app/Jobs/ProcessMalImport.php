@@ -29,7 +29,7 @@ class ProcessMalImport implements ShouldQueue
 
     public function handle(): void
     {
-        $entries = Cache::get("mal_import:{$this->importToken}");
+        $entries = Cache::get("mal_import:{$this->userId}:{$this->importToken}");
 
         if ($entries === null) {
             $this->updateProgress('failed', 0, 0);
@@ -104,7 +104,7 @@ class ProcessMalImport implements ShouldQueue
             $this->updateProgress('processing', $processed, $total);
         }
 
-        Cache::forget("mal_import:{$this->importToken}");
+        Cache::forget("mal_import:{$this->userId}:{$this->importToken}");
 
         Cache::put("import:progress:{$this->importToken}", [
             'status' => 'done',

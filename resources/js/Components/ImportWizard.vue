@@ -143,7 +143,7 @@ function reset() {
             <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-600 px-8 py-6 hover:border-gray-500 transition">
                 <input
                     type="file"
-                    accept=".xml"
+                    accept=".xml,.gz,.xml.gz"
                     class="hidden"
                     @change="handleUpload"
                 />
