@@ -14,7 +14,7 @@ class ImportUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:xml', 'max:10240'],
+            'file' => ['required', 'file', 'mimes:xml,gzip,gz', 'max:10240'],
         ];
     }
 }

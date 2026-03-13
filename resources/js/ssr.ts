@@ -16,7 +16,9 @@ createServer((page) =>
         title: (title) => title ? `${title} — AniTrack` : 'AniTrack',
         resolve: (name) => {
             const pages = import.meta.glob<DefineComponent>('./Pages/**/*.vue', { eager: true })
-            return pages[`./Pages/${name}.vue`]
+            const page = pages[`./Pages/${name}.vue`]
+            if (!page) throw new Error(`Page not found: ${name}`)
+            return page
         },
         setup({ App, props, plugin }) {
             const app = createSSRApp({ render: () => h(App, props) })

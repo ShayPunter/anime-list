@@ -32,6 +32,14 @@ class MalImportService
             throw new \InvalidArgumentException('The uploaded file could not be read or is empty.');
         }
 
+        // Decompress gzip if needed (MAL exports as .xml.gz)
+        if (str_starts_with($content, "\x1f\x8b")) {
+            $content = gzdecode($content);
+            if ($content === false) {
+                throw new \InvalidArgumentException('The uploaded gzip file could not be decompressed.');
+            }
+        }
+
         $content = preg_replace('/<!DOCTYPE[^>]*>/i', '', $content);
         $previousValue = libxml_use_internal_errors(true);
 

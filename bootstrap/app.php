@@ -33,6 +33,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return $response;
             }
 
+            if (! app()->bound('csp-nonce')) {
+                $nonce = base64_encode(random_bytes(16));
+                app()->instance('csp-nonce', $nonce);
+                \Illuminate\Support\Facades\Vite::useCspNonce($nonce);
+            }
+
             return Inertia::render('ErrorPage', [
                 'status' => $response->getStatusCode(),
             ])
