@@ -67,6 +67,7 @@ class ProcessMalImport implements ShouldQueue
             ->flip()
             ->toArray();
 
+        $notFound = [];
         $chunks = array_chunk($entries, 50);
         $processed = 0;
 
@@ -76,6 +77,9 @@ class ProcessMalImport implements ShouldQueue
 
                 if (! $entry['mal_id'] || ! $animeMap->has($entry['mal_id'])) {
                     $errors++;
+                    if ($entry['mal_id']) {
+                        $notFound[] = ['mal_id' => $entry['mal_id'], 'title' => $entry['title']];
+                    }
                     continue;
                 }
 
@@ -110,6 +114,14 @@ class ProcessMalImport implements ShouldQueue
             }
 
             $this->updateProgress('processing', $processed, $total);
+        }
+
+        if (! empty($notFound)) {
+            Log::info('MAL import: unmatched anime', [
+                'user_id' => $this->userId,
+                'count' => count($notFound),
+                'entries' => $notFound,
+            ]);
         }
 
         Cache::forget("mal_import:{$this->userId}:{$this->importToken}");

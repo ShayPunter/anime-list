@@ -118,10 +118,14 @@ class MalImportService
         $imported = 0;
         $skipped = 0;
         $errors = 0;
+        $notFound = [];
 
         foreach ($entries as $entry) {
             if (! $entry['mal_id'] || ! $animeMap->has($entry['mal_id'])) {
                 $errors++;
+                if ($entry['mal_id']) {
+                    $notFound[] = ['mal_id' => $entry['mal_id'], 'title' => $entry['title']];
+                }
                 continue;
             }
 
@@ -157,6 +161,14 @@ class MalImportService
             } catch (\Illuminate\Database\QueryException $e) {
                 $errors++;
             }
+        }
+
+        if (! empty($notFound)) {
+            Log::info('MAL import: unmatched anime', [
+                'user_id' => $user->id,
+                'count' => count($notFound),
+                'entries' => $notFound,
+            ]);
         }
 
         Cache::forget(self::cacheKey($user->id, $token));
