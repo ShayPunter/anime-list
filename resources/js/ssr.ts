@@ -17,10 +17,7 @@ createServer((page) =>
         resolve: (name) => {
             const pages = import.meta.glob<DefineComponent>('./Pages/**/*.vue', { eager: true })
             const page = pages[`./Pages/${name}.vue`]
-            if (!page) {
-                console.error(`SSR: Page not found: ${name}`)
-                return pages['./Pages/ErrorPage.vue']!
-            }
+            if (!page) return pages['./Pages/ErrorPage.vue']!
             return page
         },
         setup({ App, props, plugin }) {
