@@ -54,4 +54,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(RecommendationVote::class);
     }
+
+    public function playlists(): HasMany
+    {
+        return $this->hasMany(Playlist::class);
+    }
 }

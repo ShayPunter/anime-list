@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\PlaylistController;
 use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
@@ -45,6 +46,9 @@ Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.po
 // JSON search endpoint
 Route::get('/api/search', SearchController::class)->middleware('throttle:api')->name('api.search');
 
+// Public playlist
+Route::get('/playlist/{playlist:slug}', [PlaylistController::class, 'show'])->name('playlist.show');
+
 // Public profile
 Route::get('/user/{user:username}/list', [ProfileController::class, 'list'])->name('profile.list');
 Route::get('/user/{user:username}', [ProfileController::class, 'show'])->name('profile.show');
@@ -72,6 +76,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/import/upload', [ImportController::class, 'upload'])->name('import.upload');
     Route::post('/import/confirm', [ImportController::class, 'confirm'])->name('import.confirm');
     Route::get('/import/status', [ImportController::class, 'status'])->name('import.status');
+
+    Route::get('/playlists', [PlaylistController::class, 'index'])->name('playlists.index');
+    Route::get('/playlists/create', [PlaylistController::class, 'create'])->name('playlists.create');
+    Route::get('/playlists/{playlist:slug}/edit', [PlaylistController::class, 'edit'])->name('playlists.edit');
+
+    Route::prefix('api/playlists')->middleware('throttle:api')->name('api.playlists.')->group(function () {
+        Route::post('/', [PlaylistController::class, 'store'])->name('store');
+        Route::patch('/{playlist:id}', [PlaylistController::class, 'update'])->name('update');
+        Route::delete('/{playlist:id}', [PlaylistController::class, 'destroy'])->name('destroy');
+        Route::post('/{playlist:id}/items', [PlaylistController::class, 'addItem'])->name('items.store');
+        Route::patch('/{playlist:id}/items/{item}', [PlaylistController::class, 'updateItem'])->name('items.update');
+        Route::delete('/{playlist:id}/items/{item}', [PlaylistController::class, 'removeItem'])->name('items.remove');
+        Route::patch('/{playlist:id}/reorder', [PlaylistController::class, 'reorder'])->name('reorder');
+    });
 
     Route::get('/settings', [SettingsController::class, 'show'])->name('settings');
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');

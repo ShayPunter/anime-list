@@ -25,3 +25,4 @@ export type { UserAnimeListEntry, ListEntryResource, ListEntryPayload, ListStatu
 export { LIST_STATUS_LABELS } from './list'
 export type { ScheduleSlot, ScheduleAnime, ScheduleDayMap } from './schedule'
 export type { PaginatedResponse, ApiResponse, ApiError, SearchResponse } from './api'
+export type { PlaylistItem, PlaylistResource, PlaylistCard, PlaylistPayload, PlaylistItemPayload } from './playlist'
