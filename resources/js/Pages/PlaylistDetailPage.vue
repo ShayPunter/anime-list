@@ -44,8 +44,8 @@ function displayTitle(anime: { title_english: string | null; title_romaji: strin
             <div
                 v-for="item in playlist.items"
                 :key="item.id"
-                class="flex gap-3 bg-gray-900 border border-gray-800 rounded-lg p-3"
-                :class="{ 'opacity-60': item.is_optional }"
+                class="flex gap-3 bg-gray-900 border rounded-lg p-3"
+                :class="item.is_optional ? 'border-gray-800/50 border-dashed' : 'border-gray-800'"
             >
                 <!-- Position number -->
                 <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium text-gray-400">

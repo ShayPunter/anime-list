@@ -20,7 +20,7 @@ const isNew = computed(() => !props.playlist)
 
 const title = ref(props.playlist?.title ?? '')
 const description = ref(props.playlist?.description ?? '')
-const isPublic = ref(props.playlist?.is_public ?? false)
+const isPublic = ref(props.playlist?.is_public ?? true)
 const items = ref<PlaylistItem[]>(props.playlist?.items ?? [])
 
 const saving = ref(false)
@@ -175,7 +175,7 @@ async function deletePlaylist() {
             </div>
             <div class="flex items-center gap-3">
                 <ToggleSwitch v-model="isPublic" />
-                <span class="text-sm text-gray-300">{{ isPublic ? 'Public — anyone can view' : 'Private — only you can see' }}</span>
+                <label class="text-sm text-gray-300 cursor-pointer" @click="isPublic = !isPublic">Public</label>
             </div>
             <Button
                 :label="isNew ? 'Create Playlist' : 'Save Changes'"
