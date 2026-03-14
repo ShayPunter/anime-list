@@ -239,6 +239,12 @@ class MalImportService
             }
         }
 
+        // Generate slugs for newly fetched anime (upsert bypasses Eloquent events)
+        Anime::whereIn('mal_id', $uniqueMalIds)->whereNull('slug')->each(function (Anime $anime) {
+            $anime->slug = Anime::generateUniqueSlug($anime);
+            $anime->saveQuietly();
+        });
+
         $newlyFound = Anime::whereIn('mal_id', $uniqueMalIds)->pluck('id', 'mal_id');
 
         Log::info('MAL import: AniList fetch complete', [

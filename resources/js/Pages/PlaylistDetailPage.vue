@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import type { PlaylistResource } from '@/types'
 import Button from 'primevue/button'
@@ -53,25 +54,30 @@ function displayTitle(anime: { title_english: string | null; title_romaji: strin
                 </div>
 
                 <!-- Cover -->
-                <Link v-if="item.anime.slug" :href="route('anime.show', { anime: item.anime.slug })" class="flex-shrink-0">
+                <component
+                    :is="item.anime.slug ? Link : 'div'"
+                    v-bind="item.anime.slug ? { href: route('anime.show', { anime: item.anime.slug }) } : {}"
+                    class="flex-shrink-0"
+                >
                     <img
                         v-if="item.anime.cover_image_medium"
                         :src="item.anime.cover_image_medium"
                         :alt="displayTitle(item.anime)"
                         class="w-12 h-16 object-cover rounded"
                     />
-                </Link>
+                </component>
 
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                        <Link
-                            v-if="item.anime.slug"
-                            :href="route('anime.show', { anime: item.anime.slug })"
-                            class="font-medium text-gray-100 hover:text-primary-400 transition truncate"
+                        <component
+                            :is="item.anime.slug ? Link : 'span'"
+                            v-bind="item.anime.slug ? { href: route('anime.show', { anime: item.anime.slug }) } : {}"
+                            class="font-medium text-gray-100 truncate"
+                            :class="item.anime.slug ? 'hover:text-primary-400 transition' : ''"
                         >
                             {{ displayTitle(item.anime) }}
-                        </Link>
+                        </component>
                         <span v-if="item.is_optional" class="text-xs bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">
                             Optional
                         </span>

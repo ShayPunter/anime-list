@@ -1,6 +1,6 @@
-import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, watch, onUnmounted, unref, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, Fragment, renderList, reactive, onScopeDispose, createSSRApp, h as h$1 } from "vue";
-import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderClass, ssrRenderList, ssrIncludeBooleanAttr, ssrRenderAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, renderToString } from "vue/server-renderer";
-import { usePage, router, useForm, createInertiaApp, Link, Head } from "@inertiajs/vue3";
+import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, watch, onUnmounted, unref, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, Fragment, renderList, reactive, onScopeDispose, resolveDynamicComponent, createSSRApp, h as h$1 } from "vue";
+import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderClass, ssrRenderList, ssrIncludeBooleanAttr, ssrRenderAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderVNode, renderToString } from "vue/server-renderer";
+import { usePage, router, useForm, Link, createInertiaApp, Head } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
 import { useQueryClient, useMutation, useQuery, VueQueryPlugin } from "@tanstack/vue-query";
@@ -3606,13 +3606,12 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
-      const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, {
         title: __props.playlist.title
       }, null, _parent));
       _push(`<div class="max-w-3xl mx-auto"><div class="mb-6"><div class="flex items-start justify-between gap-4"><div><h1 class="text-2xl font-bold">${ssrInterpolate(__props.playlist.title)}</h1><p class="text-sm text-gray-500 mt-1"> by `);
-      _push(ssrRenderComponent(_component_Link, {
+      _push(ssrRenderComponent(unref(Link), {
         href: _ctx.route("profile.show", { user: __props.playlist.user.username }),
         class: "text-primary-400 hover:text-primary-300"
       }, {
@@ -3629,7 +3628,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
       }, _parent));
       _push(` · ${ssrInterpolate(__props.playlist.item_count)} anime </p></div>`);
       if (__props.isOwner) {
-        _push(ssrRenderComponent(_component_Link, {
+        _push(ssrRenderComponent(unref(Link), {
           href: _ctx.route("playlists.edit", { playlist: __props.playlist.slug })
         }, {
           default: withCtx((_2, _push2, _parent2, _scopeId) => {
@@ -3662,55 +3661,43 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
       }
       _push(`</div><div class="space-y-2"><!--[-->`);
       ssrRenderList(__props.playlist.items, (item) => {
-        _push(`<div class="${ssrRenderClass([{ "opacity-60": item.is_optional }, "flex gap-3 bg-gray-900 border border-gray-800 rounded-lg p-3"])}"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium text-gray-400">${ssrInterpolate(item.position)}</div>`);
-        if (item.anime.slug) {
-          _push(ssrRenderComponent(_component_Link, {
-            href: _ctx.route("anime.show", { anime: item.anime.slug }),
-            class: "flex-shrink-0"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                if (item.anime.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", item.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(item.anime))} class="w-12 h-16 object-cover rounded"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
+        _push(`<div class="${ssrRenderClass([item.is_optional ? "border-gray-800/50 border-dashed" : "border-gray-800", "flex gap-3 bg-gray-900 border rounded-lg p-3"])}"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium text-gray-400">${ssrInterpolate(item.position)}</div>`);
+        ssrRenderVNode(_push, createVNode(resolveDynamicComponent(item.anime.slug ? unref(Link) : "div"), mergeProps({ ref_for: true }, item.anime.slug ? { href: _ctx.route("anime.show", { anime: item.anime.slug }) } : {}, { class: "flex-shrink-0" }), {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              if (item.anime.cover_image_medium) {
+                _push2(`<img${ssrRenderAttr("src", item.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(item.anime))} class="w-12 h-16 object-cover rounded"${_scopeId}>`);
               } else {
-                return [
-                  item.anime.cover_image_medium ? (openBlock(), createBlock("img", {
-                    key: 0,
-                    src: item.anime.cover_image_medium,
-                    alt: displayTitle(item.anime),
-                    class: "w-12 h-16 object-cover rounded"
-                  }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
-                ];
+                _push2(`<!---->`);
               }
-            }),
-            _: 2
-          }, _parent));
-        } else {
-          _push(`<!---->`);
-        }
+            } else {
+              return [
+                item.anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                  key: 0,
+                  src: item.anime.cover_image_medium,
+                  alt: displayTitle(item.anime),
+                  class: "w-12 h-16 object-cover rounded"
+                }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+              ];
+            }
+          }),
+          _: 2
+        }), _parent);
         _push(`<div class="flex-1 min-w-0"><div class="flex items-center gap-2">`);
-        if (item.anime.slug) {
-          _push(ssrRenderComponent(_component_Link, {
-            href: _ctx.route("anime.show", { anime: item.anime.slug }),
-            class: "font-medium text-gray-100 hover:text-primary-400 transition truncate"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`${ssrInterpolate(displayTitle(item.anime))}`);
-              } else {
-                return [
-                  createTextVNode(toDisplayString(displayTitle(item.anime)), 1)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        } else {
-          _push(`<!---->`);
-        }
+        ssrRenderVNode(_push, createVNode(resolveDynamicComponent(item.anime.slug ? unref(Link) : "span"), mergeProps({ ref_for: true }, item.anime.slug ? { href: _ctx.route("anime.show", { anime: item.anime.slug }) } : {}, {
+          class: ["font-medium text-gray-100 truncate", item.anime.slug ? "hover:text-primary-400 transition" : ""]
+        }), {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(displayTitle(item.anime))}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(displayTitle(item.anime)), 1)
+              ];
+            }
+          }),
+          _: 2
+        }), _parent);
         if (item.is_optional) {
           _push(`<span class="text-xs bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded"> Optional </span>`);
         } else {
@@ -3806,7 +3793,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     const isNew = computed(() => !props.playlist);
     const title = ref(props.playlist?.title ?? "");
     const description = ref(props.playlist?.description ?? "");
-    const isPublic = ref(props.playlist?.is_public ?? false);
+    const isPublic = ref(props.playlist?.is_public ?? true);
     const items = ref(props.playlist?.items ?? []);
     const saving = ref(false);
     const searchQuery = ref("");
@@ -3931,7 +3918,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
         modelValue: isPublic.value,
         "onUpdate:modelValue": ($event) => isPublic.value = $event
       }, null, _parent));
-      _push(`<span class="text-sm text-gray-300">${ssrInterpolate(isPublic.value ? "Public — anyone can view" : "Private — only you can see")}</span></div>`);
+      _push(`<label class="text-sm text-gray-300 cursor-pointer">Public</label></div>`);
       _push(ssrRenderComponent(unref(Button), {
         label: isNew.value ? "Create Playlist" : "Save Changes",
         loading: saving.value,
