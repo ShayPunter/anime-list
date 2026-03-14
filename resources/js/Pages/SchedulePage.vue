@@ -12,7 +12,7 @@ const props = defineProps<{
     weekOffset: number
     weekStart: string
     weekEnd: string
-    watchingOnly: boolean
+    myListOnly: boolean
     isAuth: boolean
 }>()
 
@@ -36,7 +36,7 @@ function navigate(offset: number) {
         route('schedule'),
         {
             week: offset || undefined,
-            watching_only: props.watchingOnly ? '1' : undefined,
+            my_list: props.myListOnly ? '1' : undefined,
         },
         { preserveScroll: false },
     )
@@ -47,7 +47,7 @@ function toggleWatchingOnly() {
         route('schedule'),
         {
             week: props.weekOffset || undefined,
-            watching_only: props.watchingOnly ? undefined : '1',
+            my_list: props.myListOnly ? undefined : '1',
         },
         { preserveScroll: true },
     )
@@ -67,12 +67,12 @@ function toggleWatchingOnly() {
                 <button
                     v-if="isAuth"
                     class="rounded-lg border px-3 py-1.5 text-sm transition"
-                    :class="watchingOnly
+                    :class="myListOnly
                         ? 'border-primary-500 bg-primary-600/20 text-primary-400'
                         : 'border-gray-700 bg-gray-900 text-gray-400 hover:text-gray-200'"
                     @click="toggleWatchingOnly"
                 >
-                    My Watching Only
+                    My List
                 </button>
 
                 <div class="flex items-center gap-1">

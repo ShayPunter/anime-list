@@ -29,8 +29,8 @@ function displayTitle(entry: ListEntryResource): string {
                 class="block"
             >
                 <img
-                    v-if="entry.anime.cover_image_medium"
-                    :src="entry.anime.cover_image_medium"
+                    v-if="entry.anime.cover_image_large || entry.anime.cover_image_medium"
+                    :src="(entry.anime.cover_image_large || entry.anime.cover_image_medium)!"
                     :alt="displayTitle(entry)"
                     class="aspect-[3/4] w-full object-cover"
                     loading="lazy"

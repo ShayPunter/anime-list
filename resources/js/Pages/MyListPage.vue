@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ToggleSwitch from 'primevue/toggleswitch'
@@ -19,9 +19,14 @@ const props = defineProps<{
 }>()
 
 const activeStatus = ref<ListStatus | 'all'>('all')
-const viewMode = ref<ListViewMode>(
-    (typeof window !== 'undefined' ? localStorage.getItem('list_view') as ListViewMode : null) || 'table'
-)
+const viewMode = ref<ListViewMode>('table')
+
+onMounted(() => {
+    const saved = localStorage.getItem('list_view') as ListViewMode | null
+    if (saved && ['table', 'card', 'compact'].includes(saved)) {
+        viewMode.value = saved
+    }
+})
 
 const sortField = ref<string>('-updated_at')
 

@@ -13,7 +13,7 @@ class UserListService
     public function getListForPage(User $user): array
     {
         $entries = $user->animeList()
-            ->with(['anime:id,title_romaji,title_english,format,episodes,cover_image_medium,cover_image_color,average_score,status as anime_status'])
+            ->with(['anime:id,slug,title_romaji,title_english,format,episodes,cover_image_large,cover_image_medium,cover_image_color,average_score,status as anime_status'])
             ->with(['anime.genres'])
             ->get();
 
@@ -33,7 +33,7 @@ class UserListService
     {
         $entries = $user->animeList()
             ->where('is_private', false)
-            ->with(['anime:id,title_romaji,title_english,format,episodes,cover_image_medium,cover_image_color,average_score,status as anime_status'])
+            ->with(['anime:id,slug,title_romaji,title_english,format,episodes,cover_image_large,cover_image_medium,cover_image_color,average_score,status as anime_status'])
             ->with(['anime.genres'])
             ->get();
 

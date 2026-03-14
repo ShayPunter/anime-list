@@ -15,7 +15,7 @@ class ScheduleController extends Controller
     public function __invoke(Request $request): Response
     {
         $week = max(0, min(1, (int) $request->query('week', 0)));
-        $watchingOnly = $request->boolean('watching_only') && auth()->check();
+        $myListOnly = $request->boolean('my_list') && auth()->check();
 
         $weekStart = now()->startOfWeek(Carbon::MONDAY)->addWeeks($week)->startOfDay();
         $weekEnd = $weekStart->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
@@ -25,11 +25,10 @@ class ScheduleController extends Controller
             ->whereBetween('airs_at', [$weekStart, $weekEnd])
             ->orderBy('airs_at');
 
-        if ($watchingOnly) {
-            $watchingIds = UserAnimeList::where('user_id', auth()->id())
-                ->where('status', UserAnimeList::STATUS_WATCHING)
+        if ($myListOnly) {
+            $listAnimeIds = UserAnimeList::where('user_id', auth()->id())
                 ->pluck('anime_id');
-            $query->whereIn('anime_id', $watchingIds);
+            $query->whereIn('anime_id', $listAnimeIds);
         }
 
         $schedules = $query->get();
@@ -43,7 +42,7 @@ class ScheduleController extends Controller
             'weekOffset' => $week,
             'weekStart' => $weekStart->toIso8601String(),
             'weekEnd' => $weekEnd->toIso8601String(),
-            'watchingOnly' => $watchingOnly,
+            'myListOnly' => $myListOnly,
             'isAuth' => auth()->check(),
         ]);
     }

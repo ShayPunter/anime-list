@@ -3241,16 +3241,16 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
           }, {
             default: withCtx((_2, _push2, _parent2, _scopeId) => {
               if (_push2) {
-                if (entry.anime.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="aspect-[3/4] w-full object-cover" loading="lazy"${_scopeId}>`);
+                if (entry.anime.cover_image_large || entry.anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", entry.anime.cover_image_large || entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="aspect-[3/4] w-full object-cover" loading="lazy"${_scopeId}>`);
                 } else {
                   _push2(`<div class="aspect-[3/4] w-full bg-gray-700 flex items-center justify-center"${_scopeId}><span class="text-gray-500 text-xs"${_scopeId}>No image</span></div>`);
                 }
               } else {
                 return [
-                  entry.anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                  entry.anime.cover_image_large || entry.anime.cover_image_medium ? (openBlock(), createBlock("img", {
                     key: 0,
-                    src: entry.anime.cover_image_medium,
+                    src: entry.anime.cover_image_large || entry.anime.cover_image_medium,
                     alt: displayTitle(entry),
                     class: "aspect-[3/4] w-full object-cover",
                     loading: "lazy"
@@ -3386,9 +3386,13 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const activeStatus = ref("all");
-    const viewMode = ref(
-      (typeof window !== "undefined" ? localStorage.getItem("list_view") : null) || "table"
-    );
+    const viewMode = ref("table");
+    onMounted(() => {
+      const saved = localStorage.getItem("list_view");
+      if (saved && ["table", "card", "compact"].includes(saved)) {
+        viewMode.value = saved;
+      }
+    });
     const sortField = ref("-updated_at");
     const filteredEntries = computed(() => {
       let entries = props.entries;
@@ -4282,9 +4286,13 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const activeStatus = ref("all");
-    const viewMode = ref(
-      (typeof window !== "undefined" ? localStorage.getItem("list_view") : null) || "table"
-    );
+    const viewMode = ref("table");
+    onMounted(() => {
+      const saved = localStorage.getItem("list_view");
+      if (saved && ["table", "card", "compact"].includes(saved)) {
+        viewMode.value = saved;
+      }
+    });
     const sortField = ref("-updated_at");
     const filteredEntries = computed(() => {
       let entries = props.entries;
@@ -4635,7 +4643,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
     weekOffset: {},
     weekStart: {},
     weekEnd: {},
-    watchingOnly: { type: Boolean },
+    myListOnly: { type: Boolean },
     isAuth: { type: Boolean }
   },
   setup(__props) {
@@ -4678,7 +4686,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
       }, _parent));
       _push(`<div class="space-y-6"><div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h1 class="text-2xl font-bold text-gray-100">Airing Schedule</h1><div class="flex items-center gap-3">`);
       if (__props.isAuth) {
-        _push(`<button class="${ssrRenderClass([__props.watchingOnly ? "border-primary-500 bg-primary-600/20 text-primary-400" : "border-gray-700 bg-gray-900 text-gray-400 hover:text-gray-200", "rounded-lg border px-3 py-1.5 text-sm transition"])}"> My Watching Only </button>`);
+        _push(`<button class="${ssrRenderClass([__props.myListOnly ? "border-primary-500 bg-primary-600/20 text-primary-400" : "border-gray-700 bg-gray-900 text-gray-400 hover:text-gray-200", "rounded-lg border px-3 py-1.5 text-sm transition"])}"> My List </button>`);
       } else {
         _push(`<!---->`);
       }
