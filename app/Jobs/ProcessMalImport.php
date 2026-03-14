@@ -117,6 +117,11 @@ class ProcessMalImport implements ShouldQueue
 
                     $imported++;
                 } catch (\Illuminate\Database\QueryException $e) {
+                    Log::warning('MAL import: DB error for entry', [
+                        'mal_id' => $entry['mal_id'],
+                        'title' => $entry['title'],
+                        'error' => $e->getMessage(),
+                    ]);
                     $errors++;
                 }
             }
@@ -143,6 +148,7 @@ class ProcessMalImport implements ShouldQueue
                 'skipped' => $skipped,
                 'errors' => $errors,
                 'total' => $total,
+                'not_found' => $notFound,
             ],
         ], 3600);
     }

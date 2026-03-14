@@ -17,6 +17,19 @@ class MalImportService
         return "mal_import:{$userId}:{$token}";
     }
 
+    /**
+     * Parse a MAL date string, returning null for invalid/partial dates.
+     * MAL uses "0000-00-00" for unset and partial dates like "2023-00-00".
+     */
+    private static function parseMalDate(string $date): ?string
+    {
+        if (empty($date) || str_contains($date, '00-00') || str_contains($date, '-00')) {
+            return null;
+        }
+
+        return $date;
+    }
+
     private const STATUS_MAP = [
         'Watching' => UserAnimeList::STATUS_WATCHING,
         'Completed' => UserAnimeList::STATUS_COMPLETED,
@@ -64,8 +77,8 @@ class MalImportService
             $malScore = (int) $anime->my_score;
             $score = $malScore > 0 ? min($malScore * 10, 100) : 0;
 
-            $startDate = (string) $anime->my_start_date;
-            $finishDate = (string) $anime->my_finish_date;
+            $startDate = self::parseMalDate((string) $anime->my_start_date);
+            $finishDate = self::parseMalDate((string) $anime->my_finish_date);
 
             $entries[] = [
                 'mal_id' => (int) $anime->series_animedb_id ?: null,
@@ -73,8 +86,8 @@ class MalImportService
                 'status' => $status,
                 'score' => $score,
                 'progress' => (int) $anime->my_watched_episodes,
-                'started_at' => $startDate !== '0000-00-00' ? $startDate : null,
-                'completed_at' => $finishDate !== '0000-00-00' ? $finishDate : null,
+                'started_at' => $startDate,
+                'completed_at' => $finishDate,
             ];
         }
 
@@ -159,6 +172,11 @@ class MalImportService
 
                 $imported++;
             } catch (\Illuminate\Database\QueryException $e) {
+                Log::warning('MAL import: DB error for entry', [
+                    'mal_id' => $entry['mal_id'],
+                    'title' => $entry['title'],
+                    'error' => $e->getMessage(),
+                ]);
                 $errors++;
             }
         }
@@ -178,6 +196,7 @@ class MalImportService
             'skipped' => $skipped,
             'errors' => $errors,
             'total' => count($entries),
+            'not_found' => $notFound,
         ];
     }
 

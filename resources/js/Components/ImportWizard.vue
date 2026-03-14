@@ -18,6 +18,7 @@ const overwrite = ref(false)
 const uploading = ref(false)
 const confirming = ref(false)
 const error = ref('')
+const showNotFound = ref(false)
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
@@ -125,6 +126,7 @@ function reset() {
     fetching.value = false
     result.value = null
     error.value = ''
+    showNotFound.value = false
     overwrite.value = false
 }
 </script>
@@ -230,6 +232,42 @@ function reset() {
                     <div class="text-xs text-gray-400">Total</div>
                 </div>
             </div>
+            <!-- Not Found Details -->
+            <div v-if="result.not_found && result.not_found.length > 0">
+                <button
+                    class="text-sm text-gray-400 hover:text-gray-200 transition flex items-center gap-1"
+                    @click="showNotFound = !showNotFound"
+                >
+                    <span>{{ showNotFound ? '▾' : '▸' }}</span>
+                    {{ result.not_found.length }} anime could not be found
+                </button>
+                <div v-if="showNotFound" class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-gray-800 bg-gray-800/50">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500 border-b border-gray-700">
+                                <th class="px-3 py-1.5">Title</th>
+                                <th class="px-3 py-1.5 w-24">MAL ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="entry in result.not_found" :key="entry.mal_id" class="border-b border-gray-800/50">
+                                <td class="px-3 py-1.5 text-gray-300">{{ entry.title }}</td>
+                                <td class="px-3 py-1.5">
+                                    <a
+                                        :href="`https://myanimelist.net/anime/${entry.mal_id}`"
+                                        target="_blank"
+                                        rel="noopener"
+                                        class="text-primary-400 hover:text-primary-300 transition"
+                                    >
+                                        {{ entry.mal_id }}
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="flex gap-2">
                 <Link :href="route('list')">
                     <Button label="Go to My List" />

@@ -60,11 +60,17 @@ export interface MalPreviewEntry {
     completed_at: string | null
 }
 
+export interface ImportNotFoundEntry {
+    mal_id: number
+    title: string
+}
+
 export interface ImportResult {
     imported: number
     skipped: number
     errors: number
     total: number
+    not_found?: ImportNotFoundEntry[]
 }
 
 export interface ImportStatus {
