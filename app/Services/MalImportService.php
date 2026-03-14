@@ -153,7 +153,7 @@ class MalImportService
                 'user_id' => $user->id,
                 'anime_id' => $animeId,
                 'status' => $entry['status'],
-                'score' => $entry['score'] > 0 ? $entry['score'] : null,
+                'score' => $entry['score'] > 0 ? $entry['score'] : 0,
                 'progress' => $entry['progress'],
                 'started_at' => $entry['started_at'],
                 'completed_at' => $entry['completed_at'],
