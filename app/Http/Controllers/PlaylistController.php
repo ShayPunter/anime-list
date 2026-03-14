@@ -14,14 +14,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Pennant\Feature;
 
 class PlaylistController extends Controller
 {
-    public function __construct(private readonly PlaylistService $playlistService)
-    {
+    public function __construct(
+        private readonly PlaylistService $playlistService,
+        private readonly \App\Services\FeatureFlagService $featureFlags,
+    ) {
         $this->middleware(function (Request $request, \Closure $next) {
-            if ($request->user() && ! Feature::for($request->user())->active('playlists')) {
+            if ($request->user() && ! $this->featureFlags->active('playlists', $request->user())) {
                 abort(404);
             }
 
@@ -47,7 +48,7 @@ class PlaylistController extends Controller
 
     public function show(Playlist $playlist, Request $request): Response
     {
-        if (! Feature::for($playlist->user)->active('playlists')) {
+        if (! $this->featureFlags->active('playlists', $playlist->user)) {
             abort(404);
         }
 

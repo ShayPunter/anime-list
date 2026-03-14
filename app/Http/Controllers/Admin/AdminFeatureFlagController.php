@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\FeatureFlagService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,8 @@ use Laravel\Pennant\Feature;
 
 class AdminFeatureFlagController extends Controller
 {
+    public function __construct(private readonly FeatureFlagService $featureFlags) {}
+
     public function index(): Response
     {
         $definedFeatures = Feature::defined();
@@ -21,7 +24,7 @@ class AdminFeatureFlagController extends Controller
         foreach ($definedFeatures as $feature) {
             $userOverrides = DB::table('features')
                 ->where('name', $feature)
-                ->where('scope', 'like', 'App\\\\Models\\\\User|%')
+                ->whereNotNull('scope')
                 ->get()
                 ->map(function ($row) {
                     $userId = (int) last(explode('|', $row->scope));
@@ -68,21 +71,7 @@ class AdminFeatureFlagController extends Controller
             'status' => ['required', 'string', 'in:everyone,nobody,default'],
         ]);
 
-        $status = $request->input('status');
-
-        if ($status === 'everyone') {
-            Feature::activateForEveryone($feature);
-        } elseif ($status === 'nobody') {
-            Feature::deactivateForEveryone($feature);
-        } else {
-            // Remove global override, revert to default
-            DB::table('features')
-                ->where('name', $feature)
-                ->whereNull('scope')
-                ->delete();
-
-            Feature::flushCache();
-        }
+        $this->featureFlags->setGlobalStatus($feature, $request->input('status'));
 
         return response()->json(['success' => true]);
     }
@@ -94,7 +83,7 @@ class AdminFeatureFlagController extends Controller
         ]);
 
         $user = User::where('username', $request->input('username'))->firstOrFail();
-        Feature::for($user)->activate($feature);
+        $this->featureFlags->activateForUser($feature, $user);
 
         return response()->json([
             'user_id' => $user->id,
@@ -106,7 +95,7 @@ class AdminFeatureFlagController extends Controller
 
     public function deactivateForUser(Request $request, string $feature, User $user): JsonResponse
     {
-        Feature::for($user)->forget($feature);
+        $this->featureFlags->forgetForUser($feature, $user);
 
         return response()->json(['success' => true]);
     }

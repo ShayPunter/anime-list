@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\FeatureFlagService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use Laravel\Pennant\Feature;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -42,9 +42,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => $request->session()->get('message'),
                 'status' => $request->session()->get('status'),
             ],
-            'features' => fn () => $request->user()
-                ? collect(Feature::for($request->user())->all())->map(fn ($v) => (bool) $v)->all()
-                : [],
+            'features' => fn () => app(FeatureFlagService::class)->allForUser($request->user()),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
