@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -57,5 +58,12 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
+
+        $this->defineFeatureFlags();
+    }
+
+    private function defineFeatureFlags(): void
+    {
+        Feature::define('playlists', fn ($user) => false);
     }
 }

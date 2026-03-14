@@ -4,6 +4,7 @@ use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminFeatureFlagController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
@@ -103,4 +104,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
     Route::patch('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/features', [AdminFeatureFlagController::class, 'index'])->name('features');
+    Route::patch('/features/{feature}', [AdminFeatureFlagController::class, 'update'])->name('features.update');
+    Route::post('/features/{feature}/users', [AdminFeatureFlagController::class, 'activateForUser'])->name('features.activate-user');
+    Route::delete('/features/{feature}/users/{user}', [AdminFeatureFlagController::class, 'deactivateForUser'])->name('features.deactivate-user');
 });

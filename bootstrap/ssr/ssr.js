@@ -1,5 +1,5 @@
 import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, watch, onUnmounted, unref, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, Fragment, renderList, reactive, onScopeDispose, resolveDynamicComponent, createSSRApp, h as h$1 } from "vue";
-import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderClass, ssrRenderList, ssrIncludeBooleanAttr, ssrRenderAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderVNode, renderToString } from "vue/server-renderer";
+import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderClass, ssrRenderList, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderVNode, renderToString } from "vue/server-renderer";
 import { usePage, router, useForm, Link, createInertiaApp, Head } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
@@ -19,7 +19,7 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Aura from "@primevue/themes/aura";
-const _sfc_main$N = /* @__PURE__ */ defineComponent({
+const _sfc_main$O = /* @__PURE__ */ defineComponent({
   __name: "UserAvatar",
   __ssrInlineRender: true,
   props: {
@@ -66,13 +66,13 @@ const _sfc_main$N = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$N = _sfc_main$N.setup;
-_sfc_main$N.setup = (props, ctx) => {
+const _sfc_setup$O = _sfc_main$O.setup;
+_sfc_main$O.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/UserAvatar.vue");
-  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
+  return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
 };
-const _sfc_main$M = /* @__PURE__ */ defineComponent({
+const _sfc_main$N = /* @__PURE__ */ defineComponent({
   __name: "AppNavbar",
   __ssrInlineRender: true,
   props: {
@@ -194,7 +194,7 @@ const _sfc_main$M = /* @__PURE__ */ defineComponent({
           _: 1
         }, _parent));
         _push(`<div class="relative"><button class="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition">`);
-        _push(ssrRenderComponent(_sfc_main$N, {
+        _push(ssrRenderComponent(_sfc_main$O, {
           name: __props.user.name,
           "avatar-url": __props.user.avatar_url,
           size: "sm"
@@ -251,6 +251,25 @@ const _sfc_main$M = /* @__PURE__ */ defineComponent({
           } else {
             _push(`<!---->`);
           }
+          if (__props.user.is_admin) {
+            _push(ssrRenderComponent(_component_Link, {
+              href: _ctx.route("admin.features"),
+              class: "block px-4 py-2 text-sm text-primary-400 hover:bg-gray-800 hover:text-primary-300"
+            }, {
+              default: withCtx((_2, _push2, _parent2, _scopeId) => {
+                if (_push2) {
+                  _push2(` Feature Flags `);
+                } else {
+                  return [
+                    createTextVNode(" Feature Flags ")
+                  ];
+                }
+              }),
+              _: 1
+            }, _parent));
+          } else {
+            _push(`<!---->`);
+          }
           _push(`<hr class="border-gray-700 my-1"><button class="block w-full text-left px-4 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-100"> Logout </button></div>`);
         } else {
           _push(`<!---->`);
@@ -294,11 +313,11 @@ const _sfc_main$M = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$M = _sfc_main$M.setup;
-_sfc_main$M.setup = (props, ctx) => {
+const _sfc_setup$N = _sfc_main$N.setup;
+_sfc_main$N.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppNavbar.vue");
-  return _sfc_setup$M ? _sfc_setup$M(props, ctx) : void 0;
+  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
 };
 const _export_sfc = (sfc, props) => {
   const target = sfc.__vccOpts || sfc;
@@ -307,7 +326,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const _sfc_main$L = {};
+const _sfc_main$M = {};
 function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
   const _component_Link = resolveComponent("Link");
   _push(`<footer${ssrRenderAttrs(mergeProps({ class: "mt-16 border-t border-gray-800 bg-gray-950" }, _attrs))}><div class="container mx-auto px-4 py-10"><div class="grid grid-cols-1 gap-8 sm:grid-cols-3"><div><h3 class="mb-3 text-sm font-semibold text-gray-300">Navigate</h3><ul class="space-y-2 text-sm"><li>`);
@@ -424,13 +443,13 @@ function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
   }, _parent));
   _push(`</li><li><a href="/sitemap.xml" class="text-gray-500 transition hover:text-gray-200">Sitemap</a></li></ul></div><div><h3 class="mb-3 text-sm font-semibold text-gray-300">AniTrack</h3><p class="text-sm text-gray-500"> Track your anime, discover new shows, and share your list with friends. </p><p class="mt-2 text-xs text-gray-600"> Anime data provided by <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-gray-500 transition hover:text-gray-200">AniList</a>. </p></div></div><div class="mt-8 border-t border-gray-800/50 pt-6 text-center text-xs text-gray-600"> © ${ssrInterpolate((/* @__PURE__ */ new Date()).getFullYear())} AniTrack </div></div></footer>`);
 }
-const _sfc_setup$L = _sfc_main$L.setup;
-_sfc_main$L.setup = (props, ctx) => {
+const _sfc_setup$M = _sfc_main$M.setup;
+_sfc_main$M.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppFooter.vue");
-  return _sfc_setup$L ? _sfc_setup$L(props, ctx) : void 0;
+  return _sfc_setup$M ? _sfc_setup$M(props, ctx) : void 0;
 };
-const AppFooter = /* @__PURE__ */ _export_sfc(_sfc_main$L, [["ssrRender", _sfc_ssrRender]]);
+const AppFooter = /* @__PURE__ */ _export_sfc(_sfc_main$M, [["ssrRender", _sfc_ssrRender]]);
 function useFlashToast() {
   const page = usePage();
   const toast = useToast();
@@ -455,7 +474,7 @@ function useFlashToast() {
   );
   onUnmounted(stop);
 }
-const _sfc_main$K = /* @__PURE__ */ defineComponent({
+const _sfc_main$L = /* @__PURE__ */ defineComponent({
   __name: "AppLayout",
   __ssrInlineRender: true,
   setup(__props) {
@@ -465,7 +484,7 @@ const _sfc_main$K = /* @__PURE__ */ defineComponent({
     useFlashToast();
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "min-h-screen bg-gray-950 text-gray-100 dark" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$M, {
+      _push(ssrRenderComponent(_sfc_main$N, {
         user: user.value,
         "is-authenticated": isAuthenticated.value
       }, null, _parent));
@@ -478,14 +497,14 @@ const _sfc_main$K = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$K = _sfc_main$K.setup;
-_sfc_main$K.setup = (props, ctx) => {
+const _sfc_setup$L = _sfc_main$L.setup;
+_sfc_main$L.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/AppLayout.vue");
-  return _sfc_setup$K ? _sfc_setup$K(props, ctx) : void 0;
+  return _sfc_setup$L ? _sfc_setup$L(props, ctx) : void 0;
 };
-const _sfc_main$J = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+const _sfc_main$K = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$L },
   __name: "DashboardPage",
   __ssrInlineRender: true,
   props: {
@@ -542,13 +561,85 @@ const _sfc_main$J = /* @__PURE__ */ defineComponent({
     };
   }
 });
+const _sfc_setup$K = _sfc_main$K.setup;
+_sfc_main$K.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/DashboardPage.vue");
+  return _sfc_setup$K ? _sfc_setup$K(props, ctx) : void 0;
+};
+const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$K
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$J = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$L },
+  __name: "FeatureFlagsPage",
+  __ssrInlineRender: true,
+  props: {
+    features: {}
+  },
+  setup(__props) {
+    const addingUserFor = ref(null);
+    const usernameInput = ref("");
+    const addingError = ref("");
+    const statusLabels = {
+      everyone: "Everyone",
+      nobody: "Nobody",
+      default: "Default (Off)",
+      specific: "Specific Users"
+    };
+    const statusColors = {
+      everyone: "text-green-400",
+      nobody: "text-red-400",
+      default: "text-gray-500",
+      specific: "text-yellow-400"
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Feature Flags" }, null, _parent));
+      _push(`<div><h1 class="text-2xl font-bold mb-6">Feature Flags</h1>`);
+      if (__props.features.length === 0) {
+        _push(`<div class="text-center py-12 text-gray-500"> No feature flags defined. </div>`);
+      } else {
+        _push(`<div class="space-y-4"><!--[-->`);
+        ssrRenderList(__props.features, (feature) => {
+          _push(`<div class="bg-gray-900 border border-gray-800 rounded-xl p-5"><div class="flex items-center justify-between mb-3"><div><h2 class="font-semibold text-gray-100 font-mono">${ssrInterpolate(feature.name)}</h2><span class="${ssrRenderClass([statusColors[feature.status], "text-xs"])}">${ssrInterpolate(statusLabels[feature.status])}</span></div><div class="flex gap-1"><button class="${ssrRenderClass([feature.status === "everyone" ? "border-green-500 bg-green-600/20 text-green-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Everyone </button><button class="${ssrRenderClass([feature.status === "nobody" ? "border-red-500 bg-red-600/20 text-red-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Nobody </button><button class="${ssrRenderClass([feature.status === "default" ? "border-gray-500 bg-gray-600/20 text-gray-300" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Default </button></div></div><div class="border-t border-gray-800 pt-3"><div class="flex items-center gap-2 mb-2"><span class="text-xs text-gray-500">User overrides</span><button class="text-xs text-primary-400 hover:text-primary-300 transition"> + Add user </button></div>`);
+          if (addingUserFor.value === feature.name) {
+            _push(`<div class="flex items-center gap-2 mb-2"><input${ssrRenderAttr("value", usernameInput.value)} type="text" placeholder="Username" class="rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300 flex-1"><button class="rounded bg-primary-600 px-3 py-1 text-sm text-white hover:bg-primary-700 transition"> Add </button>`);
+            if (addingError.value) {
+              _push(`<span class="text-xs text-red-400">${ssrInterpolate(addingError.value)}</span>`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</div>`);
+          } else {
+            _push(`<!---->`);
+          }
+          if (feature.users.length > 0) {
+            _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
+            ssrRenderList(feature.users, (user) => {
+              _push(`<div class="flex items-center gap-1.5 rounded-full bg-gray-800 pl-3 pr-1.5 py-1 text-xs"><span class="text-gray-300">${ssrInterpolate(user.username)}</span><button class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"> × </button></div>`);
+            });
+            _push(`<!--]--></div>`);
+          } else {
+            _push(`<p class="text-xs text-gray-600">No user-specific overrides</p>`);
+          }
+          _push(`</div></div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div><!--]-->`);
+    };
+  }
+});
 const _sfc_setup$J = _sfc_main$J.setup;
 _sfc_main$J.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/DashboardPage.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/FeatureFlagsPage.vue");
   return _sfc_setup$J ? _sfc_setup$J(props, ctx) : void 0;
 };
-const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$J
 }, Symbol.toStringTag, { value: "Module" }));
@@ -613,7 +704,7 @@ _sfc_main$I.setup = (props, ctx) => {
   return _sfc_setup$I ? _sfc_setup$I(props, ctx) : void 0;
 };
 const _sfc_main$H = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "UsersPage",
   __ssrInlineRender: true,
   props: {
@@ -665,7 +756,7 @@ const _sfc_main$H = /* @__PURE__ */ defineComponent({
       _push(`</div><input${ssrRenderAttr("value", search.value)} type="text" placeholder="Search by name, email, or username..." class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><div class="overflow-x-auto rounded-xl border border-gray-800"><table class="w-full"><thead class="border-b border-gray-800 bg-gray-900"><tr><th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">Email</th><th class="hidden px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-400 sm:table-cell">Anime</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">Joined</th><th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th></tr></thead><tbody class="divide-y divide-gray-800"><!--[-->`);
       ssrRenderList(__props.users.data, (user) => {
         _push(`<tr class="bg-gray-950 transition hover:bg-gray-900"><td class="px-4 py-3"><div class="flex items-center gap-3">`);
-        _push(ssrRenderComponent(_sfc_main$N, {
+        _push(ssrRenderComponent(_sfc_main$O, {
           name: user.name,
           "avatar-url": user.avatar_url,
           size: "sm"
@@ -700,7 +791,7 @@ _sfc_main$H.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/UsersPage.vue");
   return _sfc_setup$H ? _sfc_setup$H(props, ctx) : void 0;
 };
-const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$H
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1417,7 +1508,7 @@ _sfc_main$A.setup = (props, ctx) => {
   return _sfc_setup$A ? _sfc_setup$A(props, ctx) : void 0;
 };
 const _sfc_main$z = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "AnimeDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -1681,7 +1772,7 @@ _sfc_main$z.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeDetailPage.vue");
   return _sfc_setup$z ? _sfc_setup$z(props, ctx) : void 0;
 };
-const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$z
 }, Symbol.toStringTag, { value: "Module" }));
@@ -2084,7 +2175,7 @@ function useBrowseFilters() {
   };
 }
 const _sfc_main$v = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "AnimeIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -2194,7 +2285,7 @@ _sfc_main$v.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeIndexPage.vue");
   return _sfc_setup$v ? _sfc_setup$v(props, ctx) : void 0;
 };
-const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$v
 }, Symbol.toStringTag, { value: "Module" }));
@@ -2236,7 +2327,7 @@ _sfc_main$u.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ErrorPage.vue");
   return _sfc_setup$u ? _sfc_setup$u(props, ctx) : void 0;
 };
-const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$u
 }, Symbol.toStringTag, { value: "Module" }));
@@ -2710,7 +2801,7 @@ _sfc_main$p.setup = (props, ctx) => {
   return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
 };
 const _sfc_main$o = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "HomePage",
   __ssrInlineRender: true,
   props: {
@@ -2828,7 +2919,7 @@ _sfc_main$o.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/HomePage.vue");
   return _sfc_setup$o ? _sfc_setup$o(props, ctx) : void 0;
 };
-const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$o
 }, Symbol.toStringTag, { value: "Module" }));
@@ -3013,7 +3104,7 @@ _sfc_main$n.setup = (props, ctx) => {
   return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
 };
 const _sfc_main$m = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "ImportPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3033,12 +3124,12 @@ _sfc_main$m.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ImportPage.vue");
   return _sfc_setup$m ? _sfc_setup$m(props, ctx) : void 0;
 };
-const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$m
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$l = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "LoginPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3089,7 +3180,7 @@ _sfc_main$l.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/LoginPage.vue");
   return _sfc_setup$l ? _sfc_setup$l(props, ctx) : void 0;
 };
-const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$l
 }, Symbol.toStringTag, { value: "Module" }));
@@ -3390,7 +3481,7 @@ _sfc_main$h.setup = (props, ctx) => {
   return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
 };
 const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "MyListPage",
   __ssrInlineRender: true,
   props: {
@@ -3566,12 +3657,12 @@ _sfc_main$g.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/MyListPage.vue");
   return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
 };
-const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$g
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$f = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "NotFoundPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3606,12 +3697,12 @@ _sfc_main$f.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/NotFoundPage.vue");
   return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
 };
-const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$f
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$e = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "PlaylistDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -3745,7 +3836,7 @@ _sfc_main$e.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistDetailPage.vue");
   return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
 };
-const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$e
 }, Symbol.toStringTag, { value: "Module" }));
@@ -3800,7 +3891,7 @@ function usePlaylistMutations() {
   };
 }
 const _sfc_main$d = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "PlaylistEditPage",
   __ssrInlineRender: true,
   props: {
@@ -3998,12 +4089,12 @@ _sfc_main$d.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistEditPage.vue");
   return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
 };
-const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$d
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$c = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "PlaylistsIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -4101,12 +4192,12 @@ _sfc_main$c.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistsIndexPage.vue");
   return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
 };
-const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$c
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$b = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "PrivacyPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4142,12 +4233,12 @@ _sfc_main$b.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PrivacyPage.vue");
   return _sfc_setup$b ? _sfc_setup$b(props, ctx) : void 0;
 };
-const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$b
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$a = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "ProfilePage",
   __ssrInlineRender: true,
   props: {
@@ -4222,7 +4313,7 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="max-w-4xl mx-auto"><div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-6"><div class="flex items-center gap-6">`);
-      _push(ssrRenderComponent(_sfc_main$N, {
+      _push(ssrRenderComponent(_sfc_main$O, {
         name: __props.profile.name,
         "avatar-url": __props.profile.avatar_url,
         size: "lg"
@@ -4283,12 +4374,12 @@ _sfc_main$a.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ProfilePage.vue");
   return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
 };
-const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$a
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$9 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "PublicListPage",
   __ssrInlineRender: true,
   props: {
@@ -4473,12 +4564,12 @@ _sfc_main$9.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PublicListPage.vue");
   return _sfc_setup$9 ? _sfc_setup$9(props, ctx) : void 0;
 };
-const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$9
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$8 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "RegisterPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4544,7 +4635,7 @@ _sfc_main$8.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/RegisterPage.vue");
   return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
 };
-const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$8
 }, Symbol.toStringTag, { value: "Module" }));
@@ -4649,7 +4740,7 @@ _sfc_main$7.setup = (props, ctx) => {
   return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
 const _sfc_main$6 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "SchedulePage",
   __ssrInlineRender: true,
   props: {
@@ -4729,12 +4820,12 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SchedulePage.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$6
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$5 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "SearchPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4796,7 +4887,7 @@ _sfc_main$5.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SearchPage.vue");
   return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
 };
-const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$5
 }, Symbol.toStringTag, { value: "Module" }));
@@ -4857,7 +4948,7 @@ _sfc_main$4.setup = (props, ctx) => {
   return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
 };
 const _sfc_main$3 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "SeasonalPage",
   __ssrInlineRender: true,
   props: {
@@ -4948,12 +5039,12 @@ _sfc_main$3.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SeasonalPage.vue");
   return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-const __vite_glob_0_19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$3
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$2 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "SettingsPage",
   __ssrInlineRender: true,
   props: {
@@ -5139,12 +5230,12 @@ _sfc_main$2.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SettingsPage.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const __vite_glob_0_20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$2
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$1 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "TermsPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -5180,12 +5271,12 @@ _sfc_main$1.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TermsPage.vue");
   return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
 };
-const __vite_glob_0_21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$1
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$K },
+  ...{ layout: _sfc_main$L },
   __name: "TopAnimePage",
   __ssrInlineRender: true,
   props: {
@@ -5407,7 +5498,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TopAnimePage.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const __vite_glob_0_22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main
 }, Symbol.toStringTag, { value: "Module" }));
@@ -5807,7 +5898,7 @@ createServer(
     render: renderToString,
     title: (title) => title ? `${title} — AniTrack` : "AniTrack",
     resolve: (name) => {
-      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/DashboardPage.vue": __vite_glob_0_0, "./Pages/Admin/UsersPage.vue": __vite_glob_0_1, "./Pages/AnimeDetailPage.vue": __vite_glob_0_2, "./Pages/AnimeIndexPage.vue": __vite_glob_0_3, "./Pages/ErrorPage.vue": __vite_glob_0_4, "./Pages/HomePage.vue": __vite_glob_0_5, "./Pages/ImportPage.vue": __vite_glob_0_6, "./Pages/LoginPage.vue": __vite_glob_0_7, "./Pages/MyListPage.vue": __vite_glob_0_8, "./Pages/NotFoundPage.vue": __vite_glob_0_9, "./Pages/PlaylistDetailPage.vue": __vite_glob_0_10, "./Pages/PlaylistEditPage.vue": __vite_glob_0_11, "./Pages/PlaylistsIndexPage.vue": __vite_glob_0_12, "./Pages/PrivacyPage.vue": __vite_glob_0_13, "./Pages/ProfilePage.vue": __vite_glob_0_14, "./Pages/PublicListPage.vue": __vite_glob_0_15, "./Pages/RegisterPage.vue": __vite_glob_0_16, "./Pages/SchedulePage.vue": __vite_glob_0_17, "./Pages/SearchPage.vue": __vite_glob_0_18, "./Pages/SeasonalPage.vue": __vite_glob_0_19, "./Pages/SettingsPage.vue": __vite_glob_0_20, "./Pages/TermsPage.vue": __vite_glob_0_21, "./Pages/TopAnimePage.vue": __vite_glob_0_22 });
+      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/DashboardPage.vue": __vite_glob_0_0, "./Pages/Admin/FeatureFlagsPage.vue": __vite_glob_0_1, "./Pages/Admin/UsersPage.vue": __vite_glob_0_2, "./Pages/AnimeDetailPage.vue": __vite_glob_0_3, "./Pages/AnimeIndexPage.vue": __vite_glob_0_4, "./Pages/ErrorPage.vue": __vite_glob_0_5, "./Pages/HomePage.vue": __vite_glob_0_6, "./Pages/ImportPage.vue": __vite_glob_0_7, "./Pages/LoginPage.vue": __vite_glob_0_8, "./Pages/MyListPage.vue": __vite_glob_0_9, "./Pages/NotFoundPage.vue": __vite_glob_0_10, "./Pages/PlaylistDetailPage.vue": __vite_glob_0_11, "./Pages/PlaylistEditPage.vue": __vite_glob_0_12, "./Pages/PlaylistsIndexPage.vue": __vite_glob_0_13, "./Pages/PrivacyPage.vue": __vite_glob_0_14, "./Pages/ProfilePage.vue": __vite_glob_0_15, "./Pages/PublicListPage.vue": __vite_glob_0_16, "./Pages/RegisterPage.vue": __vite_glob_0_17, "./Pages/SchedulePage.vue": __vite_glob_0_18, "./Pages/SearchPage.vue": __vite_glob_0_19, "./Pages/SeasonalPage.vue": __vite_glob_0_20, "./Pages/SettingsPage.vue": __vite_glob_0_21, "./Pages/TermsPage.vue": __vite_glob_0_22, "./Pages/TopAnimePage.vue": __vite_glob_0_23 });
       const page2 = pages[`./Pages/${name}.vue`];
       if (!page2) return pages["./Pages/ErrorPage.vue"];
       return page2;

@@ -55,6 +55,8 @@
   "resources/js/Layouts/AppLayout.vue?vue&type=script&setup=true&lang.ts": [],
   "resources/js/Pages/Admin/DashboardPage.vue": [],
   "resources/js/Pages/Admin/DashboardPage.vue?vue&type=script&setup=true&lang.ts": [],
+  "resources/js/Pages/Admin/FeatureFlagsPage.vue": [],
+  "resources/js/Pages/Admin/FeatureFlagsPage.vue?vue&type=script&setup=true&lang.ts": [],
   "resources/js/Pages/Admin/UsersPage.vue": [],
   "resources/js/Pages/Admin/UsersPage.vue?vue&type=script&setup=true&lang.ts": [],
   "resources/js/Pages/AnimeDetailPage.vue": [],
