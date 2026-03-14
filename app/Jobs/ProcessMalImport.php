@@ -67,6 +67,14 @@ class ProcessMalImport implements ShouldQueue
             ->flip()
             ->toArray();
 
+        $entriesWithMalId = count(array_filter(array_column($entries, 'mal_id')));
+        Log::info('MAL import: processing entries', [
+            'total_entries' => $total,
+            'entries_with_mal_id' => $entriesWithMalId,
+            'entries_without_mal_id' => $total - $entriesWithMalId,
+            'anime_map_size' => $animeMap->count(),
+        ]);
+
         $notFound = [];
         $chunks = array_chunk($entries, 50);
         $processed = 0;
