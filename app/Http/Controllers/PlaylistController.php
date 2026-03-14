@@ -20,18 +20,19 @@ class PlaylistController extends Controller
     public function __construct(
         private readonly PlaylistService $playlistService,
         private readonly \App\Services\FeatureFlagService $featureFlags,
-    ) {
-        $this->middleware(function (Request $request, \Closure $next) {
-            if ($request->user() && ! $this->featureFlags->active('playlists', $request->user())) {
-                abort(404);
-            }
+    ) {}
 
-            return $next($request);
-        })->except('show');
+    private function ensureFeatureEnabled(?Request $request = null): void
+    {
+        $user = $request?->user();
+        if (! $this->featureFlags->active('playlists', $user)) {
+            abort(404);
+        }
     }
 
     public function index(Request $request): Response
     {
+        $this->ensureFeatureEnabled($request);
         $playlists = $this->playlistService->getUserPlaylists($request->user());
 
         return Inertia::render('PlaylistsIndexPage', [
@@ -39,8 +40,9 @@ class PlaylistController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $this->ensureFeatureEnabled($request);
         return Inertia::render('PlaylistEditPage', [
             'playlist' => null,
         ]);
@@ -66,6 +68,7 @@ class PlaylistController extends Controller
 
     public function edit(Playlist $playlist, Request $request): Response
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
 
         $this->playlistService->getPlaylistWithItems($playlist);
@@ -77,6 +80,7 @@ class PlaylistController extends Controller
 
     public function store(StorePlaylistRequest $request): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         $playlist = $this->playlistService->store($request->user(), $request->validated());
 
         return response()->json([
@@ -86,6 +90,7 @@ class PlaylistController extends Controller
 
     public function update(UpdatePlaylistRequest $request, Playlist $playlist): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         $playlist->update($request->validated());
 
         return response()->json([
@@ -95,6 +100,7 @@ class PlaylistController extends Controller
 
     public function destroy(Request $request, Playlist $playlist): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
 
         $playlist->delete();
@@ -104,6 +110,7 @@ class PlaylistController extends Controller
 
     public function addItem(Request $request, Playlist $playlist): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
 
         $request->validate([
@@ -127,6 +134,7 @@ class PlaylistController extends Controller
 
     public function updateItem(Request $request, Playlist $playlist, PlaylistItem $item): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
         abort_if($item->playlist_id !== $playlist->id, 404);
 
@@ -142,6 +150,7 @@ class PlaylistController extends Controller
 
     public function removeItem(Request $request, Playlist $playlist, PlaylistItem $item): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
         abort_if($item->playlist_id !== $playlist->id, 404);
 
@@ -152,6 +161,7 @@ class PlaylistController extends Controller
 
     public function reorder(Request $request, Playlist $playlist): JsonResponse
     {
+        $this->ensureFeatureEnabled($request);
         abort_if($request->user()->id !== $playlist->user_id, 403);
 
         $request->validate([
