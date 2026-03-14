@@ -3229,11 +3229,25 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
     function displayTitle(entry) {
       return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
     }
+    const statusColors = {
+      watching: "border-blue-500",
+      completed: "border-green-500",
+      on_hold: "border-yellow-500",
+      dropped: "border-red-500",
+      plan_to_watch: "border-gray-600"
+    };
+    const statusBadgeColors = {
+      watching: "bg-blue-500/20 text-blue-400",
+      completed: "bg-green-500/20 text-green-400",
+      on_hold: "bg-yellow-500/20 text-yellow-400",
+      dropped: "bg-red-500/20 text-red-400",
+      plan_to_watch: "bg-gray-700 text-gray-400"
+    };
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Link = resolveComponent("Link");
       _push(`<!--[--><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"><!--[-->`);
       ssrRenderList(__props.entries, (entry) => {
-        _push(`<div class="group relative overflow-hidden rounded-lg bg-gray-800">`);
+        _push(`<div class="${ssrRenderClass([statusColors[entry.status] ?? "border-gray-700", "group relative overflow-hidden rounded-lg bg-gray-800 border-2"])}">`);
         if (entry.anime) {
           _push(ssrRenderComponent(_component_Link, {
             href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
@@ -3268,7 +3282,7 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
         } else {
           _push(`<!---->`);
         }
-        _push(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 via-gray-900/70 to-transparent p-2 pt-8"><p class="text-xs font-medium text-gray-200 line-clamp-2 mb-1">${ssrInterpolate(displayTitle(entry))}</p><div class="flex items-center justify-between"><span class="text-[10px] text-gray-400">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
+        _push(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 via-gray-900/70 to-transparent p-2 pt-8"><p class="text-xs font-medium text-gray-200 line-clamp-2 mb-1">${ssrInterpolate(displayTitle(entry))}</p><div class="flex items-center justify-between"><span class="${ssrRenderClass([statusBadgeColors[entry.status] ?? "bg-gray-700 text-gray-400", "text-[10px] px-1.5 py-0.5 rounded-full font-medium"])}">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
         if (entry.display_score) {
           _push(`<span class="text-[10px] text-primary-400">${ssrInterpolate(entry.display_score)}</span>`);
         } else {

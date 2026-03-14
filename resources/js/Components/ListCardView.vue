@@ -14,6 +14,22 @@ const emit = defineEmits<{
 function displayTitle(entry: ListEntryResource): string {
     return entry.anime?.title_english || entry.anime?.title_romaji || 'Unknown'
 }
+
+const statusColors: Record<string, string> = {
+    watching: 'border-blue-500',
+    completed: 'border-green-500',
+    on_hold: 'border-yellow-500',
+    dropped: 'border-red-500',
+    plan_to_watch: 'border-gray-600',
+}
+
+const statusBadgeColors: Record<string, string> = {
+    watching: 'bg-blue-500/20 text-blue-400',
+    completed: 'bg-green-500/20 text-green-400',
+    on_hold: 'bg-yellow-500/20 text-yellow-400',
+    dropped: 'bg-red-500/20 text-red-400',
+    plan_to_watch: 'bg-gray-700 text-gray-400',
+}
 </script>
 
 <template>
@@ -21,7 +37,8 @@ function displayTitle(entry: ListEntryResource): string {
         <div
             v-for="entry in entries"
             :key="entry.id"
-            class="group relative overflow-hidden rounded-lg bg-gray-800"
+            class="group relative overflow-hidden rounded-lg bg-gray-800 border-2"
+            :class="statusColors[entry.status] ?? 'border-gray-700'"
         >
             <Link
                 v-if="entry.anime"
@@ -46,7 +63,10 @@ function displayTitle(entry: ListEntryResource): string {
                     {{ displayTitle(entry) }}
                 </p>
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] text-gray-400">
+                    <span
+                        class="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                        :class="statusBadgeColors[entry.status] ?? 'bg-gray-700 text-gray-400'"
+                    >
                         {{ LIST_STATUS_LABELS[entry.status] }}
                     </span>
                     <span v-if="entry.display_score" class="text-[10px] text-primary-400">
