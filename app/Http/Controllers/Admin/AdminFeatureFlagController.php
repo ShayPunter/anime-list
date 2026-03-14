@@ -43,7 +43,7 @@ class AdminFeatureFlagController extends Controller
 
             $globalOverride = DB::table('features')
                 ->where('name', $feature)
-                ->whereNull('scope')
+                ->where('scope', '')
                 ->first();
 
             $status = 'default';

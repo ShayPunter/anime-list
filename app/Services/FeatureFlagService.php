@@ -28,7 +28,7 @@ class FeatureFlagService
 
         $global = DB::table('features')
             ->where('name', $feature)
-            ->whereNull('scope')
+            ->where('scope', '')
             ->first();
 
         if ($global) {
@@ -66,7 +66,7 @@ class FeatureFlagService
 
             DB::table('features')->insert([
                 'name' => $feature,
-                'scope' => null,
+                'scope' => '',
                 'value' => $status === 'everyone' ? 'true' : 'false',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -75,7 +75,7 @@ class FeatureFlagService
             // Default: remove global override only
             DB::table('features')
                 ->where('name', $feature)
-                ->whereNull('scope')
+                ->where('scope', '')
                 ->delete();
         }
 
