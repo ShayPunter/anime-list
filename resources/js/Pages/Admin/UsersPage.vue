@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import AdminNav from '@/Components/AdminNav.vue'
 import PaginationBar from '@/Components/PaginationBar.vue'
 import UserAvatar from '@/Components/UserAvatar.vue'
 import type { AdminUser } from '@/types/admin'
@@ -55,9 +56,10 @@ function deleteUser(userId: number) {
     <Head title="User Management" />
 
     <div class="mx-auto max-w-6xl space-y-6">
+        <AdminNav />
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold">User Management</h1>
+                <h1 class="text-2xl font-bold">Users</h1>
                 <p class="mt-1 text-sm text-gray-400">{{ users.meta.total }} total users</p>
             </div>
             <Link

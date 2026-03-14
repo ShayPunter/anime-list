@@ -1,5 +1,5 @@
-import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, watch, onUnmounted, unref, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, Fragment, renderList, reactive, onScopeDispose, resolveDynamicComponent, createSSRApp, h as h$1 } from "vue";
-import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderClass, ssrRenderList, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderVNode, renderToString } from "vue/server-renderer";
+import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, unref, watch, onUnmounted, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, Fragment, renderList, reactive, onScopeDispose, resolveDynamicComponent, createSSRApp, h as h$1 } from "vue";
+import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderList, ssrRenderClass, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderVNode, renderToString } from "vue/server-renderer";
 import { usePage, router, useForm, Link, createInertiaApp, Head } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
@@ -19,7 +19,7 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Aura from "@primevue/themes/aura";
-const _sfc_main$O = /* @__PURE__ */ defineComponent({
+const _sfc_main$P = /* @__PURE__ */ defineComponent({
   __name: "UserAvatar",
   __ssrInlineRender: true,
   props: {
@@ -66,13 +66,17 @@ const _sfc_main$O = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$O = _sfc_main$O.setup;
-_sfc_main$O.setup = (props, ctx) => {
+const _sfc_setup$P = _sfc_main$P.setup;
+_sfc_main$P.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/UserAvatar.vue");
-  return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
+  return _sfc_setup$P ? _sfc_setup$P(props, ctx) : void 0;
 };
-const _sfc_main$N = /* @__PURE__ */ defineComponent({
+function useFeature(name) {
+  const page = usePage();
+  return computed(() => page.props.features?.[name] ?? false);
+}
+const _sfc_main$O = /* @__PURE__ */ defineComponent({
   __name: "AppNavbar",
   __ssrInlineRender: true,
   props: {
@@ -80,6 +84,7 @@ const _sfc_main$N = /* @__PURE__ */ defineComponent({
     isAuthenticated: { type: Boolean }
   },
   setup(__props) {
+    const showPlaylists = useFeature("playlists");
     const showDropdown = ref(false);
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Link = resolveComponent("Link");
@@ -178,23 +183,27 @@ const _sfc_main$N = /* @__PURE__ */ defineComponent({
           }),
           _: 1
         }, _parent));
-        _push(ssrRenderComponent(_component_Link, {
-          href: _ctx.route("playlists.index"),
-          class: "text-gray-400 hover:text-gray-100 transition"
-        }, {
-          default: withCtx((_2, _push2, _parent2, _scopeId) => {
-            if (_push2) {
-              _push2(`Playlists`);
-            } else {
-              return [
-                createTextVNode("Playlists")
-              ];
-            }
-          }),
-          _: 1
-        }, _parent));
+        if (unref(showPlaylists)) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: _ctx.route("playlists.index"),
+            class: "text-gray-400 hover:text-gray-100 transition"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`Playlists`);
+              } else {
+                return [
+                  createTextVNode("Playlists")
+                ];
+              }
+            }),
+            _: 1
+          }, _parent));
+        } else {
+          _push(`<!---->`);
+        }
         _push(`<div class="relative"><button class="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition">`);
-        _push(ssrRenderComponent(_sfc_main$O, {
+        _push(ssrRenderComponent(_sfc_main$P, {
           name: __props.user.name,
           "avatar-url": __props.user.avatar_url,
           size: "sm"
@@ -251,25 +260,6 @@ const _sfc_main$N = /* @__PURE__ */ defineComponent({
           } else {
             _push(`<!---->`);
           }
-          if (__props.user.is_admin) {
-            _push(ssrRenderComponent(_component_Link, {
-              href: _ctx.route("admin.features"),
-              class: "block px-4 py-2 text-sm text-primary-400 hover:bg-gray-800 hover:text-primary-300"
-            }, {
-              default: withCtx((_2, _push2, _parent2, _scopeId) => {
-                if (_push2) {
-                  _push2(` Feature Flags `);
-                } else {
-                  return [
-                    createTextVNode(" Feature Flags ")
-                  ];
-                }
-              }),
-              _: 1
-            }, _parent));
-          } else {
-            _push(`<!---->`);
-          }
           _push(`<hr class="border-gray-700 my-1"><button class="block w-full text-left px-4 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-100"> Logout </button></div>`);
         } else {
           _push(`<!---->`);
@@ -313,11 +303,11 @@ const _sfc_main$N = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$N = _sfc_main$N.setup;
-_sfc_main$N.setup = (props, ctx) => {
+const _sfc_setup$O = _sfc_main$O.setup;
+_sfc_main$O.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppNavbar.vue");
-  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
+  return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
 };
 const _export_sfc = (sfc, props) => {
   const target = sfc.__vccOpts || sfc;
@@ -326,7 +316,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const _sfc_main$M = {};
+const _sfc_main$N = {};
 function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
   const _component_Link = resolveComponent("Link");
   _push(`<footer${ssrRenderAttrs(mergeProps({ class: "mt-16 border-t border-gray-800 bg-gray-950" }, _attrs))}><div class="container mx-auto px-4 py-10"><div class="grid grid-cols-1 gap-8 sm:grid-cols-3"><div><h3 class="mb-3 text-sm font-semibold text-gray-300">Navigate</h3><ul class="space-y-2 text-sm"><li>`);
@@ -443,13 +433,13 @@ function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
   }, _parent));
   _push(`</li><li><a href="/sitemap.xml" class="text-gray-500 transition hover:text-gray-200">Sitemap</a></li></ul></div><div><h3 class="mb-3 text-sm font-semibold text-gray-300">AniTrack</h3><p class="text-sm text-gray-500"> Track your anime, discover new shows, and share your list with friends. </p><p class="mt-2 text-xs text-gray-600"> Anime data provided by <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-gray-500 transition hover:text-gray-200">AniList</a>. </p></div></div><div class="mt-8 border-t border-gray-800/50 pt-6 text-center text-xs text-gray-600"> © ${ssrInterpolate((/* @__PURE__ */ new Date()).getFullYear())} AniTrack </div></div></footer>`);
 }
-const _sfc_setup$M = _sfc_main$M.setup;
-_sfc_main$M.setup = (props, ctx) => {
+const _sfc_setup$N = _sfc_main$N.setup;
+_sfc_main$N.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppFooter.vue");
-  return _sfc_setup$M ? _sfc_setup$M(props, ctx) : void 0;
+  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
 };
-const AppFooter = /* @__PURE__ */ _export_sfc(_sfc_main$M, [["ssrRender", _sfc_ssrRender]]);
+const AppFooter = /* @__PURE__ */ _export_sfc(_sfc_main$N, [["ssrRender", _sfc_ssrRender]]);
 function useFlashToast() {
   const page = usePage();
   const toast = useToast();
@@ -474,7 +464,7 @@ function useFlashToast() {
   );
   onUnmounted(stop);
 }
-const _sfc_main$L = /* @__PURE__ */ defineComponent({
+const _sfc_main$M = /* @__PURE__ */ defineComponent({
   __name: "AppLayout",
   __ssrInlineRender: true,
   setup(__props) {
@@ -484,7 +474,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
     useFlashToast();
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "min-h-screen bg-gray-950 text-gray-100 dark" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$N, {
+      _push(ssrRenderComponent(_sfc_main$O, {
         user: user.value,
         "is-authenticated": isAuthenticated.value
       }, null, _parent));
@@ -497,14 +487,59 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
     };
   }
 });
+const _sfc_setup$M = _sfc_main$M.setup;
+_sfc_main$M.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/AppLayout.vue");
+  return _sfc_setup$M ? _sfc_setup$M(props, ctx) : void 0;
+};
+const _sfc_main$L = /* @__PURE__ */ defineComponent({
+  __name: "AdminNav",
+  __ssrInlineRender: true,
+  setup(__props) {
+    const page = usePage();
+    const currentUrl = computed(() => page.url);
+    const links = [
+      { label: "Dashboard", route: "admin.dashboard" },
+      { label: "Users", route: "admin.users" },
+      { label: "Feature Flags", route: "admin.features" }
+    ];
+    function isActive(routeName) {
+      return currentUrl.value.startsWith(route(routeName));
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(`<nav${ssrRenderAttrs(mergeProps({ class: "flex items-center gap-1 mb-6 border-b border-gray-800 pb-3" }, _attrs))}><!--[-->`);
+      ssrRenderList(links, (link) => {
+        _push(ssrRenderComponent(_component_Link, {
+          key: link.route,
+          href: _ctx.route(link.route),
+          class: ["rounded-lg px-3 py-1.5 text-sm transition", isActive(link.route) ? "bg-gray-800 text-gray-100 font-medium" : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50"]
+        }, {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(link.label)}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(link.label), 1)
+              ];
+            }
+          }),
+          _: 2
+        }, _parent));
+      });
+      _push(`<!--]--></nav>`);
+    };
+  }
+});
 const _sfc_setup$L = _sfc_main$L.setup;
 _sfc_main$L.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/AppLayout.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AdminNav.vue");
   return _sfc_setup$L ? _sfc_setup$L(props, ctx) : void 0;
 };
 const _sfc_main$K = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "DashboardPage",
   __ssrInlineRender: true,
   props: {
@@ -528,26 +563,11 @@ const _sfc_main$K = /* @__PURE__ */ defineComponent({
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
-      const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "Admin Dashboard" }, null, _parent));
-      _push(`<div class="mx-auto max-w-6xl space-y-8"><div class="flex items-center justify-between"><h1 class="text-2xl font-bold">Admin Dashboard</h1>`);
-      _push(ssrRenderComponent(_component_Link, {
-        href: _ctx.route("admin.users"),
-        class: "rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
-      }, {
-        default: withCtx((_2, _push2, _parent2, _scopeId) => {
-          if (_push2) {
-            _push2(` Manage Users `);
-          } else {
-            return [
-              createTextVNode(" Manage Users ")
-            ];
-          }
-        }),
-        _: 1
-      }, _parent));
-      _push(`</div><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_users.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Total Users</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.new_users_this_month)}</div><div class="mt-1 text-xs text-gray-400">New This Month</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_anime.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Anime in DB</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_list_entries.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">List Entries</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_episodes_watched.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Episodes Watched</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.active_users_today)}</div><div class="mt-1 text-xs text-gray-400">Active Today</div></div></div><div class="grid gap-6 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Sync Status</h2><div class="space-y-3"><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Releasing Anime</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.releasing), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.releasing)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Incremental Sync</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.incremental), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.incremental)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Airing Schedule</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.schedule), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.schedule)}</span></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Recent Users</h2><div class="space-y-3"><!--[-->`);
+      _push(`<div class="mx-auto max-w-6xl space-y-8">`);
+      _push(ssrRenderComponent(_sfc_main$L, null, null, _parent));
+      _push(`<h1 class="text-2xl font-bold">Dashboard</h1><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_users.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Total Users</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.new_users_this_month)}</div><div class="mt-1 text-xs text-gray-400">New This Month</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_anime.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Anime in DB</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_list_entries.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">List Entries</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_episodes_watched.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Episodes Watched</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.active_users_today)}</div><div class="mt-1 text-xs text-gray-400">Active Today</div></div></div><div class="grid gap-6 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Sync Status</h2><div class="space-y-3"><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Releasing Anime</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.releasing), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.releasing)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Incremental Sync</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.incremental), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.incremental)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Airing Schedule</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.schedule), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.schedule)}</span></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Recent Users</h2><div class="space-y-3"><!--[-->`);
       ssrRenderList(__props.recentUsers, (user) => {
         _push(`<div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-xs font-medium text-gray-300">${ssrInterpolate(user.name.charAt(0).toUpperCase())}</div><div><div class="text-sm font-medium text-gray-200">${ssrInterpolate(user.name)} `);
         if (user.is_admin) {
@@ -572,7 +592,7 @@ const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   default: _sfc_main$K
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$J = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "FeatureFlagsPage",
   __ssrInlineRender: true,
   props: {
@@ -598,7 +618,9 @@ const _sfc_main$J = /* @__PURE__ */ defineComponent({
       const _component_Head = resolveComponent("Head");
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "Feature Flags" }, null, _parent));
-      _push(`<div><h1 class="text-2xl font-bold mb-6">Feature Flags</h1>`);
+      _push(`<div class="mx-auto max-w-6xl">`);
+      _push(ssrRenderComponent(_sfc_main$L, null, null, _parent));
+      _push(`<h1 class="text-2xl font-bold mb-6">Feature Flags</h1>`);
       if (__props.features.length === 0) {
         _push(`<div class="text-center py-12 text-gray-500"> No feature flags defined. </div>`);
       } else {
@@ -704,7 +726,7 @@ _sfc_main$I.setup = (props, ctx) => {
   return _sfc_setup$I ? _sfc_setup$I(props, ctx) : void 0;
 };
 const _sfc_main$H = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "UsersPage",
   __ssrInlineRender: true,
   props: {
@@ -737,7 +759,9 @@ const _sfc_main$H = /* @__PURE__ */ defineComponent({
       const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "User Management" }, null, _parent));
-      _push(`<div class="mx-auto max-w-6xl space-y-6"><div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">User Management</h1><p class="mt-1 text-sm text-gray-400">${ssrInterpolate(__props.users.meta.total)} total users</p></div>`);
+      _push(`<div class="mx-auto max-w-6xl space-y-6">`);
+      _push(ssrRenderComponent(_sfc_main$L, null, null, _parent));
+      _push(`<div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">Users</h1><p class="mt-1 text-sm text-gray-400">${ssrInterpolate(__props.users.meta.total)} total users</p></div>`);
       _push(ssrRenderComponent(_component_Link, {
         href: _ctx.route("admin.dashboard"),
         class: "text-sm text-gray-400 transition hover:text-gray-200"
@@ -756,7 +780,7 @@ const _sfc_main$H = /* @__PURE__ */ defineComponent({
       _push(`</div><input${ssrRenderAttr("value", search.value)} type="text" placeholder="Search by name, email, or username..." class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><div class="overflow-x-auto rounded-xl border border-gray-800"><table class="w-full"><thead class="border-b border-gray-800 bg-gray-900"><tr><th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">Email</th><th class="hidden px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-400 sm:table-cell">Anime</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">Joined</th><th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th></tr></thead><tbody class="divide-y divide-gray-800"><!--[-->`);
       ssrRenderList(__props.users.data, (user) => {
         _push(`<tr class="bg-gray-950 transition hover:bg-gray-900"><td class="px-4 py-3"><div class="flex items-center gap-3">`);
-        _push(ssrRenderComponent(_sfc_main$O, {
+        _push(ssrRenderComponent(_sfc_main$P, {
           name: user.name,
           "avatar-url": user.avatar_url,
           size: "sm"
@@ -1508,7 +1532,7 @@ _sfc_main$A.setup = (props, ctx) => {
   return _sfc_setup$A ? _sfc_setup$A(props, ctx) : void 0;
 };
 const _sfc_main$z = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "AnimeDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -2175,7 +2199,7 @@ function useBrowseFilters() {
   };
 }
 const _sfc_main$v = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "AnimeIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -2801,7 +2825,7 @@ _sfc_main$p.setup = (props, ctx) => {
   return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
 };
 const _sfc_main$o = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "HomePage",
   __ssrInlineRender: true,
   props: {
@@ -3104,7 +3128,7 @@ _sfc_main$n.setup = (props, ctx) => {
   return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
 };
 const _sfc_main$m = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "ImportPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3129,7 +3153,7 @@ const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   default: _sfc_main$m
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$l = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "LoginPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3481,7 +3505,7 @@ _sfc_main$h.setup = (props, ctx) => {
   return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
 };
 const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "MyListPage",
   __ssrInlineRender: true,
   props: {
@@ -3662,7 +3686,7 @@ const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   default: _sfc_main$g
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$f = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "NotFoundPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3702,7 +3726,7 @@ const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$f
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$e = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "PlaylistDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -3891,7 +3915,7 @@ function usePlaylistMutations() {
   };
 }
 const _sfc_main$d = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "PlaylistEditPage",
   __ssrInlineRender: true,
   props: {
@@ -4094,7 +4118,7 @@ const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$d
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$c = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "PlaylistsIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -4197,7 +4221,7 @@ const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$c
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$b = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "PrivacyPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4238,7 +4262,7 @@ const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$b
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$a = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "ProfilePage",
   __ssrInlineRender: true,
   props: {
@@ -4313,7 +4337,7 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="max-w-4xl mx-auto"><div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-6"><div class="flex items-center gap-6">`);
-      _push(ssrRenderComponent(_sfc_main$O, {
+      _push(ssrRenderComponent(_sfc_main$P, {
         name: __props.profile.name,
         "avatar-url": __props.profile.avatar_url,
         size: "lg"
@@ -4379,7 +4403,7 @@ const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$a
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$9 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "PublicListPage",
   __ssrInlineRender: true,
   props: {
@@ -4569,7 +4593,7 @@ const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$9
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$8 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "RegisterPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4740,7 +4764,7 @@ _sfc_main$7.setup = (props, ctx) => {
   return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
 const _sfc_main$6 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "SchedulePage",
   __ssrInlineRender: true,
   props: {
@@ -4825,7 +4849,7 @@ const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$6
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$5 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "SearchPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -4948,7 +4972,7 @@ _sfc_main$4.setup = (props, ctx) => {
   return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
 };
 const _sfc_main$3 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "SeasonalPage",
   __ssrInlineRender: true,
   props: {
@@ -5044,7 +5068,7 @@ const __vite_glob_0_20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$3
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$2 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "SettingsPage",
   __ssrInlineRender: true,
   props: {
@@ -5235,7 +5259,7 @@ const __vite_glob_0_21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$2
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$1 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "TermsPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -5276,7 +5300,7 @@ const __vite_glob_0_22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   default: _sfc_main$1
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$L },
+  ...{ layout: _sfc_main$M },
   __name: "TopAnimePage",
   __ssrInlineRender: true,
   props: {

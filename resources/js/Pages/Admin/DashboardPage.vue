@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
+import AdminNav from '@/Components/AdminNav.vue'
 import type { AdminStats, SyncStatuses } from '@/types/admin'
 
 defineOptions({ layout: AppLayout })
@@ -40,15 +41,8 @@ function syncStatusColor(status: string): string {
     <Head title="Admin Dashboard" />
 
     <div class="mx-auto max-w-6xl space-y-8">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-            <Link
-                :href="route('admin.users')"
-                class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
-            >
-                Manage Users
-            </Link>
-        </div>
+        <AdminNav />
+        <h1 class="text-2xl font-bold">Dashboard</h1>
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">

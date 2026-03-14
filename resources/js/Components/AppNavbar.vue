@@ -3,12 +3,14 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import type { User } from '@/types'
 import UserAvatar from '@/Components/UserAvatar.vue'
+import { useFeature } from '@/composables/useFeature'
 
 defineProps<{
     user: User | null
     isAuthenticated: boolean
 }>()
 
+const showPlaylists = useFeature('playlists')
 const showDropdown = ref(false)
 
 function closeDropdown() {
@@ -35,7 +37,7 @@ function handleLogout() {
             <div class="flex items-center gap-4">
                 <template v-if="isAuthenticated && user">
                     <Link :href="route('list')" class="text-gray-400 hover:text-gray-100 transition">My List</Link>
-                    <Link :href="route('playlists.index')" class="text-gray-400 hover:text-gray-100 transition">Playlists</Link>
+                    <Link v-if="showPlaylists" :href="route('playlists.index')" class="text-gray-400 hover:text-gray-100 transition">Playlists</Link>
                     <div class="relative">
                         <button
                             class="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition"
@@ -67,13 +69,6 @@ function handleLogout() {
                                 class="block px-4 py-2 text-sm text-primary-400 hover:bg-gray-800 hover:text-primary-300"
                             >
                                 Admin
-                            </Link>
-                            <Link
-                                v-if="user.is_admin"
-                                :href="route('admin.features')"
-                                class="block px-4 py-2 text-sm text-primary-400 hover:bg-gray-800 hover:text-primary-300"
-                            >
-                                Feature Flags
                             </Link>
                             <hr class="border-gray-700 my-1" />
                             <button

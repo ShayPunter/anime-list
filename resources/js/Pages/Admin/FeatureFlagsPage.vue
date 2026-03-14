@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import AdminNav from '@/Components/AdminNav.vue'
 import axios from 'axios'
 
 defineOptions({ layout: AppLayout })
@@ -29,7 +30,7 @@ const addingError = ref('')
 
 async function setStatus(feature: string, status: 'everyone' | 'nobody' | 'default') {
     await axios.patch(route('admin.features.update', { feature }), { status })
-    router.reload({ only: ['features'] })
+    router.visit(route('admin.features'), { preserveScroll: true })
 }
 
 async function addUser(feature: string) {
@@ -41,7 +42,7 @@ async function addUser(feature: string) {
         })
         usernameInput.value = ''
         addingUserFor.value = null
-        router.reload({ only: ['features'] })
+        router.visit(route('admin.features'), { preserveScroll: true })
     } catch (e: unknown) {
         if (axios.isAxiosError(e)) {
             addingError.value = e.response?.data?.message ?? 'User not found'
@@ -53,7 +54,7 @@ async function addUser(feature: string) {
 
 async function removeUser(feature: string, userId: number) {
     await axios.delete(route('admin.features.deactivate-user', { feature, user: userId }))
-    router.reload({ only: ['features'] })
+    router.visit(route('admin.features'), { preserveScroll: true })
 }
 
 const statusLabels: Record<string, string> = {
@@ -73,7 +74,8 @@ const statusColors: Record<string, string> = {
 
 <template>
     <Head title="Feature Flags" />
-    <div>
+    <div class="mx-auto max-w-6xl">
+        <AdminNav />
         <h1 class="text-2xl font-bold mb-6">Feature Flags</h1>
 
         <div v-if="features.length === 0" class="text-center py-12 text-gray-500">
