@@ -10,16 +10,17 @@ export function useAnimeSearch() {
 
     const enabled = computed(() => debouncedQuery.value.length >= 2)
 
-    const { data, isLoading, isError } = useQuery<SearchResponse>({
+    const { data, isFetching, isError } = useQuery<SearchResponse>({
         queryKey: ['anime-search', debouncedQuery],
-        queryFn: async () => {
+        queryFn: async ({ signal }) => {
             const { data } = await axios.get<SearchResponse>('/api/search', {
                 params: { q: debouncedQuery.value },
+                signal,
             })
             return data
         },
         enabled,
-        staleTime: 15 * 60 * 1000,
+        staleTime: 5 * 60 * 1000,
     })
 
     const results = computed(() => data.value?.data ?? [])
@@ -30,7 +31,7 @@ export function useAnimeSearch() {
         debouncedQuery,
         results,
         total,
-        isLoading,
+        isLoading: isFetching,
         isError,
     }
 }

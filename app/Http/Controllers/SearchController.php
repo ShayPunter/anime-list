@@ -26,7 +26,9 @@ class SearchController extends Controller
         $cacheKey = 'search:'.md5(mb_strtolower($query));
 
         try {
-            $result = Cache::remember($cacheKey, 900, function () use ($query, $client, $persistenceService) {
+            $result = Cache::get($cacheKey);
+
+            if (! $result) {
                 // Try local Scout search first
                 $items = Anime::search($query)
                     ->query(fn ($q) => $q->where('is_adult', false)->with('genres'))
@@ -34,16 +36,21 @@ class SearchController extends Controller
                     ->get();
 
                 if ($items->isNotEmpty()) {
-                    return [
+                    $result = [
                         'data' => AnimeCardResource::collection($items)->resolve(),
                         'total' => $items->count(),
                         'source' => 'local',
                     ];
+                } else {
+                    // Fall back to AniList API search, persist results to DB
+                    $result = $this->searchAniList($client, $persistenceService, $query);
                 }
 
-                // Fall back to AniList API search, persist results to DB
-                return $this->searchAniList($client, $persistenceService, $query);
-            });
+                // Only cache non-empty results
+                if (! empty($result['data'])) {
+                    Cache::put($cacheKey, $result, 900);
+                }
+            }
         } catch (\Exception $e) {
             Log::error('Search failed', ['query' => $query, 'exception' => $e]);
 
@@ -81,8 +88,8 @@ class SearchController extends Controller
             // Persist all results to DB using the full media data
             $animeModels = $persistenceService->persistBatch($mediaItems);
 
-            // Resolve relations immediately so season chains work
-            ResolveAnimeRelations::dispatchSync();
+            // Resolve relations in background so search stays fast
+            ResolveAnimeRelations::dispatch();
 
             // Reload with genres for the card resource
             $ids = $animeModels->pluck('id');
