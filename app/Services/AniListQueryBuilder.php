@@ -75,7 +75,15 @@ class AniListQueryBuilder
                     gender
                     siteUrl
                 }
-                voiceActors(language: JAPANESE) {
+                voiceActorsJp: voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                    id
+                    name { full native }
+                    image { large medium }
+                    gender
+                    dateOfBirth { year month day }
+                    siteUrl
+                }
+                voiceActorsEn: voiceActors(language: ENGLISH, sort: [RELEVANCE, ID]) {
                     id
                     name { full native }
                     image { large medium }

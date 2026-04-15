@@ -256,7 +256,7 @@ class AnimeDataPersistenceService
             foreach ($dto->characters as $edge) {
                 $characters[$edge->character->anilist_id] = $edge->character;
                 foreach ($edge->voice_actors as $va) {
-                    $people[$va->anilist_id] = $va;
+                    $people[$va->person->anilist_id] = $va->person;
                 }
             }
         }
@@ -353,17 +353,17 @@ class AnimeDataPersistenceService
                 ];
 
                 foreach ($edge->voice_actors as $va) {
-                    $personId = $personIdMap->get($va->anilist_id);
+                    $personId = $personIdMap->get($va->person->anilist_id);
                     if (! $personId) {
                         continue;
                     }
 
-                    $key = "{$animeId}-{$characterId}-{$personId}-JAPANESE";
+                    $key = "{$animeId}-{$characterId}-{$personId}-{$va->language}";
                     $voiceActorRows[$key] = [
                         'anime_id' => $animeId,
                         'character_id' => $characterId,
                         'person_id' => $personId,
-                        'language' => 'JAPANESE',
+                        'language' => $va->language,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -606,24 +606,24 @@ class AnimeDataPersistenceService
 
             foreach ($edge->voice_actors as $va) {
                 $person = Person::updateOrCreate(
-                    ['anilist_id' => $va->anilist_id],
+                    ['anilist_id' => $va->person->anilist_id],
                     [
-                        'name_full' => $va->name_full,
-                        'name_native' => $va->name_native,
-                        'image_large' => $va->image_large,
-                        'image_medium' => $va->image_medium,
-                        'gender' => $va->gender,
-                        'birthdate' => $va->birthdate,
-                        'site_url' => $va->site_url,
+                        'name_full' => $va->person->name_full,
+                        'name_native' => $va->person->name_native,
+                        'image_large' => $va->person->image_large,
+                        'image_medium' => $va->person->image_medium,
+                        'gender' => $va->person->gender,
+                        'birthdate' => $va->person->birthdate,
+                        'site_url' => $va->person->site_url,
                     ],
                 );
 
-                $key = "{$character->id}-{$person->id}";
+                $key = "{$character->id}-{$person->id}-{$va->language}";
                 $voiceActorRows[$key] = [
                     'anime_id' => $anime->id,
                     'character_id' => $character->id,
                     'person_id' => $person->id,
-                    'language' => 'JAPANESE',
+                    'language' => $va->language,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];

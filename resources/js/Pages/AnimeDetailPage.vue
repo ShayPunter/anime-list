@@ -83,6 +83,20 @@ function voiceActorRoute(va: VoiceActorEntry): string | null {
     return route('people.show', { person: va.slug })
 }
 
+function languageLabel(language: string): string {
+    const map: Record<string, string> = {
+        JAPANESE: 'JP',
+        ENGLISH: 'EN',
+    }
+    return map[language] ?? language.slice(0, 2).toUpperCase()
+}
+
+// Show JP first, then EN; fall back to other languages in order
+function sortedVoiceActors(vas: VoiceActorEntry[]): VoiceActorEntry[] {
+    const order: Record<string, number> = { JAPANESE: 0, ENGLISH: 1 }
+    return [...vas].sort((a, b) => (order[a.language] ?? 99) - (order[b.language] ?? 99))
+}
+
 const characters = computed(() => props.anime.characters ?? [])
 const mainCharacters = computed(() => characters.value.filter(c => c.role === 'MAIN'))
 const supportingCharacters = computed(() => characters.value.filter(c => c.role !== 'MAIN'))
@@ -289,55 +303,65 @@ function embedUrl(url: string): string | null {
                         <div
                             v-for="char in [...mainCharacters, ...supportingCharacters].slice(0, 20)"
                             :key="char.id"
-                            class="flex items-stretch justify-between gap-2 rounded-lg border border-gray-800 bg-gray-900/40 overflow-hidden"
+                            class="rounded-lg border border-gray-800 bg-gray-900/40 overflow-hidden"
                         >
-                            <!-- Character side -->
-                            <div class="flex min-w-0 flex-1 items-center gap-2 p-2">
-                                <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
-                                    <img
-                                        v-if="char.image_medium"
-                                        :src="char.image_medium"
-                                        :alt="char.name_full"
-                                        class="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
+                            <div class="flex items-stretch justify-between gap-2">
+                                <!-- Character side -->
+                                <div class="flex min-w-0 flex-1 items-center gap-2 p-2">
+                                    <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                        <img
+                                            v-if="char.image_medium"
+                                            :src="char.image_medium"
+                                            :alt="char.name_full"
+                                            class="h-full w-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-medium text-gray-200">{{ char.name_full }}</p>
+                                        <p v-if="char.role" class="text-xs text-gray-500">
+                                            {{ char.role === 'MAIN' ? 'Main' : char.role === 'SUPPORTING' ? 'Supporting' : 'Background' }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="truncate text-sm font-medium text-gray-200">{{ char.name_full }}</p>
-                                    <p v-if="char.role" class="text-xs text-gray-500">
-                                        {{ char.role === 'MAIN' ? 'Main' : char.role === 'SUPPORTING' ? 'Supporting' : 'Background' }}
-                                    </p>
-                                </div>
-                            </div>
 
-                            <!-- Voice actor side -->
-                            <div
-                                v-if="char.voice_actors?.length"
-                                class="flex min-w-0 flex-1 items-center justify-end gap-2 p-2"
-                            >
-                                <div class="min-w-0 text-right">
-                                    <component
-                                        :is="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0]) ? 'Link' : 'p'"
-                                        v-bind="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0])
-                                            ? { href: voiceActorRoute(char.voice_actors[0]) }
-                                            : {}"
-                                        class="truncate text-sm"
-                                        :class="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0])
-                                            ? 'text-primary-400 hover:text-primary-300 transition'
-                                            : 'text-gray-300'"
+                                <!-- Voice actors (stacked by language) -->
+                                <div
+                                    v-if="char.voice_actors?.length"
+                                    class="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2"
+                                >
+                                    <div
+                                        v-for="va in sortedVoiceActors(char.voice_actors)"
+                                        :key="`${va.id}-${va.language}`"
+                                        class="flex items-center justify-end gap-2"
                                     >
-                                        {{ char.voice_actors[0].name_full }}
-                                    </component>
-                                    <p class="text-xs text-gray-500">JP</p>
-                                </div>
-                                <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
-                                    <img
-                                        v-if="char.voice_actors[0].image_medium"
-                                        :src="char.voice_actors[0].image_medium"
-                                        :alt="char.voice_actors[0].name_full"
-                                        class="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
+                                        <span class="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-400">
+                                            {{ languageLabel(va.language) }}
+                                        </span>
+                                        <div class="min-w-0 text-right">
+                                            <component
+                                                :is="voiceActorPagesEnabled && voiceActorRoute(va) ? 'Link' : 'span'"
+                                                v-bind="voiceActorPagesEnabled && voiceActorRoute(va)
+                                                    ? { href: voiceActorRoute(va) }
+                                                    : {}"
+                                                class="block truncate text-sm"
+                                                :class="voiceActorPagesEnabled && voiceActorRoute(va)
+                                                    ? 'text-primary-400 hover:text-primary-300 transition'
+                                                    : 'text-gray-300'"
+                                            >
+                                                {{ va.name_full }}
+                                            </component>
+                                        </div>
+                                        <div class="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                            <img
+                                                v-if="va.image_medium"
+                                                :src="va.image_medium"
+                                                :alt="va.name_full"
+                                                class="h-full w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
