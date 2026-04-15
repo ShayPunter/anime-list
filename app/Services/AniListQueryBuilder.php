@@ -64,6 +64,27 @@ class AniListQueryBuilder
             airingAt
             timeUntilAiring
         }
+        characters(page: 1, perPage: 25, sort: [ROLE, RELEVANCE, ID]) {
+            edges {
+                role
+                node {
+                    id
+                    name { full native }
+                    image { large medium }
+                    description(asHtml: false)
+                    gender
+                    siteUrl
+                }
+                voiceActors(language: JAPANESE) {
+                    id
+                    name { full native }
+                    image { large medium }
+                    gender
+                    dateOfBirth { year month day }
+                    siteUrl
+                }
+            }
+        }
     GRAPHQL;
 
     public static function animePage(): string

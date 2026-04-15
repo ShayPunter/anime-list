@@ -9,7 +9,7 @@ import SeasonsSection from '@/Components/SeasonsSection.vue'
 import RelatedAnimeRow from '@/Components/RelatedAnimeRow.vue'
 import AiringScheduleTable from '@/Components/AiringScheduleTable.vue'
 import AddToListButton from '@/Components/AddToListButton.vue'
-import type { AnimeDetail, SeasonEntry, StudioEntry } from '@/types/anime'
+import type { AnimeDetail, SeasonEntry, StudioEntry, VoiceActorEntry } from '@/types/anime'
 import type { ListEntryResource, User } from '@/types'
 
 defineOptions({ layout: AppLayout })
@@ -31,6 +31,7 @@ const props = defineProps<{
 const page = usePage<{ auth: { user: User | null } }>()
 const isAuthenticated = computed(() => !!page.props.auth.user)
 const studioPagesEnabled = useFeature('studio-pages')
+const voiceActorPagesEnabled = useFeature('voice-actor-pages')
 
 function displayTitle(anime: AnimeDetail): string {
     return anime.title_english || anime.title_romaji
@@ -76,6 +77,15 @@ function studioRoute(studio: StudioEntry): string | null {
     const routeName = studio.is_animation_studio ? 'studios.show' : 'producers.show'
     return route(routeName, { studio: studio.slug })
 }
+
+function voiceActorRoute(va: VoiceActorEntry): string | null {
+    if (!va.slug) return null
+    return route('people.show', { person: va.slug })
+}
+
+const characters = computed(() => props.anime.characters ?? [])
+const mainCharacters = computed(() => characters.value.filter(c => c.role === 'MAIN'))
+const supportingCharacters = computed(() => characters.value.filter(c => c.role !== 'MAIN'))
 
 function embedUrl(url: string): string | null {
     try {
@@ -269,6 +279,68 @@ function embedUrl(url: string): string | null {
                             allowfullscreen
                             loading="lazy"
                         />
+                    </div>
+                </div>
+
+                <!-- Characters & Voice Actors -->
+                <div v-if="characters.length">
+                    <h3 class="mb-3 text-lg font-semibold text-gray-100">Characters &amp; Voice Actors</h3>
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <div
+                            v-for="char in [...mainCharacters, ...supportingCharacters].slice(0, 20)"
+                            :key="char.id"
+                            class="flex items-stretch justify-between gap-2 rounded-lg border border-gray-800 bg-gray-900/40 overflow-hidden"
+                        >
+                            <!-- Character side -->
+                            <div class="flex min-w-0 flex-1 items-center gap-2 p-2">
+                                <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                    <img
+                                        v-if="char.image_medium"
+                                        :src="char.image_medium"
+                                        :alt="char.name_full"
+                                        class="h-full w-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-medium text-gray-200">{{ char.name_full }}</p>
+                                    <p v-if="char.role" class="text-xs text-gray-500">
+                                        {{ char.role === 'MAIN' ? 'Main' : char.role === 'SUPPORTING' ? 'Supporting' : 'Background' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Voice actor side -->
+                            <div
+                                v-if="char.voice_actors?.length"
+                                class="flex min-w-0 flex-1 items-center justify-end gap-2 p-2"
+                            >
+                                <div class="min-w-0 text-right">
+                                    <component
+                                        :is="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0]) ? 'Link' : 'p'"
+                                        v-bind="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0])
+                                            ? { href: voiceActorRoute(char.voice_actors[0]) }
+                                            : {}"
+                                        class="truncate text-sm"
+                                        :class="voiceActorPagesEnabled && voiceActorRoute(char.voice_actors[0])
+                                            ? 'text-primary-400 hover:text-primary-300 transition'
+                                            : 'text-gray-300'"
+                                    >
+                                        {{ char.voice_actors[0].name_full }}
+                                    </component>
+                                    <p class="text-xs text-gray-500">JP</p>
+                                </div>
+                                <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                    <img
+                                        v-if="char.voice_actors[0].image_medium"
+                                        :src="char.voice_actors[0].image_medium"
+                                        :alt="char.voice_actors[0].name_full"
+                                        class="h-full w-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

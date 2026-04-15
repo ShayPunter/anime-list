@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminFeatureFlagController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlaylistController;
 use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\ProfileController;
@@ -64,6 +65,10 @@ Route::get('/studios', [StudioController::class, 'index'])->name('studios.index'
 Route::get('/studios/{studio:slug}', [StudioController::class, 'show'])->name('studios.show');
 Route::get('/producers', [StudioController::class, 'producersIndex'])->name('producers.index');
 Route::get('/producers/{studio:slug}', [StudioController::class, 'producerShow'])->name('producers.show');
+
+// Voice actors / people
+Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
+Route::get('/people/{person:slug}', [PeopleController::class, 'show'])->name('people.show');
 
 // Public profile
 Route::get('/user/{user:username}/list', [ProfileController::class, 'list'])->name('profile.list');

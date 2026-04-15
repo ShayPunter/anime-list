@@ -5,8 +5,10 @@ namespace App\Services;
 use App\DTOs\AnimeData;
 use App\Models\AiringSchedule;
 use App\Models\Anime;
+use App\Models\Character;
 use App\Models\ExternalId;
 use App\Models\Genre;
+use App\Models\Person;
 use App\Models\Studio;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
@@ -33,6 +35,7 @@ class AnimeDataPersistenceService
 
             $this->syncGenresBatch($dtos, $animeMap);
             $this->syncStudiosBatch($dtos, $animeMap);
+            $this->syncCharactersBatch($dtos, $animeMap);
             $this->upsertAiringSchedulesBatch($dtos, $animeMap);
             $this->upsertExternalIdsBatch($dtos, $animeMap);
             $this->pushPendingRelations($dtos);
@@ -54,6 +57,7 @@ class AnimeDataPersistenceService
 
             $this->syncGenresForAnime($anime, $dto);
             $this->syncStudiosForAnime($anime, $dto);
+            $this->syncCharactersForAnime($anime, $dto);
             $this->upsertAiringSchedulesForAnime($anime, $dto);
             $this->upsertExternalIdsForAnime($anime, $dto);
 
@@ -64,7 +68,7 @@ class AnimeDataPersistenceService
             $this->pushPendingRelations([$dto]);
         }
 
-        Cache::forget("anime:{$anime->id}");
+        Cache::forget("anime:v2:{$anime->id}");
         if ($dto->season && $dto->season_year) {
             Cache::forget("anime:seasonal:{$dto->season_year}:{$dto->season}");
         }
@@ -243,6 +247,148 @@ class AnimeDataPersistenceService
      * @param  AnimeData[]  $dtos
      * @param  Collection<int, int>  $animeMap
      */
+    private function syncCharactersBatch(array $dtos, Collection $animeMap): void
+    {
+        // Gather every unique character & person in the batch
+        $characters = [];
+        $people = [];
+        foreach ($dtos as $dto) {
+            foreach ($dto->characters as $edge) {
+                $characters[$edge->character->anilist_id] = $edge->character;
+                foreach ($edge->voice_actors as $va) {
+                    $people[$va->anilist_id] = $va;
+                }
+            }
+        }
+
+        if (empty($characters) && empty($people)) {
+            return;
+        }
+
+        // Upsert characters
+        $characterIdMap = collect();
+        if (! empty($characters)) {
+            $characterRows = array_map(fn ($c) => [
+                'anilist_id' => $c->anilist_id,
+                'name_full' => $c->name_full,
+                'name_native' => $c->name_native,
+                'image_large' => $c->image_large,
+                'image_medium' => $c->image_medium,
+                'description' => $c->description,
+                'gender' => $c->gender,
+                'site_url' => $c->site_url,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], array_values($characters));
+
+            Character::upsert(
+                $characterRows,
+                ['anilist_id'],
+                ['name_full', 'name_native', 'image_large', 'image_medium', 'description', 'gender', 'site_url', 'updated_at'],
+            );
+
+            $characterIdMap = Character::whereIn('anilist_id', array_keys($characters))
+                ->pluck('id', 'anilist_id');
+        }
+
+        // Upsert people (VAs) then backfill slugs
+        $personIdMap = collect();
+        if (! empty($people)) {
+            $personRows = array_map(fn ($p) => [
+                'anilist_id' => $p->anilist_id,
+                'name_full' => $p->name_full,
+                'name_native' => $p->name_native,
+                'image_large' => $p->image_large,
+                'image_medium' => $p->image_medium,
+                'gender' => $p->gender,
+                'birthdate' => $p->birthdate,
+                'site_url' => $p->site_url,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], array_values($people));
+
+            Person::upsert(
+                $personRows,
+                ['anilist_id'],
+                ['name_full', 'name_native', 'image_large', 'image_medium', 'gender', 'birthdate', 'site_url', 'updated_at'],
+            );
+
+            // Populate slugs for newly inserted people (upsert bypasses model events)
+            Person::whereIn('anilist_id', array_keys($people))
+                ->whereNull('slug')
+                ->get()
+                ->each(function (Person $p) {
+                    $p->slug = Person::generateUniqueSlug($p);
+                    $p->saveQuietly();
+                });
+
+            $personIdMap = Person::whereIn('anilist_id', array_keys($people))
+                ->pluck('id', 'anilist_id');
+        }
+
+        // Build anime_character + character_voice_actor pivot rows
+        $animeCharacterRows = [];
+        $voiceActorRows = [];
+        $affectedAnimeIds = [];
+
+        foreach ($dtos as $dto) {
+            $animeId = $animeMap->get($dto->anilist_id);
+            if (! $animeId || empty($dto->characters)) {
+                continue;
+            }
+            $affectedAnimeIds[$animeId] = true;
+
+            foreach ($dto->characters as $edge) {
+                $characterId = $characterIdMap->get($edge->character->anilist_id);
+                if (! $characterId) {
+                    continue;
+                }
+
+                $animeCharacterRows[$animeId.'-'.$characterId] = [
+                    'anime_id' => $animeId,
+                    'character_id' => $characterId,
+                    'role' => $edge->role,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                foreach ($edge->voice_actors as $va) {
+                    $personId = $personIdMap->get($va->anilist_id);
+                    if (! $personId) {
+                        continue;
+                    }
+
+                    $key = "{$animeId}-{$characterId}-{$personId}-JAPANESE";
+                    $voiceActorRows[$key] = [
+                        'anime_id' => $animeId,
+                        'character_id' => $characterId,
+                        'person_id' => $personId,
+                        'language' => 'JAPANESE',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+        }
+
+        if (! empty($affectedAnimeIds)) {
+            $ids = array_keys($affectedAnimeIds);
+            DB::table('anime_character')->whereIn('anime_id', $ids)->delete();
+            DB::table('character_voice_actor')->whereIn('anime_id', $ids)->delete();
+        }
+
+        if (! empty($animeCharacterRows)) {
+            DB::table('anime_character')->insert(array_values($animeCharacterRows));
+        }
+        if (! empty($voiceActorRows)) {
+            DB::table('character_voice_actor')->insert(array_values($voiceActorRows));
+        }
+    }
+
+    /**
+     * @param  AnimeData[]  $dtos
+     * @param  Collection<int, int>  $animeMap
+     */
     private function upsertAiringSchedulesBatch(array $dtos, Collection $animeMap): void
     {
         $rows = [];
@@ -345,7 +491,7 @@ class AnimeDataPersistenceService
         foreach ($dtos as $dto) {
             $animeId = $animeMap->get($dto->anilist_id);
             if ($animeId) {
-                Cache::forget("anime:{$animeId}");
+                Cache::forget("anime:v2:{$animeId}");
             }
             if ($dto->season && $dto->season_year) {
                 Cache::forget("anime:seasonal:{$dto->season_year}:{$dto->season}");
@@ -425,6 +571,74 @@ class AnimeDataPersistenceService
         }
 
         $anime->studios()->sync($studioSync);
+    }
+
+    private function syncCharactersForAnime(Anime $anime, AnimeData $dto): void
+    {
+        if (empty($dto->characters)) {
+            return;
+        }
+
+        $animeCharacterRows = [];
+        $voiceActorRows = [];
+
+        foreach ($dto->characters as $edge) {
+            $character = Character::updateOrCreate(
+                ['anilist_id' => $edge->character->anilist_id],
+                [
+                    'name_full' => $edge->character->name_full,
+                    'name_native' => $edge->character->name_native,
+                    'image_large' => $edge->character->image_large,
+                    'image_medium' => $edge->character->image_medium,
+                    'description' => $edge->character->description,
+                    'gender' => $edge->character->gender,
+                    'site_url' => $edge->character->site_url,
+                ],
+            );
+
+            $animeCharacterRows[$character->id] = [
+                'anime_id' => $anime->id,
+                'character_id' => $character->id,
+                'role' => $edge->role,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            foreach ($edge->voice_actors as $va) {
+                $person = Person::updateOrCreate(
+                    ['anilist_id' => $va->anilist_id],
+                    [
+                        'name_full' => $va->name_full,
+                        'name_native' => $va->name_native,
+                        'image_large' => $va->image_large,
+                        'image_medium' => $va->image_medium,
+                        'gender' => $va->gender,
+                        'birthdate' => $va->birthdate,
+                        'site_url' => $va->site_url,
+                    ],
+                );
+
+                $key = "{$character->id}-{$person->id}";
+                $voiceActorRows[$key] = [
+                    'anime_id' => $anime->id,
+                    'character_id' => $character->id,
+                    'person_id' => $person->id,
+                    'language' => 'JAPANESE',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        DB::table('anime_character')->where('anime_id', $anime->id)->delete();
+        DB::table('character_voice_actor')->where('anime_id', $anime->id)->delete();
+
+        if (! empty($animeCharacterRows)) {
+            DB::table('anime_character')->insert(array_values($animeCharacterRows));
+        }
+        if (! empty($voiceActorRows)) {
+            DB::table('character_voice_actor')->insert(array_values($voiceActorRows));
+        }
     }
 
     private function upsertAiringSchedulesForAnime(Anime $anime, AnimeData $dto): void

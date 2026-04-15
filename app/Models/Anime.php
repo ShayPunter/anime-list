@@ -107,6 +107,17 @@ class Anime extends Model
             ->withPivot('is_main');
     }
 
+    public function characters(): BelongsToMany
+    {
+        return $this->belongsToMany(Character::class, 'anime_character')
+            ->withPivot('role');
+    }
+
+    public function voiceActorEntries(): HasMany
+    {
+        return $this->hasMany(CharacterVoiceActor::class);
+    }
+
     public function relations(): HasMany
     {
         return $this->hasMany(AnimeRelation::class);

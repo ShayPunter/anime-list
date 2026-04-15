@@ -38,9 +38,74 @@ export interface AnimeDetail extends AnimeCard {
     favourites: number | null
     is_adult: boolean
     studios: StudioEntry[]
+    characters?: AnimeCharacterEntry[]
     external_ids: ExternalId[]
     airing_schedules: AiringScheduleEntry[]
     relations: AnimeRelationEntry[]
+}
+
+export interface AnimeCharacterEntry {
+    id: number
+    name_full: string
+    name_native: string | null
+    image_large: string | null
+    image_medium: string | null
+    gender: string | null
+    site_url: string | null
+    role: 'MAIN' | 'SUPPORTING' | 'BACKGROUND' | null
+    voice_actors: VoiceActorEntry[]
+}
+
+export interface VoiceActorEntry {
+    id: number
+    slug: string | null
+    name_full: string
+    name_native: string | null
+    image_medium: string | null
+    language: string
+}
+
+export interface PersonCard {
+    id: number
+    slug: string | null
+    name_full: string
+    name_native: string | null
+    image_medium: string | null
+    role_count: number
+}
+
+export interface PersonDetail {
+    id: number
+    slug: string | null
+    name_full: string
+    name_native: string | null
+    image_large: string | null
+    image_medium: string | null
+    gender: string | null
+    birthdate: string | null
+    site_url: string | null
+    role_count: number
+}
+
+export interface VoiceActorRole {
+    anime: {
+        id: number
+        slug: string | null
+        title_romaji: string
+        title_english: string | null
+        cover_image_large: string | null
+        cover_image_medium: string | null
+        format: AnimeFormat | null
+        season_year: number | null
+        average_score: number | null
+    } | null
+    character: {
+        id: number
+        name_full: string
+        name_native: string | null
+        image_medium: string | null
+    } | null
+    language: string
 }
 
 // Keep legacy Anime type as alias for backward compatibility

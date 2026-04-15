@@ -66,5 +66,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Feature::define('playlists', fn ($user) => false);
         Feature::define('studio-pages', fn ($user) => false);
+        Feature::define('voice-actor-pages', fn ($user) => false);
     }
 }
