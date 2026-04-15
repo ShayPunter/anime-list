@@ -40,7 +40,19 @@ npm run package     # also produces anitrack-extension.zip ready for Web Store u
 
 ## Releasing
 
-Releases are driven by tags matching `extension-v*` and handled by `.github/workflows/extension-release.yml`.
+Two workflows drive releases:
+
+### Dev builds — `.github/workflows/extension-dev-release.yml`
+
+Rolling prerelease, auto-published on every push to `main` that touches `chrome-extension/**` (or triggered manually via "Run workflow" in the Actions tab).
+
+- Version is `<manifest.version>.<run_number>` (e.g. `0.1.0.47`) so Chrome treats each build as a new version.
+- Extension is renamed to **AniTrack (Dev)** so it can be installed side-by-side with a production build.
+- Published as a prerelease under the fixed tag `extension-dev-latest` — the tag is overwritten each run, so the download URL is stable.
+
+### Stable releases — `.github/workflows/extension-release.yml`
+
+Triggered by tags matching `extension-v*`.
 
 1. Bump the `version` in `public/manifest.json` (e.g. `0.1.0` → `0.2.0`).
 2. Commit, then tag and push:
