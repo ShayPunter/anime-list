@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
+            'public-api' => \App\Http\Middleware\EnsurePublicApiEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -30,6 +31,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
             if (! in_array($response->getStatusCode(), [403, 404, 419, 500, 503])) {
+                return $response;
+            }
+
+            // JSON / API clients should receive JSON errors rather than the
+            // Inertia error page.
+            if ($request->expectsJson() || $request->is('api/*')) {
                 return $response;
             }
 

@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\AnimeController;
+use App\Http\Controllers\Api\V1\AnimeController as ApiAnimeController;
+use App\Http\Controllers\Api\V1\AuthController as ApiAuthController;
+use App\Http\Controllers\Api\V1\ListController as ApiListController;
+use App\Http\Controllers\Api\V1\SearchController as ApiSearchController;
+use App\Http\Controllers\Api\V1\UserController as ApiUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -116,6 +121,44 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+
+// Public API v1 — consumed by the Chrome extension and third-party integrations.
+// Gated behind the `public-api` Pennant flag so it can be rolled out per user.
+Route::prefix('api/v1')->name('api.v1.')->middleware('throttle:api')->group(function () {
+    // Token issuance (credentials → bearer token). Stricter rate limiting to
+    // deter credential stuffing.
+    Route::post('/auth/token', [ApiAuthController::class, 'issueToken'])
+        ->middleware('throttle:auth')
+        ->name('auth.token');
+
+    // All remaining endpoints require a Sanctum bearer token AND the feature
+    // flag to be active for the authenticated user.
+    Route::middleware(['auth:sanctum', 'public-api'])->group(function () {
+        // Token management
+        Route::get('/auth/tokens', [ApiAuthController::class, 'listTokens'])->name('auth.tokens.index');
+        Route::delete('/auth/token', [ApiAuthController::class, 'revokeCurrentToken'])->name('auth.token.revoke');
+        Route::delete('/auth/tokens/{token}', [ApiAuthController::class, 'revokeToken'])
+            ->whereNumber('token')
+            ->name('auth.tokens.revoke');
+
+        // Current user
+        Route::get('/user', [ApiUserController::class, 'me'])->name('user.me');
+
+        // Anime lookup
+        Route::get('/anime/search', ApiSearchController::class)->name('anime.search');
+        Route::get('/anime/anilist/{anilistId}', [ApiAnimeController::class, 'showByAnilistId'])
+            ->whereNumber('anilistId')
+            ->name('anime.anilist');
+        Route::get('/anime/{anime:slug}', [ApiAnimeController::class, 'show'])->name('anime.show');
+
+        // List CRUD
+        Route::get('/list', [ApiListController::class, 'index'])->name('list.index');
+        Route::get('/list/anime/{anime:id}', [ApiListController::class, 'showByAnime'])->name('list.show-anime');
+        Route::post('/list', [ApiListController::class, 'store'])->name('list.store');
+        Route::patch('/list/{entry}', [ApiListController::class, 'update'])->name('list.update');
+        Route::delete('/list/{entry}', [ApiListController::class, 'destroy'])->name('list.destroy');
+    });
 });
 
 // Admin
