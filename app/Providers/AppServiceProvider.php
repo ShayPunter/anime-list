@@ -65,5 +65,6 @@ class AppServiceProvider extends ServiceProvider
     private function defineFeatureFlags(): void
     {
         Feature::define('playlists', fn ($user) => false);
+        Feature::define('studio-pages', fn ($user) => false);
     }
 }

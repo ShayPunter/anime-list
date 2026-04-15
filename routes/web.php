@@ -16,6 +16,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeasonalController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StudioController;
 use App\Http\Controllers\UserListController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,6 +58,10 @@ Route::get('/api/search', SearchController::class)->middleware('throttle:api')->
 
 // Public playlist
 Route::get('/playlist/{playlist:slug}', [PlaylistController::class, 'show'])->name('playlist.show');
+
+// Studios
+Route::get('/studios', [StudioController::class, 'index'])->name('studios.index');
+Route::get('/studios/{studio:slug}', [StudioController::class, 'show'])->name('studios.show');
 
 // Public profile
 Route::get('/user/{user:username}/list', [ProfileController::class, 'list'])->name('profile.list');

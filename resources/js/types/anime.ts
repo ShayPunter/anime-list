@@ -54,6 +54,7 @@ export interface Genre {
 export interface StudioEntry {
     id: number
     name: string
+    slug: string | null
     is_animation_studio: boolean
     is_main: boolean
 }
@@ -62,8 +63,25 @@ export interface Studio {
     id: number
     anilist_id: number
     name: string
+    slug: string | null
     is_animation_studio: boolean
     pivot?: { is_main: boolean }
+}
+
+export interface StudioCard {
+    id: number
+    slug: string | null
+    name: string
+    anime_count: number
+}
+
+export interface StudioDetail {
+    id: number
+    slug: string | null
+    name: string
+    is_animation_studio: boolean
+    website_url: string | null
+    anime_count: number
 }
 
 export interface AiringScheduleEntry {

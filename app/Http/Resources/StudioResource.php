@@ -12,6 +12,7 @@ class StudioResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'slug' => $this->slug,
             'is_animation_studio' => $this->is_animation_studio,
             'is_main' => (bool) ($this->pivot->is_main ?? false),
         ];
