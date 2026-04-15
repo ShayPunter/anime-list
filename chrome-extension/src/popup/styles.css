@@ -1,0 +1,127 @@
+:root {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --bg-elevated: #181b21;
+    --border: #272b33;
+    --fg: #e7e9ee;
+    --fg-muted: #9aa1ad;
+    --accent: #6366f1;
+    --accent-hover: #4f52d6;
+    --danger: #ef4444;
+    --success: #22c55e;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family:
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+    font-size: 14px;
+}
+
+body {
+    width: 360px;
+    min-height: 480px;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+.btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.btn-secondary {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+    background: var(--border);
+}
+.btn-ghost {
+    background: transparent;
+    border: none;
+    color: var(--fg-muted);
+    padding: 4px 8px;
+}
+.btn-ghost:hover:not(:disabled) {
+    color: var(--fg);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+.field label {
+    font-size: 12px;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.field input,
+.field select {
+    padding: 8px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+}
+.field input:focus,
+.field select:focus {
+    border-color: var(--accent);
+}
+
+.error {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.muted {
+    color: var(--fg-muted);
+}
+
+.empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 13px;
+}

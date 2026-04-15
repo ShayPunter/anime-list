@@ -1,0 +1,120 @@
+name: Extension Dev Release
+
+# Rolling prerelease for testers. Runs on every push to main that touches the
+# extension, and can also be triggered manually. Each run replaces the
+# `extension-dev-latest` GitHub release so there's always a single stable
+# download URL pointing at the latest dev build.
+#
+# Chrome only accepts numeric version segments, so dev builds use
+# `<manifest.version>.<run_number>` (e.g. 0.1.0 manifest + run #47 → 0.1.0.47).
+# That keeps dev zips installable alongside semantic releases and bumps
+# monotonically.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'chrome-extension/**'
+      - '.github/workflows/extension-dev-release.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: extension-dev-release
+  cancel-in-progress: true
+
+jobs:
+  dev-release:
+    name: Build and publish dev release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: chrome-extension/package-lock.json
+
+      - name: Derive dev version
+        id: version
+        working-directory: chrome-extension
+        run: |
+          BASE=$(node -p "require('./public/manifest.json').version")
+          DEV_VERSION="${BASE}.${GITHUB_RUN_NUMBER}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "version=$DEV_VERSION" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite manifest for dev build
+        working-directory: chrome-extension
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = './public/manifest.json';
+            const m = JSON.parse(fs.readFileSync(p, 'utf8'));
+            m.version = '${{ steps.version.outputs.version }}';
+            m.name = 'AniTrack (Dev)';
+            m.short_name = 'AniTrack Dev';
+            m.description = 'DEV BUILD — ' + m.description;
+            fs.writeFileSync(p, JSON.stringify(m, null, 4) + '\n');
+            console.log('Manifest updated for dev:', m.version);
+          "
+
+      - name: Install dependencies
+        working-directory: chrome-extension
+        run: npm ci
+
+      - name: Build extension
+        working-directory: chrome-extension
+        run: npm run build
+
+      - name: Package extension
+        working-directory: chrome-extension
+        run: |
+          ARTIFACT="anitrack-extension-dev-${{ steps.version.outputs.version }}.zip"
+          cd dist
+          zip -r "../$ARTIFACT" .
+          echo "ARTIFACT_PATH=chrome-extension/$ARTIFACT" >> "$GITHUB_ENV"
+          echo "ARTIFACT_NAME=$ARTIFACT" >> "$GITHUB_ENV"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: anitrack-extension-dev-${{ steps.version.outputs.version }}
+          path: ${{ env.ARTIFACT_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Replace existing dev release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete extension-dev-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+
+      - name: Publish dev release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: extension-dev-latest
+          name: Chrome Extension (dev build ${{ steps.version.outputs.version }})
+          prerelease: true
+          make_latest: 'false'
+          target_commitish: ${{ github.sha }}
+          body: |
+            Rolling development build of the AniTrack Chrome extension.
+
+            - Version: `${{ steps.version.outputs.version }}`
+            - Commit: [`${{ steps.version.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            - Base manifest version: `${{ steps.version.outputs.base }}`
+
+            **This tag is overwritten on every push to `main`.** For a stable build, use a `extension-v*` tagged release.
+
+            ## Install
+
+            1. Download `${{ env.ARTIFACT_NAME }}` below and unzip.
+            2. Open `chrome://extensions`, enable Developer mode, click "Load unpacked" and pick the unzipped folder.
+          files: ${{ env.ARTIFACT_PATH }}
