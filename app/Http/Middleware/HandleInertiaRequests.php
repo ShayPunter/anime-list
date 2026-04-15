@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => $request->session()->get('message'),
                 'status' => $request->session()->get('status'),
+                'newApiToken' => $request->session()->get('newApiToken'),
             ],
             'features' => fn () => app(FeatureFlagService::class)->allForUser($request->user()),
             'ziggy' => fn () => [
