@@ -34,9 +34,23 @@ The dev server defaults to `http://localhost:8000` for the API. Use the **Advanc
 ## Production build
 
 ```bash
-pnpm build          # type-checks + builds dist/
-pnpm package        # also produces anitrack-extension.zip ready for Web Store upload
+npm run build       # type-checks + builds dist/
+npm run package     # also produces anitrack-extension.zip ready for Web Store upload
 ```
+
+## Releasing
+
+Releases are driven by tags matching `extension-v*` and handled by `.github/workflows/extension-release.yml`.
+
+1. Bump the `version` in `public/manifest.json` (e.g. `0.1.0` → `0.2.0`).
+2. Commit, then tag and push:
+   ```bash
+   git tag extension-v0.2.0
+   git push origin extension-v0.2.0
+   ```
+3. The workflow verifies the tag matches the manifest version, builds, zips `dist/` as `anitrack-extension-<version>.zip`, and publishes it as a GitHub release.
+
+To auto-publish to the Chrome Web Store, extend that workflow with `chrome-webstore-upload-cli` once the extension is listed and CWS API credentials are in repository secrets.
 
 ## Project layout
 
