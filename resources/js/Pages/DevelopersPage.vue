@@ -46,7 +46,7 @@ const sections: Section[] = [
                 ],
                 example: `curl -X POST {BASE}/auth/token \\
   -H "Content-Type: application/json" \\
-  -d '{"email":"you@example.com","password":"…","device_name":"Chrome Extension"}'`,
+  -d '{"email":"you@example.com","password":"…","device_name":"My Integration"}'`,
             },
             {
                 id: 'list-tokens',
@@ -123,7 +123,7 @@ const sections: Section[] = [
                 path: '/anime/anilist/{anilistId}',
                 title: 'Get anime by AniList ID',
                 auth: 'bearer',
-                description: 'Primary lookup path for the Chrome extension when the user is viewing an anilist.co page. Returns 404 if AniTrack has not yet synced that anime.',
+                description: 'Primary lookup path when you only have an AniList ID (for example, from an anilist.co page). Returns 404 if AniTrack has not yet synced that anime.',
                 params: [
                     { name: 'anilistId', in: 'path', type: 'integer', required: true },
                 ],
@@ -278,7 +278,7 @@ const methodBadge: Record<Endpoint['method'], string> = {
 
 <template>
     <Head title="Developers">
-        <meta name="description" content="AniTrack public API documentation for the Chrome extension and third-party integrations." />
+        <meta name="description" content="AniTrack public API documentation for third-party integrations." />
         <link rel="canonical" :href="route('developers')" />
     </Head>
 

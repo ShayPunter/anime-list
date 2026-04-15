@@ -312,7 +312,7 @@ function summariseUserAgent(ua: string | null): string {
         >
             <h2 class="text-lg font-semibold mb-1">API Tokens</h2>
             <p class="text-sm text-gray-400 mb-4">
-                Issue tokens for the AniTrack Chrome extension or third-party integrations.
+                Issue tokens for third-party integrations.
                 Each token can read and modify your list on your behalf — treat them like passwords.
                 See the <Link :href="route('developers')" class="text-emerald-400 hover:underline">developer docs</Link>
                 for endpoint details.
