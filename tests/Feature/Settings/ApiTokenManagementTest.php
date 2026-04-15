@@ -38,6 +38,21 @@ class ApiTokenManagementTest extends TestCase
             );
     }
 
+    public function test_settings_page_shows_tokens_section_when_flag_is_global_everyone(): void
+    {
+        $user = User::factory()->create();
+        // Simulate an admin flipping "public-api" to Everyone in /admin/features.
+        app(\App\Services\FeatureFlagService::class)->setGlobalStatus('public-api', 'everyone');
+
+        $this->actingAs($user)
+            ->get('/settings')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('publicApiEnabled', true)
+                ->has('apiTokens')
+            );
+    }
+
     public function test_settings_page_lists_tokens_when_flag_is_on(): void
     {
         $user = $this->enabledUser();

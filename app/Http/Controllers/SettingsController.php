@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateApiTokenRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Services\FeatureFlagService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Pennant\Feature;
 
 class SettingsController extends Controller
 {
+    public function __construct(
+        private readonly FeatureFlagService $flags,
+    ) {}
+
     public function show(Request $request): Response
     {
         $user = $request->user();
 
-        $publicApiEnabled = Feature::for($user)->active('public-api');
+        $publicApiEnabled = $this->flags->active('public-api', $user);
 
         return Inertia::render('SettingsPage', [
             'timezones' => timezone_identifiers_list(),
@@ -49,7 +53,7 @@ class SettingsController extends Controller
      */
     public function createApiToken(CreateApiTokenRequest $request): RedirectResponse
     {
-        abort_unless(Feature::for($request->user())->active('public-api'), 403);
+        abort_unless($this->flags->active('public-api', $request->user()), 403);
 
         $new = $request->user()->createToken($request->validated('name'));
 
@@ -69,7 +73,7 @@ class SettingsController extends Controller
 
     public function destroyApiToken(Request $request, int $token): RedirectResponse
     {
-        abort_unless(Feature::for($request->user())->active('public-api'), 403);
+        abort_unless($this->flags->active('public-api', $request->user()), 403);
 
         $deleted = $request->user()->tokens()->whereKey($token)->delete();
 

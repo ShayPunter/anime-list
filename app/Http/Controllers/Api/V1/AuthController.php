@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IssueTokenRequest;
 use App\Models\User;
+use App\Services\FeatureFlagService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Laravel\Pennant\Feature;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        private readonly FeatureFlagService $flags,
+    ) {}
+
     /**
      * Exchange credentials for a Sanctum personal access token.
      *
@@ -29,7 +33,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if (! Feature::for($user)->active('public-api')) {
+        if (! $this->flags->active('public-api', $user)) {
             return response()->json([
                 'message' => 'The public API is not enabled for this account.',
             ], 403);
