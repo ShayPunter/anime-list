@@ -56,3 +56,12 @@ Schedule::command('anime:recalculate-bayesian')
 Schedule::call(function () {
     Cache::forget('top:popular:100');
 })->dailyAt('05:15')->timezone('UTC');
+
+// Prune old raw API responses to keep the table from ballooning
+Schedule::command('anilist:prune-raw-responses')
+    ->dailyAt('05:00')
+    ->timezone('UTC')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Scheduled raw_api_responses prune failed');
+    });
