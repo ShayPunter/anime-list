@@ -38,7 +38,15 @@ Route::get('/anime/al/{anilistId}', [AnimeController::class, 'showByAnilistId'])
 Route::get('/anime/{anime:slug}', [AnimeController::class, 'show'])->name('anime.show');
 Route::get('/seasonal', [SeasonalController::class, 'index'])->name('seasonal');
 Route::get('/schedule', ScheduleController::class)->name('schedule');
-Route::get('/search', fn () => Inertia::render('SearchPage'))->name('search');
+Route::get('/search', function (\Illuminate\Http\Request $request) {
+    $params = [];
+    $q = trim((string) $request->query('q', ''));
+    if ($q !== '') {
+        $params['filter[search]'] = $q;
+    }
+
+    return redirect()->route('anime.index', $params, 301);
+})->name('search');
 Route::get('/terms', fn () => Inertia::render('TermsPage'))->name('terms');
 Route::get('/privacy', fn () => Inertia::render('PrivacyPage'))->name('privacy');
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');

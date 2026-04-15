@@ -133,65 +133,65 @@ function embedUrl(url: string): string | null {
                 <!-- Metadata cards -->
                 <div class="mt-4 space-y-3 text-sm">
                     <div class="rounded-lg border border-gray-800 p-3 space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Format</span>
-                            <span class="text-gray-200">{{ formatLabel(anime.format) }}</span>
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Format</span>
+                            <span class="text-gray-200 text-right">{{ formatLabel(anime.format) }}</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Episodes</span>
-                            <span class="text-gray-200">{{ anime.episodes ?? '?' }}</span>
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Episodes</span>
+                            <span class="text-gray-200 text-right">{{ anime.episodes ?? '?' }}</span>
                         </div>
-                        <div v-if="anime.duration" class="flex justify-between">
-                            <span class="text-gray-500">Duration</span>
-                            <span class="text-gray-200">{{ anime.duration }} min</span>
+                        <div v-if="anime.duration" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Duration</span>
+                            <span class="text-gray-200 text-right">{{ anime.duration }} min</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Status</span>
-                            <span class="text-gray-200">{{ statusLabel(anime.status) }}</span>
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Status</span>
+                            <span class="text-gray-200 text-right">{{ statusLabel(anime.status) }}</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Season</span>
-                            <span class="text-gray-200">{{ seasonLabel(anime.season, anime.season_year) }}</span>
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Season</span>
+                            <span class="text-gray-200 text-right">{{ seasonLabel(anime.season, anime.season_year) }}</span>
                         </div>
-                        <div v-if="anime.aired_from" class="flex justify-between">
-                            <span class="text-gray-500">Aired</span>
-                            <span class="text-gray-200">{{ formatDate(anime.aired_from) }} – {{ formatDate(anime.aired_to) }}</span>
+                        <div v-if="anime.aired_from" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Aired</span>
+                            <span class="text-gray-200 text-right">{{ formatDate(anime.aired_from) }} – {{ formatDate(anime.aired_to) }}</span>
                         </div>
-                        <div v-if="anime.source" class="flex justify-between">
-                            <span class="text-gray-500">Source</span>
-                            <span class="text-gray-200">{{ sourceLabel(anime.source) }}</span>
+                        <div v-if="anime.source" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Source</span>
+                            <span class="text-gray-200 text-right">{{ sourceLabel(anime.source) }}</span>
                         </div>
                     </div>
 
                     <!-- Scores -->
                     <div class="rounded-lg border border-gray-800 p-3 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-500">Score</span>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Score</span>
                             <ScoreBadge :score="anime.average_score" />
                         </div>
-                        <div v-if="anime.mean_score" class="flex justify-between">
-                            <span class="text-gray-500">Mean</span>
-                            <span class="text-gray-200">{{ anime.mean_score.toFixed(1) }}</span>
+                        <div v-if="anime.mean_score" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Mean</span>
+                            <span class="text-gray-200 text-right">{{ anime.mean_score.toFixed(1) }}</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Popularity</span>
-                            <span class="text-gray-200">#{{ anime.popularity?.toLocaleString() ?? '?' }}</span>
+                        <div class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Popularity</span>
+                            <span class="text-gray-200 text-right">#{{ anime.popularity?.toLocaleString() ?? '?' }}</span>
                         </div>
-                        <div v-if="anime.favourites" class="flex justify-between">
-                            <span class="text-gray-500">Favourites</span>
-                            <span class="text-gray-200">{{ anime.favourites.toLocaleString() }}</span>
+                        <div v-if="anime.favourites" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Favourites</span>
+                            <span class="text-gray-200 text-right">{{ anime.favourites.toLocaleString() }}</span>
                         </div>
                     </div>
 
                     <!-- Studios -->
                     <div v-if="mainStudios.length || otherStudios.length" class="rounded-lg border border-gray-800 p-3 space-y-2">
-                        <div v-for="studio in mainStudios" :key="studio.id" class="flex justify-between">
-                            <span class="text-gray-500">Studio</span>
-                            <span class="font-medium text-gray-200">{{ studio.name }}</span>
+                        <div v-for="studio in mainStudios" :key="studio.id" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Studio</span>
+                            <span class="font-medium text-gray-200 text-right">{{ studio.name }}</span>
                         </div>
-                        <div v-for="studio in otherStudios" :key="studio.id" class="flex justify-between">
-                            <span class="text-gray-500">Producer</span>
-                            <span class="text-gray-300">{{ studio.name }}</span>
+                        <div v-for="studio in otherStudios" :key="studio.id" class="flex items-start justify-between gap-3">
+                            <span class="text-gray-500 shrink-0">Producer</span>
+                            <span class="text-gray-300 text-right">{{ studio.name }}</span>
                         </div>
                     </div>
 

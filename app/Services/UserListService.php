@@ -53,6 +53,15 @@ class UserListService
     public function store(User $user, array $data): UserAnimeList
     {
         $data['score'] = $data['score'] ?? 0;
+
+        // If creating as "watching" and no start date was supplied, default to today.
+        if (
+            ($data['status'] ?? null) === UserAnimeList::STATUS_WATCHING
+            && empty($data['started_at'])
+        ) {
+            $data['started_at'] = now();
+        }
+
         $entry = $user->animeList()->create($data);
         $entry->load('anime');
 
@@ -64,6 +73,18 @@ class UserListService
         if (array_key_exists('score', $data)) {
             $data['score'] = $data['score'] ?? 0;
         }
+
+        // If status is changing to "watching" and no start date is set
+        // (neither in the payload nor already on the entry), default to today.
+        if (
+            array_key_exists('status', $data)
+            && $data['status'] === UserAnimeList::STATUS_WATCHING
+            && empty($data['started_at'])
+            && $entry->started_at === null
+        ) {
+            $data['started_at'] = now();
+        }
+
         $entry->update($data);
         $entry->load('anime');
 
@@ -80,9 +101,11 @@ class UserListService
         $anime = $entry->anime;
         $dirty = false;
 
-        // When status set to completed, fill progress to total episodes
-        if ($entry->status === UserAnimeList::STATUS_COMPLETED && $anime && $anime->episodes !== null && $anime->episodes > 0) {
-            if ($entry->progress < $anime->episodes) {
+        // When status set to completed:
+        // - fill progress to total episodes (if known)
+        // - default completed_at to today if unset
+        if ($entry->status === UserAnimeList::STATUS_COMPLETED) {
+            if ($anime && $anime->episodes !== null && $anime->episodes > 0 && $entry->progress < $anime->episodes) {
                 $entry->progress = $anime->episodes;
                 $dirty = true;
             }

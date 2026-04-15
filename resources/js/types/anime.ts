@@ -139,6 +139,7 @@ export interface AdjacentSeasons {
 }
 
 export interface BrowseFilters {
+    search?: string
     format?: AnimeFormat
     status?: AnimeStatus
     season?: AnimeSeason

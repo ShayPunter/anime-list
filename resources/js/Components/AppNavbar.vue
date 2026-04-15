@@ -31,7 +31,7 @@ function handleLogout() {
                     <Link :href="route('seasonal')" class="text-gray-400 hover:text-gray-100 transition">Seasonal</Link>
                     <Link :href="route('schedule')" class="text-gray-400 hover:text-gray-100 transition">Schedule</Link>
                     <Link :href="route('top.rated')" class="text-gray-400 hover:text-gray-100 transition">Top</Link>
-                    <Link :href="route('search')" class="text-gray-400 hover:text-gray-100 transition">Search</Link>
+                    <Link :href="route('anime.index')" class="text-gray-400 hover:text-gray-100 transition">Browse</Link>
                 </div>
             </div>
             <div class="flex items-center gap-4">
