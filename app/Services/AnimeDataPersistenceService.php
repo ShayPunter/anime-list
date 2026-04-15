@@ -189,6 +189,15 @@ class AnimeDataPersistenceService
 
         Studio::upsert($studioRows, ['anilist_id'], ['name', 'is_animation_studio', 'website_url', 'updated_at']);
 
+        // Populate slugs for newly inserted studios (upsert bypasses model events)
+        Studio::whereIn('anilist_id', $allStudios->pluck('anilist_id'))
+            ->whereNull('slug')
+            ->get()
+            ->each(function (Studio $s) {
+                $s->slug = Studio::generateUniqueSlug($s);
+                $s->saveQuietly();
+            });
+
         $studioMap = Studio::whereIn('anilist_id', $allStudios->pluck('anilist_id'))
             ->pluck('id', 'anilist_id');
 

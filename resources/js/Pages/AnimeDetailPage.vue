@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { useFeature } from '@/composables/useFeature'
 import ScoreBadge from '@/Components/ScoreBadge.vue'
 import GenreBadge from '@/Components/GenreBadge.vue'
 import SeasonsSection from '@/Components/SeasonsSection.vue'
@@ -29,6 +30,7 @@ const props = defineProps<{
 
 const page = usePage<{ auth: { user: User | null } }>()
 const isAuthenticated = computed(() => !!page.props.auth.user)
+const studioPagesEnabled = useFeature('studio-pages')
 
 function displayTitle(anime: AnimeDetail): string {
     return anime.title_english || anime.title_romaji
@@ -187,11 +189,25 @@ function embedUrl(url: string): string | null {
                     <div v-if="mainStudios.length || otherStudios.length" class="rounded-lg border border-gray-800 p-3 space-y-2">
                         <div v-for="studio in mainStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Studio</span>
-                            <span class="font-medium text-gray-200 text-right">{{ studio.name }}</span>
+                            <Link
+                                v-if="studioPagesEnabled && studio.slug"
+                                :href="route('studios.show', { studio: studio.slug })"
+                                class="font-medium text-primary-400 hover:text-primary-300 text-right transition"
+                            >
+                                {{ studio.name }}
+                            </Link>
+                            <span v-else class="font-medium text-gray-200 text-right">{{ studio.name }}</span>
                         </div>
                         <div v-for="studio in otherStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Producer</span>
-                            <span class="text-gray-300 text-right">{{ studio.name }}</span>
+                            <Link
+                                v-if="studioPagesEnabled && studio.slug"
+                                :href="route('studios.show', { studio: studio.slug })"
+                                class="text-primary-400 hover:text-primary-300 text-right transition"
+                            >
+                                {{ studio.name }}
+                            </Link>
+                            <span v-else class="text-gray-300 text-right">{{ studio.name }}</span>
                         </div>
                     </div>
 
