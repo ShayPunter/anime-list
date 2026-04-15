@@ -20,6 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
         ]);
 
+        // The public API (/api/v1/*) is consumed by the Chrome extension and
+        // third-party clients using Sanctum bearer tokens. These clients have
+        // no session and cannot participate in CSRF. Auth is enforced per
+        // route via `auth:sanctum`; the token issuance endpoint rate-limits
+        // credential submissions via `throttle:auth`.
+        $middleware->validateCsrfTokens(except: [
+            'api/v1/*',
+        ]);
+
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
