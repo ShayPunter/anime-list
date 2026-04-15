@@ -39,14 +39,46 @@ function updateFilters(newFilters: typeof filters) {
     Object.assign(filters, newFilters)
 }
 
+let searchDebounce: ReturnType<typeof setTimeout> | null = null
+function onSearchInput() {
+    if (searchDebounce) {
+        clearTimeout(searchDebounce)
+    }
+    searchDebounce = setTimeout(() => {
+        applyFilters()
+    }, 400)
+}
+
+function onSearchSubmit() {
+    if (searchDebounce) {
+        clearTimeout(searchDebounce)
+        searchDebounce = null
+    }
+    applyFilters()
+}
+
 const showMobileFilters = ref(false)
 </script>
 
 <template>
-    <Head title="Browse Anime">
-        <meta name="description" content="Browse and discover anime by genre, format, season, and more on AniTrack." />
+    <Head title="Browse &amp; Search Anime">
+        <meta name="description" content="Browse, search and discover anime by title, genre, format, season, and more on AniTrack." />
         <link rel="canonical" :href="route('anime.index')" />
     </Head>
+
+    <div class="mb-6">
+        <form @submit.prevent="onSearchSubmit">
+            <div class="relative">
+                <input
+                    v-model="filters.search"
+                    type="search"
+                    placeholder="Search by title..."
+                    class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                    @input="onSearchInput"
+                />
+            </div>
+        </form>
+    </div>
 
     <div class="flex gap-6">
         <!-- Filter Sidebar (desktop) -->

@@ -35,6 +35,18 @@ class AnimeQueryService
                         $q->where('studios.id', $value);
                     });
                 }),
+                AllowedFilter::callback('search', function ($query, $value) {
+                    $term = trim((string) $value);
+                    if ($term === '') {
+                        return;
+                    }
+                    $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $term).'%';
+                    $query->where(function ($q) use ($like) {
+                        $q->where('title_romaji', 'like', $like)
+                            ->orWhere('title_english', 'like', $like)
+                            ->orWhere('title_native', 'like', $like);
+                    });
+                }),
             ])
             ->allowedSorts([
                 AllowedSort::field('popularity'),

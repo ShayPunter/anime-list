@@ -80,7 +80,7 @@ function animeUrl(anime: AnimeCard): string {
                 </Link>
                 <Link
                     v-if="total > 5"
-                    :href="route('search') + '?q=' + encodeURIComponent(query)"
+                    :href="route('anime.index') + '?filter%5Bsearch%5D=' + encodeURIComponent(query)"
                     class="block border-t border-gray-800 px-4 py-2.5 text-center text-sm text-primary-400 transition hover:bg-gray-800"
                 >
                     View all {{ total }} results
