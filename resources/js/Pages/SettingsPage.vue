@@ -314,6 +314,8 @@ function summariseUserAgent(ua: string | null): string {
             <p class="text-sm text-gray-400 mb-4">
                 Issue tokens for the AniTrack Chrome extension or third-party integrations.
                 Each token can read and modify your list on your behalf — treat them like passwords.
+                See the <Link :href="route('developers')" class="text-emerald-400 hover:underline">developer docs</Link>
+                for endpoint details.
             </p>
 
             <!-- Plain-text display for a token that was just created. -->

@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { useFeature } from '@/composables/useFeature'
+
+const publicApiEnabled = useFeature('public-api')
+</script>
+
 <template>
     <footer class="mt-16 border-t border-gray-800 bg-gray-950">
         <div class="container mx-auto px-4 py-10">
@@ -11,6 +17,7 @@
                         <li><Link :href="route('seasonal')" class="text-gray-500 transition hover:text-gray-200">Seasonal</Link></li>
                         <li><Link :href="route('schedule')" class="text-gray-500 transition hover:text-gray-200">Schedule</Link></li>
                         <li><Link :href="route('top.rated')" class="text-gray-500 transition hover:text-gray-200">Top Anime</Link></li>
+                        <li v-if="publicApiEnabled"><Link :href="route('developers')" class="text-gray-500 transition hover:text-gray-200">Developers</Link></li>
                     </ul>
                 </div>
 
