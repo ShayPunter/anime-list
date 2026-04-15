@@ -306,9 +306,9 @@ const methodBadge: Record<Endpoint['method'], string> = {
                 <p class="text-sm font-medium text-emerald-400">AniTrack API</p>
                 <h1 class="mt-1 text-3xl font-bold">Developers</h1>
                 <p class="mt-3 max-w-2xl text-gray-400">
-                    The AniTrack public API powers the official Chrome extension and lets third-party
-                    integrations read and manage your list on your behalf. All endpoints are versioned
-                    and served from <code class="rounded bg-gray-900 px-1.5 py-0.5 text-emerald-300">{{ apiBaseUrl }}</code>.
+                    The AniTrack public API lets third-party integrations read and manage your
+                    list on your behalf. All endpoints are versioned and served from
+                    <code class="rounded bg-gray-900 px-1.5 py-0.5 text-emerald-300">{{ apiBaseUrl }}</code>.
                 </p>
             </header>
 
@@ -336,7 +336,7 @@ const methodBadge: Record<Endpoint['method'], string> = {
                     </li>
                     <li>
                         By calling <code class="rounded bg-gray-900 px-1.5 py-0.5 text-emerald-300">POST /auth/token</code>
-                        with a user's email + password — used by the official Chrome extension's
+                        with a user's email + password — suitable for clients that need a
                         sign-in flow.
                     </li>
                 </ol>
