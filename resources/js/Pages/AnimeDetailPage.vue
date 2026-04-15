@@ -9,7 +9,7 @@ import SeasonsSection from '@/Components/SeasonsSection.vue'
 import RelatedAnimeRow from '@/Components/RelatedAnimeRow.vue'
 import AiringScheduleTable from '@/Components/AiringScheduleTable.vue'
 import AddToListButton from '@/Components/AddToListButton.vue'
-import type { AnimeDetail, SeasonEntry } from '@/types/anime'
+import type { AnimeDetail, SeasonEntry, StudioEntry, VoiceActorEntry } from '@/types/anime'
 import type { ListEntryResource, User } from '@/types'
 
 defineOptions({ layout: AppLayout })
@@ -31,6 +31,7 @@ const props = defineProps<{
 const page = usePage<{ auth: { user: User | null } }>()
 const isAuthenticated = computed(() => !!page.props.auth.user)
 const studioPagesEnabled = useFeature('studio-pages')
+const voiceActorPagesEnabled = useFeature('voice-actor-pages')
 
 function displayTitle(anime: AnimeDetail): string {
     return anime.title_english || anime.title_romaji
@@ -70,6 +71,35 @@ function formatDate(dateStr: string | null): string {
 
 const mainStudios = props.anime.studios?.filter(s => s.is_main) ?? []
 const otherStudios = props.anime.studios?.filter(s => !s.is_main) ?? []
+
+function studioRoute(studio: StudioEntry): string | null {
+    if (!studio.slug) return null
+    const routeName = studio.is_animation_studio ? 'studios.show' : 'producers.show'
+    return route(routeName, { studio: studio.slug })
+}
+
+function voiceActorRoute(va: VoiceActorEntry): string | null {
+    if (!va.slug) return null
+    return route('people.show', { person: va.slug })
+}
+
+function languageLabel(language: string): string {
+    const map: Record<string, string> = {
+        JAPANESE: 'JP',
+        ENGLISH: 'EN',
+    }
+    return map[language] ?? language.slice(0, 2).toUpperCase()
+}
+
+// Show JP first, then EN; fall back to other languages in order
+function sortedVoiceActors(vas: VoiceActorEntry[]): VoiceActorEntry[] {
+    const order: Record<string, number> = { JAPANESE: 0, ENGLISH: 1 }
+    return [...vas].sort((a, b) => (order[a.language] ?? 99) - (order[b.language] ?? 99))
+}
+
+const characters = computed(() => props.anime.characters ?? [])
+const mainCharacters = computed(() => characters.value.filter(c => c.role === 'MAIN'))
+const supportingCharacters = computed(() => characters.value.filter(c => c.role !== 'MAIN'))
 
 function embedUrl(url: string): string | null {
     try {
@@ -190,8 +220,8 @@ function embedUrl(url: string): string | null {
                         <div v-for="studio in mainStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Studio</span>
                             <Link
-                                v-if="studioPagesEnabled && studio.slug"
-                                :href="route('studios.show', { studio: studio.slug })"
+                                v-if="studioPagesEnabled && studioRoute(studio)"
+                                :href="studioRoute(studio)!"
                                 class="font-medium text-primary-400 hover:text-primary-300 text-right transition"
                             >
                                 {{ studio.name }}
@@ -201,8 +231,8 @@ function embedUrl(url: string): string | null {
                         <div v-for="studio in otherStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Producer</span>
                             <Link
-                                v-if="studioPagesEnabled && studio.slug"
-                                :href="route('studios.show', { studio: studio.slug })"
+                                v-if="studioPagesEnabled && studioRoute(studio)"
+                                :href="studioRoute(studio)!"
                                 class="text-primary-400 hover:text-primary-300 text-right transition"
                             >
                                 {{ studio.name }}
@@ -263,6 +293,78 @@ function embedUrl(url: string): string | null {
                             allowfullscreen
                             loading="lazy"
                         />
+                    </div>
+                </div>
+
+                <!-- Characters & Voice Actors -->
+                <div v-if="characters.length">
+                    <h3 class="mb-3 text-lg font-semibold text-gray-100">Characters &amp; Voice Actors</h3>
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <div
+                            v-for="char in [...mainCharacters, ...supportingCharacters].slice(0, 20)"
+                            :key="char.id"
+                            class="rounded-lg border border-gray-800 bg-gray-900/40 overflow-hidden"
+                        >
+                            <div class="flex items-stretch justify-between gap-2">
+                                <!-- Character side -->
+                                <div class="flex min-w-0 flex-1 items-center gap-2 p-2">
+                                    <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                        <img
+                                            v-if="char.image_medium"
+                                            :src="char.image_medium"
+                                            :alt="char.name_full"
+                                            class="h-full w-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-medium text-gray-200">{{ char.name_full }}</p>
+                                        <p v-if="char.role" class="text-xs text-gray-500">
+                                            {{ char.role === 'MAIN' ? 'Main' : char.role === 'SUPPORTING' ? 'Supporting' : 'Background' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Voice actors (stacked by language) -->
+                                <div
+                                    v-if="char.voice_actors?.length"
+                                    class="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2"
+                                >
+                                    <div
+                                        v-for="va in sortedVoiceActors(char.voice_actors)"
+                                        :key="`${va.id}-${va.language}`"
+                                        class="flex items-center justify-end gap-2"
+                                    >
+                                        <span class="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-400">
+                                            {{ languageLabel(va.language) }}
+                                        </span>
+                                        <div class="min-w-0 text-right">
+                                            <component
+                                                :is="voiceActorPagesEnabled && voiceActorRoute(va) ? 'Link' : 'span'"
+                                                v-bind="voiceActorPagesEnabled && voiceActorRoute(va)
+                                                    ? { href: voiceActorRoute(va) }
+                                                    : {}"
+                                                class="block truncate text-sm"
+                                                :class="voiceActorPagesEnabled && voiceActorRoute(va)
+                                                    ? 'text-primary-400 hover:text-primary-300 transition'
+                                                    : 'text-gray-300'"
+                                            >
+                                                {{ va.name_full }}
+                                            </component>
+                                        </div>
+                                        <div class="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800">
+                                            <img
+                                                v-if="va.image_medium"
+                                                :src="va.image_medium"
+                                                :alt="va.name_full"
+                                                class="h-full w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

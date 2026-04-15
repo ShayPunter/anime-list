@@ -47,6 +47,8 @@ class AnimeData extends Data
         public readonly array $external_links,
         /** @var AiringScheduleData[] */
         public readonly array $airing_schedules,
+        /** @var CharacterEdgeData[] */
+        public readonly array $characters,
     ) {}
 
     public static function fromAniList(array $media): self
@@ -110,6 +112,10 @@ class AnimeData extends Data
             airing_schedules: isset($media['nextAiringEpisode']['id'])
                 ? [AiringScheduleData::fromAniList($media['nextAiringEpisode'])]
                 : [],
+            characters: array_map(
+                fn (array $edge) => CharacterEdgeData::fromAniList($edge),
+                $media['characters']['edges'] ?? [],
+            ),
         );
     }
 

@@ -83,7 +83,7 @@ class AnimeController extends Controller
 
     public function show(Request $request, Anime $anime): Response
     {
-        $cacheKey = "anime:{$anime->id}";
+        $cacheKey = "anime:v2:{$anime->id}";
         $model = Cache::get($cacheKey);
 
         if ($model === null) {
@@ -98,6 +98,14 @@ class AnimeController extends Controller
                 'nextAiringEpisode',
                 'airingSchedules' => fn ($q) => $q->upcoming()->limit(12),
                 'relations.relatedAnime.genres',
+                'characters' => fn ($q) => $q->orderByRaw(
+                    "CASE anime_character.role "
+                    ."WHEN 'MAIN' THEN 1 "
+                    ."WHEN 'SUPPORTING' THEN 2 "
+                    ."WHEN 'BACKGROUND' THEN 3 "
+                    ."ELSE 4 END"
+                )->orderBy('characters.id'),
+                'characters.voiceActors' => fn ($q) => $q->wherePivot('anime_id', $anime->id),
             ]);
 
             $model = $anime;

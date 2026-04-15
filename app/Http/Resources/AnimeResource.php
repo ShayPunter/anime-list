@@ -46,6 +46,7 @@ class AnimeResource extends JsonResource
             'is_adult' => $this->is_adult,
             'genres' => GenreResource::collection($this->whenLoaded('genres')),
             'studios' => StudioResource::collection($this->whenLoaded('studios')),
+            'characters' => CharacterResource::collection($this->whenLoaded('characters')),
             'external_ids' => ExternalIdResource::collection($this->whenLoaded('externalIds')),
             'airing_schedules' => AiringScheduleResource::collection($this->whenLoaded('airingSchedules')),
             'next_airing_episode' => $this->whenLoaded('nextAiringEpisode', function () {
