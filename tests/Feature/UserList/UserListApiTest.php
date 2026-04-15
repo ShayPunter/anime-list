@@ -116,6 +116,38 @@ class UserListApiTest extends TestCase
         $this->assertSoftDeleted('user_anime_lists', ['id' => $entry->id]);
     }
 
+    public function test_re_adding_a_previously_removed_anime_restores_the_entry(): void
+    {
+        $user = User::factory()->create();
+        $anime = Anime::factory()->create(['episodes' => 12]);
+        $entry = UserAnimeList::factory()->for($user)->for($anime)->create([
+            'status' => UserAnimeList::STATUS_COMPLETED,
+            'score' => 90,
+            'progress' => 12,
+            'notes' => 'old notes',
+        ]);
+        $entry->delete();
+
+        $response = $this->actingAs($user)->postJson('/api/list', [
+            'anime_id' => $anime->id,
+            'status' => UserAnimeList::STATUS_PLAN_TO_WATCH,
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('user_anime_lists', [
+            'id' => $entry->id,
+            'user_id' => $user->id,
+            'anime_id' => $anime->id,
+            'status' => UserAnimeList::STATUS_PLAN_TO_WATCH,
+            'deleted_at' => null,
+        ]);
+        // Only one row for this (user, anime) — the old soft-deleted row was restored.
+        $this->assertSame(
+            1,
+            UserAnimeList::withTrashed()->where('user_id', $user->id)->where('anime_id', $anime->id)->count(),
+        );
+    }
+
     public function test_non_owner_cannot_delete_another_users_entry(): void
     {
         $alice = User::factory()->create();

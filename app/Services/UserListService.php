@@ -62,7 +62,36 @@ class UserListService
             $data['started_at'] = now();
         }
 
-        $entry = $user->animeList()->create($data);
+        // The DB has a hard unique(user_id, anime_id) constraint that doesn't
+        // account for soft-deletes. If a user previously removed this anime
+        // from their list, the trashed row still blocks a fresh insert — so
+        // restore and overwrite it instead of attempting a duplicate insert.
+        $trashed = $user->animeList()
+            ->onlyTrashed()
+            ->where('anime_id', $data['anime_id'])
+            ->first();
+
+        if ($trashed) {
+            // Treat a re-add as a fresh entry: wipe prior progress/score/notes
+            // etc. so stale data from the removed entry doesn't leak through.
+            $trashed->restore();
+            $trashed->forceFill([
+                'status' => $data['status'],
+                'score' => $data['score'] ?? 0,
+                'progress' => $data['progress'] ?? 0,
+                'rewatch_count' => 0,
+                'started_at' => $data['started_at'] ?? null,
+                'completed_at' => $data['completed_at'] ?? null,
+                'notes' => $data['notes'] ?? null,
+                'tags' => $data['tags'] ?? null,
+                'is_private' => $data['is_private'] ?? false,
+                'is_rewatching' => false,
+            ])->save();
+            $entry = $trashed;
+        } else {
+            $entry = $user->animeList()->create($data);
+        }
+
         $entry->load('anime');
 
         return $this->applyAutoComplete($entry);
