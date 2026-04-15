@@ -120,6 +120,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'show'])->name('settings');
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::post('/settings/api-tokens', [SettingsController::class, 'createApiToken'])->name('settings.api-tokens.store');
+    Route::delete('/settings/api-tokens/{token}', [SettingsController::class, 'destroyApiToken'])->whereNumber('token')->name('settings.api-tokens.destroy');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
@@ -134,7 +136,7 @@ Route::prefix('api/v1')->name('api.v1.')->middleware('throttle:api')->group(func
 
     // All remaining endpoints require a Sanctum bearer token AND the feature
     // flag to be active for the authenticated user.
-    Route::middleware(['auth:sanctum', 'public-api'])->group(function () {
+    Route::middleware(['auth:sanctum', 'public-api', 'track-token-usage'])->group(function () {
         // Token management
         Route::get('/auth/tokens', [ApiAuthController::class, 'listTokens'])->name('auth.tokens.index');
         Route::delete('/auth/token', [ApiAuthController::class, 'revokeCurrentToken'])->name('auth.token.revoke');

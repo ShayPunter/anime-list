@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
             'public-api' => \App\Http\Middleware\EnsurePublicApiEnabled::class,
+            'track-token-usage' => \App\Http\Middleware\TrackSanctumTokenUsage::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
