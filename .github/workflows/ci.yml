@@ -41,17 +41,20 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: 'pnpm'
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build frontend assets
-        run: npm run build
+        run: pnpm run build
 
       - name: Run tests
         run: php artisan test
