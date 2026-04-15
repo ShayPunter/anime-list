@@ -17,14 +17,6 @@ class ApiTokenManagementTest extends TestCase
         'X-Requested-With' => 'XMLHttpRequest',
     ];
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Tests don't run a frontend build, so skip Vite directive rendering.
-        $this->withoutVite();
-    }
-
     private function enabledUser(): User
     {
         $user = User::factory()->create();

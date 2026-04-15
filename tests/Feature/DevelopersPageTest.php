@@ -9,13 +9,6 @@ use Tests\TestCase;
 
 class DevelopersPageTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->withoutVite();
-    }
-
     public function test_guests_get_404_when_flag_is_off(): void
     {
         $this->get('/developers')->assertNotFound();
