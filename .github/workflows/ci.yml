@@ -41,6 +41,9 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
+      - name: Create SQLite database
+        run: touch database/testing.sqlite
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
