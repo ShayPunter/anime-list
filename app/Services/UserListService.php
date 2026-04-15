@@ -62,6 +62,33 @@ class UserListService
             $data['started_at'] = now();
         }
 
+        // A soft-deleted entry may already exist for (user_id, anime_id).
+        // The DB unique constraint ignores deleted_at, so a plain insert would fail —
+        // restore and overwrite the trashed row instead.
+        $trashed = $user->animeList()
+            ->onlyTrashed()
+            ->where('anime_id', $data['anime_id'])
+            ->first();
+
+        if ($trashed) {
+            $trashed->restore();
+            $trashed->forceFill([
+                'score' => 0,
+                'progress' => 0,
+                'rewatch_count' => 0,
+                'started_at' => null,
+                'completed_at' => null,
+                'notes' => null,
+                'tags' => null,
+                'is_private' => false,
+                'is_rewatching' => false,
+            ])->fill($data)->save();
+
+            $trashed->load('anime');
+
+            return $this->applyAutoComplete($trashed);
+        }
+
         $entry = $user->animeList()->create($data);
         $entry->load('anime');
 
