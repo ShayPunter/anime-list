@@ -59,9 +59,11 @@ Route::get('/api/search', SearchController::class)->middleware('throttle:api')->
 // Public playlist
 Route::get('/playlist/{playlist:slug}', [PlaylistController::class, 'show'])->name('playlist.show');
 
-// Studios
+// Studios & producers
 Route::get('/studios', [StudioController::class, 'index'])->name('studios.index');
 Route::get('/studios/{studio:slug}', [StudioController::class, 'show'])->name('studios.show');
+Route::get('/producers', [StudioController::class, 'producersIndex'])->name('producers.index');
+Route::get('/producers/{studio:slug}', [StudioController::class, 'producerShow'])->name('producers.show');
 
 // Public profile
 Route::get('/user/{user:username}/list', [ProfileController::class, 'list'])->name('profile.list');

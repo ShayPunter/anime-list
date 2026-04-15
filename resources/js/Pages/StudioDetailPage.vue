@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import AnimeCard from '@/Components/AnimeCard.vue'
 import PaginationBar from '@/Components/PaginationBar.vue'
@@ -13,11 +14,28 @@ interface OgMeta {
     url: string
 }
 
-defineProps<{
+type Kind = 'studio' | 'producer'
+
+const props = defineProps<{
     studio: StudioDetail
     anime: PaginatedResponse<AnimeCardType>
     og: OgMeta
+    kind: Kind
 }>()
+
+const labels = computed(() => props.kind === 'producer'
+    ? {
+          breadcrumbText: 'Producers',
+          breadcrumbRoute: 'producers.index',
+          kindLabel: 'Producer',
+          emptyMessage: 'No anime found for this producer.',
+      }
+    : {
+          breadcrumbText: 'Studios',
+          breadcrumbRoute: 'studios.index',
+          kindLabel: 'Animation studio',
+          emptyMessage: 'No anime found for this studio.',
+      })
 </script>
 
 <template>
@@ -33,13 +51,15 @@ defineProps<{
     <div>
         <div class="mb-6">
             <div class="text-sm text-gray-500">
-                <Link :href="route('studios.index')" class="text-primary-400 hover:text-primary-300">Studios</Link>
+                <Link :href="route(labels.breadcrumbRoute)" class="text-primary-400 hover:text-primary-300">
+                    {{ labels.breadcrumbText }}
+                </Link>
                 <span class="mx-2 text-gray-600">/</span>
                 <span>{{ studio.name }}</span>
             </div>
             <h1 class="mt-2 text-2xl font-bold text-gray-100 md:text-3xl">{{ studio.name }}</h1>
             <p class="mt-1 text-sm text-gray-400">
-                {{ studio.anime_count.toLocaleString() }} anime
+                {{ labels.kindLabel }} &middot; {{ studio.anime_count.toLocaleString() }} anime
             </p>
             <a
                 v-if="studio.website_url"
@@ -71,7 +91,7 @@ defineProps<{
             </div>
         </div>
         <div v-else class="py-16 text-center">
-            <p class="text-gray-500">No anime found for this studio.</p>
+            <p class="text-gray-500">{{ labels.emptyMessage }}</p>
         </div>
     </div>
 </template>

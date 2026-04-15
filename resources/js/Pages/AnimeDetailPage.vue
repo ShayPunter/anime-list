@@ -9,7 +9,7 @@ import SeasonsSection from '@/Components/SeasonsSection.vue'
 import RelatedAnimeRow from '@/Components/RelatedAnimeRow.vue'
 import AiringScheduleTable from '@/Components/AiringScheduleTable.vue'
 import AddToListButton from '@/Components/AddToListButton.vue'
-import type { AnimeDetail, SeasonEntry } from '@/types/anime'
+import type { AnimeDetail, SeasonEntry, StudioEntry } from '@/types/anime'
 import type { ListEntryResource, User } from '@/types'
 
 defineOptions({ layout: AppLayout })
@@ -70,6 +70,12 @@ function formatDate(dateStr: string | null): string {
 
 const mainStudios = props.anime.studios?.filter(s => s.is_main) ?? []
 const otherStudios = props.anime.studios?.filter(s => !s.is_main) ?? []
+
+function studioRoute(studio: StudioEntry): string | null {
+    if (!studio.slug) return null
+    const routeName = studio.is_animation_studio ? 'studios.show' : 'producers.show'
+    return route(routeName, { studio: studio.slug })
+}
 
 function embedUrl(url: string): string | null {
     try {
@@ -190,8 +196,8 @@ function embedUrl(url: string): string | null {
                         <div v-for="studio in mainStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Studio</span>
                             <Link
-                                v-if="studioPagesEnabled && studio.slug"
-                                :href="route('studios.show', { studio: studio.slug })"
+                                v-if="studioPagesEnabled && studioRoute(studio)"
+                                :href="studioRoute(studio)!"
                                 class="font-medium text-primary-400 hover:text-primary-300 text-right transition"
                             >
                                 {{ studio.name }}
@@ -201,8 +207,8 @@ function embedUrl(url: string): string | null {
                         <div v-for="studio in otherStudios" :key="studio.id" class="flex items-start justify-between gap-3">
                             <span class="text-gray-500 shrink-0">Producer</span>
                             <Link
-                                v-if="studioPagesEnabled && studio.slug"
-                                :href="route('studios.show', { studio: studio.slug })"
+                                v-if="studioPagesEnabled && studioRoute(studio)"
+                                :href="studioRoute(studio)!"
                                 class="text-primary-400 hover:text-primary-300 text-right transition"
                             >
                                 {{ studio.name }}

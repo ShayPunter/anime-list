@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Link, router } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import PaginationBar from '@/Components/PaginationBar.vue'
 import type { StudioCard } from '@/types/anime'
@@ -17,10 +17,33 @@ interface StudiosData {
     }
 }
 
+type Kind = 'studio' | 'producer'
+
 const props = defineProps<{
     studios: StudiosData
     filters: { search: string }
+    kind: Kind
 }>()
+
+const labels = computed(() => props.kind === 'producer'
+    ? {
+          heading: 'Anime Producers',
+          description: 'Browse anime production companies and licensors.',
+          countSuffix: 'producers',
+          searchPlaceholder: 'Search producers...',
+          empty: 'No producers found.',
+          indexRoute: 'producers.index',
+          showRoute: 'producers.show',
+      }
+    : {
+          heading: 'Anime Studios',
+          description: 'Browse animation studios and explore their catalog.',
+          countSuffix: 'animation studios',
+          searchPlaceholder: 'Search studios...',
+          empty: 'No studios found.',
+          indexRoute: 'studios.index',
+          showRoute: 'studios.show',
+      })
 
 const search = ref(props.filters.search)
 
@@ -33,7 +56,7 @@ function applySearch() {
         params.search = term
     }
 
-    router.get(route('studios.index'), params, {
+    router.get(route(labels.value.indexRoute), params, {
         preserveState: true,
         preserveScroll: false,
         replace: true,
@@ -54,21 +77,21 @@ function onSearchSubmit() {
 }
 
 function studioUrl(studio: StudioCard): string {
-    return studio.slug ? route('studios.show', { studio: studio.slug }) : '#'
+    return studio.slug ? route(labels.value.showRoute, { studio: studio.slug }) : '#'
 }
 </script>
 
 <template>
-    <Head title="Anime Studios">
-        <meta name="description" content="Browse anime by studio. Explore every show produced by your favorite animation studios on AniTrack." />
-        <link rel="canonical" :href="route('studios.index')" />
+    <Head :title="labels.heading">
+        <meta name="description" :content="labels.description" />
+        <link rel="canonical" :href="route(labels.indexRoute)" />
     </Head>
 
     <div>
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-100 md:text-3xl">Anime Studios</h1>
+            <h1 class="text-2xl font-bold text-gray-100 md:text-3xl">{{ labels.heading }}</h1>
             <p class="mt-1 text-sm text-gray-400">
-                Browse {{ studios.meta.total.toLocaleString() }} animation studios.
+                Browse {{ studios.meta.total.toLocaleString() }} {{ labels.countSuffix }}.
             </p>
         </div>
 
@@ -77,7 +100,7 @@ function studioUrl(studio: StudioCard): string {
                 <input
                     v-model="search"
                     type="search"
-                    placeholder="Search studios..."
+                    :placeholder="labels.searchPlaceholder"
                     class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                     @input="onSearchInput"
                 />
@@ -100,7 +123,7 @@ function studioUrl(studio: StudioCard): string {
             </Link>
         </div>
         <div v-else class="py-16 text-center">
-            <p class="text-gray-500">No studios found.</p>
+            <p class="text-gray-500">{{ labels.empty }}</p>
         </div>
 
         <div class="mt-8">
