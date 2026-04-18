@@ -19,9 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\SecurityHeaders::class,
         ]);
-
+      
         $middleware->validateCsrfTokens(except: [
             'webauthn/*',
+            'api/v1/*',
         ]);
 
         $middleware->alias([
