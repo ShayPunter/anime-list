@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^2.0.0",
+        "@laragear/webpass": "^2.1.2",
         "@primevue/themes": "^4.5.4",
         "@tailwindcss/vite": "^4.2.1",
         "@tanstack/vue-query": "^5.92.9",

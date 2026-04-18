@@ -27,6 +27,7 @@ class SettingsController extends Controller
             'timezones' => timezone_identifiers_list(),
             'publicApiEnabled' => $publicApiEnabled,
             'apiTokens' => $publicApiEnabled ? $this->tokensFor($user) : [],
+            'passkeys' => $this->passkeysFor($user),
         ]);
     }
 
@@ -80,6 +81,24 @@ class SettingsController extends Controller
         abort_if($deleted === 0, 404);
 
         return back()->with('message', 'API token revoked.');
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function passkeysFor($user): array
+    {
+        return $user->webAuthnCredentials()
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn ($credential) => [
+                'id' => $credential->id,
+                'alias' => $credential->alias ?? 'Passkey',
+                'enabled' => $credential->isEnabled(),
+                'created_at' => $credential->created_at?->toISOString(),
+            ])
+            ->values()
+            ->all();
     }
 
     /**

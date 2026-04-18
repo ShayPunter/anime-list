@@ -16,7 +16,8 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "paths": {
-            "@/*": ["./resources/js/*"]
+            "@/*": ["./resources/js/*"],
+            "@laragear/webpass": ["./node_modules/@laragear/webpass/dist/index.d.ts"]
         }
     },
     "include": [
