@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'webauthn/*',
+        ]);
+
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
