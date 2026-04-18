@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import type { User } from '@/types'
@@ -9,6 +9,7 @@ import Select from 'primevue/select'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import ToggleSwitch from 'primevue/toggleswitch'
+import { useWebpass, Webpass } from '@/composables/useWebpass'
 
 defineOptions({ layout: AppLayout })
 
@@ -27,10 +28,18 @@ interface NewApiToken {
     plain_text: string
 }
 
+interface Passkey {
+    id: string
+    alias: string
+    enabled: boolean
+    created_at: string | null
+}
+
 const props = defineProps<{
     timezones: string[]
     publicApiEnabled: boolean
     apiTokens: ApiToken[]
+    passkeys: Passkey[]
 }>()
 
 const page = usePage<{
@@ -125,6 +134,58 @@ function copyToken(value: string) {
 function formatWhen(iso: string | null): string {
     if (!iso) return 'never'
     return new Date(iso).toLocaleString()
+}
+
+// ── Passkeys ────────────────────────────────────────────────────────────────
+
+const webpass = useWebpass()
+const passkeySupported = ref(false)
+const passkeyError = ref<string | null>(null)
+const passkeyBusy = ref(false)
+const passkeyAlias = ref('')
+const passkeyDeletingId = ref<string | null>(null)
+
+onMounted(() => {
+    passkeySupported.value = Webpass.isSupported()
+})
+
+async function addPasskey() {
+    passkeyError.value = null
+    passkeyBusy.value = true
+    const alias = passkeyAlias.value.trim() || 'Passkey'
+
+    try {
+        const { success, error } = await webpass.attest(
+            { path: route('webauthn.register.options') },
+            { path: route('webauthn.register'), body: { alias } },
+        )
+
+        if (success) {
+            passkeyAlias.value = ''
+            router.reload({ only: ['passkeys'] })
+            return
+        }
+
+        passkeyError.value = error instanceof Error ? error.message : "Couldn't register passkey."
+    } catch (e) {
+        passkeyError.value = e instanceof Error ? e.message : "Couldn't register passkey."
+    } finally {
+        passkeyBusy.value = false
+    }
+}
+
+function deletePasskey(passkey: Passkey) {
+    if (!window.confirm(`Remove "${passkey.alias}"? You won't be able to sign in with this passkey anymore.`)) {
+        return
+    }
+
+    passkeyDeletingId.value = passkey.id
+    router.delete(route('settings.passkeys.destroy', { passkey: passkey.id }), {
+        preserveScroll: true,
+        onFinish: () => {
+            passkeyDeletingId.value = null
+        },
+    })
 }
 
 function summariseUserAgent(ua: string | null): string {
@@ -303,6 +364,69 @@ function summariseUserAgent(ua: string | null): string {
                     :disabled="passwordForm.processing"
                 />
             </form>
+        </div>
+
+        <!-- Passkeys Section -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <h2 class="text-lg font-semibold mb-1">Passkeys</h2>
+            <p class="text-sm text-gray-400 mb-4">
+                Sign in without a password using a security key (e.g. YubiKey), your device's biometrics, or another authenticator.
+            </p>
+
+            <div
+                v-if="!passkeySupported"
+                class="text-sm text-amber-300 bg-amber-950/40 border border-amber-800 rounded-lg p-3 mb-4"
+            >
+                Your browser doesn't support passkeys. Try the latest Chrome, Firefox, or Safari.
+            </div>
+
+            <form v-else class="flex gap-2 mb-6" @submit.prevent="addPasskey">
+                <div class="flex-1">
+                    <InputText
+                        v-model="passkeyAlias"
+                        placeholder="e.g. YubiKey 5C, MacBook Touch ID"
+                        class="w-full"
+                        :disabled="passkeyBusy"
+                    />
+                </div>
+                <Button
+                    type="submit"
+                    :label="passkeyBusy ? 'Waiting for passkey…' : 'Add passkey'"
+                    :loading="passkeyBusy"
+                    :disabled="passkeyBusy"
+                />
+            </form>
+
+            <p v-if="passkeyError" class="text-red-400 text-sm mb-4">{{ passkeyError }}</p>
+
+            <div v-if="passkeys.length === 0" class="text-sm text-gray-500">
+                No passkeys yet. Add one above to enable passwordless sign-in.
+            </div>
+
+            <ul v-else class="divide-y divide-gray-800">
+                <li
+                    v-for="passkey in passkeys"
+                    :key="passkey.id"
+                    class="py-3 flex items-start justify-between gap-3"
+                >
+                    <div class="min-w-0 flex-1">
+                        <div class="font-medium truncate">{{ passkey.alias }}</div>
+                        <div class="text-xs text-gray-600 mt-0.5">
+                            Added {{ formatWhen(passkey.created_at) }}
+                        </div>
+                    </div>
+                    <Button
+                        type="button"
+                        size="small"
+                        label="Remove"
+                        severity="danger"
+                        outlined
+                        :loading="passkeyDeletingId === passkey.id"
+                        :disabled="passkeyDeletingId === passkey.id"
+                        @click="deletePasskey(passkey)"
+                    />
+                </li>
+            </ul>
         </div>
 
         <!-- API Tokens Section -->
