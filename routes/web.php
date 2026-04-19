@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\UserController as ApiUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasskeyController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\AdminAnimeController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFeatureFlagController;
 use App\Http\Controllers\Admin\AdminRoleController;
@@ -187,6 +188,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
     Route::patch('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/anime', [AdminAnimeController::class, 'index'])->name('anime.index');
+    Route::get('/anime/{anime:id}/edit', [AdminAnimeController::class, 'edit'])->name('anime.edit');
+    Route::patch('/anime/{anime:id}', [AdminAnimeController::class, 'update'])->name('anime.update');
+    Route::delete('/anime/{anime:id}/rewrite', [AdminAnimeController::class, 'reset'])->name('anime.reset');
 
     Route::get('/features', [AdminFeatureFlagController::class, 'index'])->name('features');
     Route::patch('/features/{feature}', [AdminFeatureFlagController::class, 'update'])->name('features.update');

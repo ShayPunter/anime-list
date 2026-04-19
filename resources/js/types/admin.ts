@@ -39,3 +39,32 @@ export interface AdminRole {
     description: string | null
     users: AdminRoleUser[]
 }
+
+export interface AdminAnimeListItem {
+    id: number
+    slug: string | null
+    title: string
+    title_secondary: string | null
+    format: string | null
+    status: string | null
+    season: string | null
+    season_year: number | null
+    cover_image_medium: string | null
+    synopsis_excerpt: string | null
+    synopsis_rewritten_at: string | null
+}
+
+export interface AdminAnimeEdit {
+    id: number
+    slug: string | null
+    title_english: string | null
+    title_romaji: string
+    title_native: string | null
+    cover_image_medium: string | null
+    format: string | null
+    status: string | null
+    season: string | null
+    season_year: number | null
+    synopsis: string | null
+    synopsis_rewritten_at: string | null
+}
