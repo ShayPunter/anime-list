@@ -8,6 +8,7 @@ const currentUrl = computed(() => page.url)
 const links = [
     { label: 'Dashboard', route: 'admin.dashboard' },
     { label: 'Users', route: 'admin.users' },
+    { label: 'Roles', route: 'admin.roles' },
     { label: 'Feature Flags', route: 'admin.features' },
 ]
 
