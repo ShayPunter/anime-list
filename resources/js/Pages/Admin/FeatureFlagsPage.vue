@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import AdminNav from '@/Components/AdminNav.vue'
+import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete'
 import axios from 'axios'
 
 defineOptions({ layout: AppLayout })
@@ -20,12 +21,20 @@ interface FeatureFlag {
     users: FeatureUser[]
 }
 
+interface UserSuggestion {
+    id: number
+    name: string
+    username: string
+    avatar_url: string | null
+}
+
 const props = defineProps<{
     features: FeatureFlag[]
 }>()
 
 const addingUserFor = ref<string | null>(null)
-const usernameInput = ref('')
+const selectedUser = ref<UserSuggestion | string | null>(null)
+const userSuggestions = ref<UserSuggestion[]>([])
 const addingError = ref('')
 
 async function setStatus(feature: string, status: 'everyone' | 'nobody' | 'default') {
@@ -33,15 +42,37 @@ async function setStatus(feature: string, status: 'everyone' | 'nobody' | 'defau
     router.visit(route('admin.features'), { preserveScroll: true })
 }
 
+async function searchUsers(event: AutoCompleteCompleteEvent) {
+    try {
+        const { data } = await axios.get<{ data: UserSuggestion[] }>(
+            route('admin.users.search'),
+            { params: { q: event.query } },
+        )
+        userSuggestions.value = data.data
+    } catch {
+        userSuggestions.value = []
+    }
+}
+
+function resetAddUser(feature: string | null) {
+    addingUserFor.value = feature
+    selectedUser.value = null
+    userSuggestions.value = []
+    addingError.value = ''
+}
+
 async function addUser(feature: string) {
-    if (!usernameInput.value.trim()) return
+    const value = selectedUser.value
+    const username =
+        typeof value === 'string' ? value.trim() : value?.username?.trim() ?? ''
+
+    if (!username) return
     addingError.value = ''
     try {
         await axios.post(route('admin.features.activate-user', { feature }), {
-            username: usernameInput.value.trim(),
+            username,
         })
-        usernameInput.value = ''
-        addingUserFor.value = null
+        resetAddUser(null)
         router.visit(route('admin.features'), { preserveScroll: true })
     } catch (e: unknown) {
         if (axios.isAxiosError(e)) {
@@ -132,7 +163,7 @@ const statusColors: Record<string, string> = {
                         <span class="text-xs text-gray-500">User overrides</span>
                         <button
                             class="text-xs text-primary-400 hover:text-primary-300 transition"
-                            @click="addingUserFor = addingUserFor === feature.name ? null : feature.name; usernameInput = ''; addingError = ''"
+                            @click="resetAddUser(addingUserFor === feature.name ? null : feature.name)"
                         >
                             + Add user
                         </button>
@@ -140,13 +171,35 @@ const statusColors: Record<string, string> = {
 
                     <!-- Add user form -->
                     <div v-if="addingUserFor === feature.name" class="flex items-center gap-2 mb-2">
-                        <input
-                            v-model="usernameInput"
-                            type="text"
-                            placeholder="Username"
-                            class="rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300 flex-1"
+                        <AutoComplete
+                            v-model="selectedUser"
+                            :suggestions="userSuggestions"
+                            option-label="username"
+                            placeholder="Search by username or name"
+                            class="flex-1"
+                            input-class="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300"
+                            :delay="250"
+                            @complete="searchUsers"
                             @keyup.enter="addUser(feature.name)"
-                        />
+                        >
+                            <template #option="{ option }">
+                                <div class="flex items-center gap-2">
+                                    <img
+                                        v-if="option.avatar_url"
+                                        :src="option.avatar_url"
+                                        :alt="option.username"
+                                        class="h-6 w-6 rounded-full object-cover"
+                                    />
+                                    <div class="flex flex-col">
+                                        <span class="text-sm text-gray-200">{{ option.username }}</span>
+                                        <span class="text-xs text-gray-500">{{ option.name }}</span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template #empty>
+                                <span class="block px-3 py-2 text-xs text-gray-500">No users found</span>
+                            </template>
+                        </AutoComplete>
                         <button
                             class="rounded bg-primary-600 px-3 py-1 text-sm text-white hover:bg-primary-700 transition"
                             @click="addUser(feature.name)"
