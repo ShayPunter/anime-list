@@ -8,6 +8,7 @@ export interface User {
     timezone: string
     is_admin: boolean
     list_is_public: boolean
+    roles: string[]
 }
 
 export interface UserProfile {

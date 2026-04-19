@@ -19,6 +19,7 @@ class AdminAccessTest extends TestCase
         $this->actingAs($user)->get('/admin')->assertForbidden();
         $this->actingAs($user)->get('/admin/users')->assertForbidden();
         $this->actingAs($user)->get('/admin/features')->assertForbidden();
+        $this->actingAs($user)->get('/admin/roles')->assertForbidden();
     }
 
     public function test_admin_users_can_access_admin_routes(): void
@@ -27,5 +28,6 @@ class AdminAccessTest extends TestCase
 
         $this->get('/admin/users')->assertOk();
         $this->get('/admin/features')->assertOk();
+        $this->get('/admin/roles')->assertOk();
     }
 }

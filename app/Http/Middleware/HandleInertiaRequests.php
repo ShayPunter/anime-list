@@ -36,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'timezone' => $request->user()->timezone,
                     'is_admin' => (bool) $request->user()->is_admin,
                     'list_is_public' => (bool) $request->user()->list_is_public,
+                    'roles' => $request->user()->roles->pluck('slug')->all(),
                 ] : null,
             ],
             'flash' => [

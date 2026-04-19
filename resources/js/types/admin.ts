@@ -25,6 +25,21 @@ export interface SyncStatuses {
     schedule: string
 }
 
+export interface AdminRoleUser {
+    id: number
+    name: string
+    username: string
+    avatar_url: string | null
+}
+
+export interface AdminRole {
+    id: number
+    slug: string
+    name: string
+    description: string | null
+    users: AdminRoleUser[]
+}
+
 export interface AdminAnimeListItem {
     id: number
     slug: string | null

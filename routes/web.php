@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminAnimeController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFeatureFlagController;
+use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
@@ -197,4 +198,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/features/{feature}', [AdminFeatureFlagController::class, 'update'])->name('features.update');
     Route::post('/features/{feature}/users', [AdminFeatureFlagController::class, 'activateForUser'])->name('features.activate-user');
     Route::delete('/features/{feature}/users/{user}', [AdminFeatureFlagController::class, 'deactivateForUser'])->name('features.deactivate-user');
+
+    Route::get('/roles', [AdminRoleController::class, 'index'])->name('roles');
+    Route::post('/roles/{role}/users', [AdminRoleController::class, 'assign'])->name('roles.assign');
+    Route::delete('/roles/{role}/users/{user}', [AdminRoleController::class, 'remove'])->name('roles.remove');
 });
