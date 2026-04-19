@@ -41,7 +41,7 @@ class AdminAnimeController extends Controller
             $query->whereNotNull('synopsis_rewritten_at');
         }
 
-        $anime = $query
+        $paginator = $query
             ->orderByDesc('popularity')
             ->paginate(25)
             ->withQueryString()
@@ -62,7 +62,21 @@ class AdminAnimeController extends Controller
             ]);
 
         return Inertia::render('Admin/AnimeListPage', [
-            'anime' => $anime,
+            'anime' => [
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+                'links' => [
+                    'first' => $paginator->url(1),
+                    'last' => $paginator->url($paginator->lastPage()),
+                    'prev' => $paginator->previousPageUrl(),
+                    'next' => $paginator->nextPageUrl(),
+                ],
+            ],
             'filters' => [
                 'search' => $search ?: null,
                 'rewritten_only' => $request->boolean('rewritten_only'),

@@ -25,7 +25,7 @@ class AdminUserController extends Controller
             });
         }
 
-        $users = $query->latest()->paginate(20)->through(fn (User $user) => [
+        $paginator = $query->latest()->paginate(20)->withQueryString()->through(fn (User $user) => [
             'id' => $user->id,
             'name' => $user->name,
             'username' => $user->username,
@@ -38,7 +38,21 @@ class AdminUserController extends Controller
         ]);
 
         return Inertia::render('Admin/UsersPage', [
-            'users' => $users,
+            'users' => [
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+                'links' => [
+                    'first' => $paginator->url(1),
+                    'last' => $paginator->url($paginator->lastPage()),
+                    'prev' => $paginator->previousPageUrl(),
+                    'next' => $paginator->nextPageUrl(),
+                ],
+            ],
             'filters' => [
                 'search' => $search,
             ],
