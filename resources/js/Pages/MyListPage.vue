@@ -18,10 +18,33 @@ const props = defineProps<{
     counts: Record<string, number>
 }>()
 
-const activeStatus = ref<ListStatus | 'all'>('all')
+const VALID_STATUSES = ['all', 'watching', 'completed', 'plan_to_watch', 'on_hold', 'dropped'] as const
+
+function readStatusFromUrl(): ListStatus | 'all' {
+    const param = new URLSearchParams(window.location.search).get('status')
+    return (VALID_STATUSES as readonly string[]).includes(param ?? '')
+        ? (param as ListStatus | 'all')
+        : 'all'
+}
+
+const activeStatus = ref<ListStatus | 'all'>(
+    typeof window !== 'undefined' ? readStatusFromUrl() : 'all',
+)
 const viewMode = ref<ListViewMode>('table')
 
+function changeStatus(status: ListStatus | 'all') {
+    activeStatus.value = status
+    const url = new URL(window.location.href)
+    if (status === 'all') {
+        url.searchParams.delete('status')
+    } else {
+        url.searchParams.set('status', status)
+    }
+    window.history.replaceState(window.history.state, '', url.toString())
+}
+
 onMounted(() => {
+    activeStatus.value = readStatusFromUrl()
     const saved = localStorage.getItem('list_view') as ListViewMode | null
     if (saved && ['table', 'card', 'compact'].includes(saved)) {
         viewMode.value = saved
@@ -168,7 +191,7 @@ const sortOptions = [
         <ListStatusTabs
             :active-status="activeStatus"
             :counts="counts"
-            @change="activeStatus = $event"
+            @change="changeStatus"
         />
 
         <div class="flex items-center justify-between">
