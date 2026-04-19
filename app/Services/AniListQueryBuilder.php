@@ -64,6 +64,20 @@ class AniListQueryBuilder
             airingAt
             timeUntilAiring
         }
+        streamingEpisodes {
+            title
+            thumbnail
+            url
+            site
+        }
+        airingSchedule(perPage: 180) {
+            nodes {
+                id
+                episode
+                airingAt
+                timeUntilAiring
+            }
+        }
         characters(page: 1, perPage: 25, sort: [ROLE, RELEVANCE, ID]) {
             edges {
                 role

@@ -212,6 +212,36 @@ class DiscoverService
         ];
     }
 
+    /**
+     * Anime-to-anime similarity for the detail page's "you might also enjoy"
+     * section. Pulls AniList-sourced recommendations when available, falls
+     * back to genre overlap + bayesian score.
+     *
+     * @return Collection<int, Anime>
+     */
+    public function similarTo(Anime $anime, int $limit = 8): Collection
+    {
+        $excludeIds = [$anime->id];
+
+        $similar = Recommendation::query()
+            ->where('anime_id', $anime->id)
+            ->whereNotIn('recommended_anime_id', $excludeIds)
+            ->with(['recommendedAnime.genres', 'recommendedAnime.nextAiringEpisode'])
+            ->orderByDesc('rating')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Recommendation $r) => $r->recommendedAnime)
+            ->filter()
+            ->filter(fn (Anime $a) => ! $a->is_adult)
+            ->values();
+
+        if ($similar->isEmpty()) {
+            $similar = $this->genreFallback($anime, $excludeIds, $limit);
+        }
+
+        return $similar;
+    }
+
     private function genreFallback(Anime $anchor, array $excludeIds, int $limit): Collection
     {
         $genreIds = $anchor->genres->pluck('id')->all();

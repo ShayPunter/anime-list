@@ -6,6 +6,7 @@ use App\DTOs\AnimeData;
 use App\Models\AiringSchedule;
 use App\Models\Anime;
 use App\Models\Character;
+use App\Models\Episode;
 use App\Models\ExternalId;
 use App\Models\Genre;
 use App\Models\Person;
@@ -37,6 +38,7 @@ class AnimeDataPersistenceService
             $this->syncStudiosBatch($dtos, $animeMap);
             $this->syncCharactersBatch($dtos, $animeMap);
             $this->upsertAiringSchedulesBatch($dtos, $animeMap);
+            $this->upsertEpisodesBatch($dtos, $animeMap);
             $this->upsertExternalIdsBatch($dtos, $animeMap);
             $this->pushPendingRelations($dtos);
             $this->invalidateCaches($dtos, $animeMap);
@@ -59,6 +61,7 @@ class AnimeDataPersistenceService
             $this->syncStudiosForAnime($anime, $dto);
             $this->syncCharactersForAnime($anime, $dto);
             $this->upsertAiringSchedulesForAnime($anime, $dto);
+            $this->upsertEpisodesForAnime($anime, $dto);
             $this->upsertExternalIdsForAnime($anime, $dto);
 
             return $anime;
@@ -68,7 +71,7 @@ class AnimeDataPersistenceService
             $this->pushPendingRelations([$dto]);
         }
 
-        Cache::forget("anime:v2:{$anime->id}");
+        Cache::forget("anime:v3:{$anime->id}");
         if ($dto->season && $dto->season_year) {
             Cache::forget("anime:seasonal:{$dto->season_year}:{$dto->season}");
         }
@@ -440,6 +443,47 @@ class AnimeDataPersistenceService
      * @param  AnimeData[]  $dtos
      * @param  Collection<int, int>  $animeMap
      */
+    private function upsertEpisodesBatch(array $dtos, Collection $animeMap): void
+    {
+        $rows = [];
+        foreach ($dtos as $dto) {
+            $animeId = $animeMap->get($dto->anilist_id);
+            if (! $animeId || empty($dto->episodes_data)) {
+                continue;
+            }
+
+            foreach ($dto->episodes_data as $ep) {
+                $rows[] = [
+                    'anime_id' => $animeId,
+                    'number' => $ep->number,
+                    'title' => $ep->title,
+                    'description' => null,
+                    'thumbnail_url' => $ep->thumbnail_url,
+                    'air_date' => $ep->air_date,
+                    'runtime_minutes' => $ep->runtime_minutes,
+                    'score' => $ep->score,
+                    'anilist_airing_id' => $ep->anilist_airing_id,
+                    'site_url' => $ep->site_url,
+                    'source_site' => $ep->source_site,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        if (! empty($rows)) {
+            Episode::upsert(
+                $rows,
+                ['anime_id', 'number'],
+                ['title', 'thumbnail_url', 'air_date', 'runtime_minutes', 'anilist_airing_id', 'site_url', 'source_site', 'updated_at'],
+            );
+        }
+    }
+
+    /**
+     * @param  AnimeData[]  $dtos
+     * @param  Collection<int, int>  $animeMap
+     */
     private function upsertExternalIdsBatch(array $dtos, Collection $animeMap): void
     {
         $rows = [];
@@ -507,7 +551,7 @@ class AnimeDataPersistenceService
         foreach ($dtos as $dto) {
             $animeId = $animeMap->get($dto->anilist_id);
             if ($animeId) {
-                Cache::forget("anime:v2:{$animeId}");
+                Cache::forget("anime:v3:{$animeId}");
             }
             if ($dto->season && $dto->season_year) {
                 Cache::forget("anime:seasonal:{$dto->season_year}:{$dto->season}");
@@ -685,6 +729,35 @@ class AnimeDataPersistenceService
             $rows,
             ['anilist_airing_id'],
             ['anime_id', 'episode', 'airs_at', 'time_until_airing', 'updated_at'],
+        );
+    }
+
+    private function upsertEpisodesForAnime(Anime $anime, AnimeData $dto): void
+    {
+        if (empty($dto->episodes_data)) {
+            return;
+        }
+
+        $rows = array_map(fn ($ep) => [
+            'anime_id' => $anime->id,
+            'number' => $ep->number,
+            'title' => $ep->title,
+            'description' => null,
+            'thumbnail_url' => $ep->thumbnail_url,
+            'air_date' => $ep->air_date,
+            'runtime_minutes' => $ep->runtime_minutes,
+            'score' => $ep->score,
+            'anilist_airing_id' => $ep->anilist_airing_id,
+            'site_url' => $ep->site_url,
+            'source_site' => $ep->source_site,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $dto->episodes_data);
+
+        Episode::upsert(
+            $rows,
+            ['anime_id', 'number'],
+            ['title', 'thumbnail_url', 'air_date', 'runtime_minutes', 'anilist_airing_id', 'site_url', 'source_site', 'updated_at'],
         );
     }
 

@@ -49,6 +49,7 @@ class AnimeResource extends JsonResource
             'characters' => CharacterResource::collection($this->whenLoaded('characters')),
             'external_ids' => ExternalIdResource::collection($this->whenLoaded('externalIds')),
             'airing_schedules' => AiringScheduleResource::collection($this->whenLoaded('airingSchedules')),
+            'episodes_list' => EpisodeResource::collection($this->whenLoaded('episodes')),
             'next_airing_episode' => $this->whenLoaded('nextAiringEpisode', function () {
                 return $this->nextAiringEpisode
                     ? new AiringScheduleResource($this->nextAiringEpisode)
