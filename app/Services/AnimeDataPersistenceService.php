@@ -88,6 +88,22 @@ class AnimeDataPersistenceService
             $rows[] = $this->animeAttributes($dto);
         }
 
+        // Preserve admin-rewritten synopses: keep the existing DB value
+        // for any anime whose synopsis_rewritten_at is set.
+        $anilistIds = array_column($rows, 'anilist_id');
+        $rewritten = Anime::whereIn('anilist_id', $anilistIds)
+            ->whereNotNull('synopsis_rewritten_at')
+            ->pluck('synopsis', 'anilist_id');
+
+        if ($rewritten->isNotEmpty()) {
+            foreach ($rows as &$row) {
+                if ($rewritten->has($row['anilist_id'])) {
+                    $row['synopsis'] = $rewritten->get($row['anilist_id']);
+                }
+            }
+            unset($row);
+        }
+
         // Handle mal_id duplicates: first attempt with mal_ids, retry without on conflict
         try {
             Anime::upsert($rows, ['anilist_id'], array_keys($rows[0]));
@@ -505,6 +521,14 @@ class AnimeDataPersistenceService
     {
         $attributes = $this->animeAttributes($dto);
         unset($attributes['anilist_id']);
+
+        // Preserve admin-rewritten synopses on re-sync.
+        $existing = Anime::where('anilist_id', $dto->anilist_id)
+            ->whereNotNull('synopsis_rewritten_at')
+            ->first(['synopsis']);
+        if ($existing) {
+            unset($attributes['synopsis']);
+        }
 
         try {
             return Anime::updateOrCreate(

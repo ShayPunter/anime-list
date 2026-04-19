@@ -36,6 +36,7 @@ class Anime extends Model
         'aired_from',
         'aired_to',
         'synopsis',
+        'synopsis_rewritten_at',
         'cover_image_large',
         'cover_image_medium',
         'cover_image_color',
@@ -62,6 +63,7 @@ class Anime extends Model
             'is_adult' => 'boolean',
             'anilist_updated_at' => 'datetime',
             'synced_at' => 'datetime',
+            'synopsis_rewritten_at' => 'datetime',
         ];
     }
 
