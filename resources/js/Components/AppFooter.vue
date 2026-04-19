@@ -17,6 +17,7 @@ const publicApiEnabled = useFeature('public-api')
                         <li><Link :href="route('seasonal')" class="text-gray-500 transition hover:text-gray-200">Seasonal</Link></li>
                         <li><Link :href="route('schedule')" class="text-gray-500 transition hover:text-gray-200">Schedule</Link></li>
                         <li><Link :href="route('top.rated')" class="text-gray-500 transition hover:text-gray-200">Top Anime</Link></li>
+                        <li><Link :href="route('alternatives')" class="text-gray-500 transition hover:text-gray-200">MAL Alternatives</Link></li>
                         <li v-if="publicApiEnabled"><Link :href="route('developers')" class="text-gray-500 transition hover:text-gray-200">Developers</Link></li>
                     </ul>
                 </div>
