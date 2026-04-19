@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import AdminNav from '@/Components/AdminNav.vue'
+import AdminUserSearch from '@/Components/AdminUserSearch.vue'
 import axios from 'axios'
 
 defineOptions({ layout: AppLayout })
@@ -20,36 +20,18 @@ interface FeatureFlag {
     users: FeatureUser[]
 }
 
-const props = defineProps<{
+defineProps<{
     features: FeatureFlag[]
 }>()
-
-const addingUserFor = ref<string | null>(null)
-const usernameInput = ref('')
-const addingError = ref('')
 
 async function setStatus(feature: string, status: 'everyone' | 'nobody' | 'default') {
     await axios.patch(route('admin.features.update', { feature }), { status })
     router.visit(route('admin.features'), { preserveScroll: true })
 }
 
-async function addUser(feature: string) {
-    if (!usernameInput.value.trim()) return
-    addingError.value = ''
-    try {
-        await axios.post(route('admin.features.activate-user', { feature }), {
-            username: usernameInput.value.trim(),
-        })
-        usernameInput.value = ''
-        addingUserFor.value = null
-        router.visit(route('admin.features'), { preserveScroll: true })
-    } catch (e: unknown) {
-        if (axios.isAxiosError(e)) {
-            addingError.value = e.response?.data?.message ?? 'User not found'
-        } else {
-            addingError.value = 'Failed to add user'
-        }
-    }
+async function addUser(feature: string, username: string) {
+    await axios.post(route('admin.features.activate-user', { feature }), { username })
+    router.visit(route('admin.features'), { preserveScroll: true })
 }
 
 async function removeUser(feature: string, userId: number) {
@@ -127,52 +109,36 @@ const statusColors: Record<string, string> = {
                 </div>
 
                 <!-- Per-user overrides -->
-                <div class="border-t border-gray-800 pt-3">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-xs text-gray-500">User overrides</span>
-                        <button
-                            class="text-xs text-primary-400 hover:text-primary-300 transition"
-                            @click="addingUserFor = addingUserFor === feature.name ? null : feature.name; usernameInput = ''; addingError = ''"
-                        >
-                            + Add user
-                        </button>
-                    </div>
-
-                    <!-- Add user form -->
-                    <div v-if="addingUserFor === feature.name" class="flex items-center gap-2 mb-2">
-                        <input
-                            v-model="usernameInput"
-                            type="text"
-                            placeholder="Username"
-                            class="rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300 flex-1"
-                            @keyup.enter="addUser(feature.name)"
+                <div class="border-t border-gray-800 pt-3 space-y-3">
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1">Add a user override</div>
+                        <AdminUserSearch
+                            :exclude-ids="feature.users.map(u => u.user_id)"
+                            placeholder="Search by username or name"
+                            @select="(user) => addUser(feature.name, user.username)"
                         />
-                        <button
-                            class="rounded bg-primary-600 px-3 py-1 text-sm text-white hover:bg-primary-700 transition"
-                            @click="addUser(feature.name)"
-                        >
-                            Add
-                        </button>
-                        <span v-if="addingError" class="text-xs text-red-400">{{ addingError }}</span>
                     </div>
 
-                    <!-- User list -->
-                    <div v-if="feature.users.length > 0" class="flex flex-wrap gap-2">
-                        <div
-                            v-for="user in feature.users"
-                            :key="user.user_id"
-                            class="flex items-center gap-1.5 rounded-full bg-gray-800 pl-3 pr-1.5 py-1 text-xs"
-                        >
-                            <span class="text-gray-300">{{ user.username }}</span>
-                            <button
-                                class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"
-                                @click="removeUser(feature.name, user.user_id)"
+                    <div>
+                        <div class="text-xs text-gray-500 mb-2">User overrides</div>
+                        <div v-if="feature.users.length > 0" class="flex flex-wrap gap-2">
+                            <div
+                                v-for="user in feature.users"
+                                :key="user.user_id"
+                                class="flex items-center gap-1.5 rounded-full bg-gray-800 pl-3 pr-1.5 py-1 text-xs"
                             >
-                                &times;
-                            </button>
+                                <span class="text-gray-300">{{ user.username }}</span>
+                                <button
+                                    class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"
+                                    :aria-label="`Remove ${user.username}`"
+                                    @click="removeUser(feature.name, user.user_id)"
+                                >
+                                    &times;
+                                </button>
+                            </div>
                         </div>
+                        <p v-else class="text-xs text-gray-600">No user-specific overrides</p>
                     </div>
-                    <p v-else class="text-xs text-gray-600">No user-specific overrides</p>
                 </div>
             </div>
         </div>
