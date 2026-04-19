@@ -68,7 +68,7 @@ class UserListApiTest extends TestCase
         $this->actingAs($user)->postJson('/api/list', [
             'anime_id' => $anime->id,
             'status' => UserAnimeList::STATUS_COMPLETED,
-            'score' => 150,
+            'score' => 15,
         ])->assertUnprocessable()->assertJsonValidationErrors('score');
     }
 
@@ -83,14 +83,14 @@ class UserListApiTest extends TestCase
 
         $response = $this->actingAs($user)->patchJson("/api/list/{$entry->id}", [
             'progress' => 10,
-            'score' => 80,
+            'score' => 8,
         ]);
 
         $response->assertOk();
         $this->assertDatabaseHas('user_anime_lists', [
             'id' => $entry->id,
             'progress' => 10,
-            'score' => 80,
+            'score' => 8,
         ]);
     }
 
@@ -122,7 +122,7 @@ class UserListApiTest extends TestCase
         $anime = Anime::factory()->create(['episodes' => 12]);
         $entry = UserAnimeList::factory()->for($user)->for($anime)->create([
             'status' => UserAnimeList::STATUS_COMPLETED,
-            'score' => 90,
+            'score' => 9,
             'progress' => 12,
             'notes' => 'old notes',
         ]);

@@ -22,11 +22,11 @@ class UserAnimeListTest extends TestCase
         $this->assertSame($expected, UserAnimeList::STATUSES);
     }
 
-    public function test_display_score_converts_from_zero_to_hundred_scale(): void
+    public function test_display_score_mirrors_the_stored_score(): void
     {
-        $entry = UserAnimeList::factory()->create(['score' => 85]);
+        $entry = UserAnimeList::factory()->create(['score' => 8]);
 
-        $this->assertSame(8.5, $entry->display_score);
+        $this->assertSame(8, $entry->display_score);
     }
 
     public function test_display_score_returns_null_when_score_is_null(): void
