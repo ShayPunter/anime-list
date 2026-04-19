@@ -57,6 +57,15 @@ Schedule::call(function () {
     Cache::forget('top:popular:100');
 })->dailyAt('05:15')->timezone('UTC');
 
+// Nightly "Picked for you" precompute for active users
+Schedule::command('recommendations:precompute')
+    ->dailyAt('06:00')
+    ->timezone('UTC')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Scheduled recommendations precompute failed');
+    });
+
 // Prune old raw API responses to keep the table from ballooning
 Schedule::command('anilist:prune-raw-responses')
     ->dailyAt('05:00')

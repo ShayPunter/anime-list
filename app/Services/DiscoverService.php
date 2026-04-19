@@ -8,14 +8,23 @@ use App\Models\Genre;
 use App\Models\Recommendation;
 use App\Models\User;
 use App\Models\UserAnimeList;
+use App\Models\UserAnimeRecommendation;
+use App\Services\Recommendations\RecommendationEngine;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class DiscoverService
 {
+    public function __construct(
+        private readonly RecommendationEngine $engine,
+    ) {}
+
     public const LENGTH_SHORT = 'short';
+
     public const LENGTH_STANDARD = 'standard';
+
     public const LENGTH_LONG = 'long';
+
     public const LENGTH_MOVIE = 'movie';
 
     public const LENGTHS = [
@@ -165,6 +174,41 @@ class DiscoverService
         return [
             'anchor' => (new AnimeCardResource($anchor->anime))->resolve(request()),
             'similar' => AnimeCardResource::collection($similar)->resolve(),
+        ];
+    }
+
+    /**
+     * "Picked for you" — ranked anime tailored to a specific user.
+     *
+     * Prefers the precomputed table (populated nightly by the recommendations
+     * job). Falls back to live compute if nothing is cached yet — this covers
+     * brand-new users and local dev where the job hasn't run.
+     */
+    public function pickedForYou(User $user, int $limit = 24): array
+    {
+        $precomputed = UserAnimeRecommendation::query()
+            ->where('user_id', $user->id)
+            ->with(['anime.genres', 'anime.nextAiringEpisode'])
+            ->orderBy('rank')
+            ->limit($limit)
+            ->get()
+            ->map(fn (UserAnimeRecommendation $row) => $row->anime)
+            ->filter()
+            ->values();
+
+        if ($precomputed->isNotEmpty()) {
+            return [
+                'source' => 'precomputed',
+                'items' => AnimeCardResource::collection($precomputed)->resolve(),
+            ];
+        }
+
+        $live = $this->engine->recommendFor($user, $limit);
+        $live->loadMissing(['genres', 'nextAiringEpisode']);
+
+        return [
+            'source' => 'live',
+            'items' => AnimeCardResource::collection($live)->resolve(),
         ];
     }
 
