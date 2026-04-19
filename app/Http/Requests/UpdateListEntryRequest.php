@@ -28,7 +28,7 @@ class UpdateListEntryRequest extends FormRequest
 
         return [
             'status' => ['sometimes', 'string', Rule::in(UserAnimeList::STATUSES)],
-            'score' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'score' => ['nullable', 'integer', 'min:0', 'max:10'],
             'progress' => $progressRules,
             'started_at' => ['nullable', 'date'],
             'completed_at' => ['nullable', 'date'],

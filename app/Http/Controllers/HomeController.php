@@ -91,7 +91,7 @@ class HomeController extends Controller
             'totalAnime' => (int) ($listStats->total_anime ?? 0),
             'episodesWatched' => (int) ($listStats->episodes_watched ?? 0),
             'avgScore' => $listStats->avg_score !== null
-                ? round($listStats->avg_score / 10, 1)
+                ? round($listStats->avg_score, 1)
                 : null,
             'watchingCount' => (int) ($listStats->watching_count ?? 0),
         ];

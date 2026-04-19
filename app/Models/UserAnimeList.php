@@ -64,8 +64,8 @@ class UserAnimeList extends Model
         return $this->belongsTo(Anime::class);
     }
 
-    public function getDisplayScoreAttribute(): ?float
+    public function getDisplayScoreAttribute(): ?int
     {
-        return $this->score !== null ? round($this->score / 10, 1) : null;
+        return $this->score;
     }
 }

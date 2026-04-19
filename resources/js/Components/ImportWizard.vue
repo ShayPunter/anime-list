@@ -176,7 +176,7 @@ function reset() {
                         <tr v-for="(entry, i) in preview" :key="i" class="border-b border-gray-800/50">
                             <td class="py-1.5 pr-4 text-gray-300">{{ entry.title }}</td>
                             <td class="py-1.5 pr-4 text-gray-400">{{ entry.status }}</td>
-                            <td class="py-1.5 pr-4 text-gray-400">{{ entry.score > 0 ? entry.score / 10 : '-' }}</td>
+                            <td class="py-1.5 pr-4 text-gray-400">{{ entry.score > 0 ? entry.score : '-' }}</td>
                             <td class="py-1.5 text-gray-400">{{ entry.progress }}</td>
                         </tr>
                     </tbody>

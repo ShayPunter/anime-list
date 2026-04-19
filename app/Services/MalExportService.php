@@ -43,7 +43,7 @@ class MalExportService
             $node->appendChild($doc->createElement('my_watched_episodes', (string) $entry->progress));
             $node->appendChild($doc->createElement('my_start_date', $entry->started_at?->format('Y-m-d') ?? '0000-00-00'));
             $node->appendChild($doc->createElement('my_finish_date', $entry->completed_at?->format('Y-m-d') ?? '0000-00-00'));
-            $node->appendChild($doc->createElement('my_score', (string) ($entry->score !== null ? (int) round($entry->score / 10) : 0)));
+            $node->appendChild($doc->createElement('my_score', (string) ($entry->score ?? 0)));
             $node->appendChild($doc->createElement('my_status', self::STATUS_MAP[$entry->status] ?? 'Plan to Watch'));
             $node->appendChild($doc->createElement('my_rewatching', $entry->is_rewatching ? '1' : '0'));
             $node->appendChild($doc->createElement('my_rewatching_ep', '0'));

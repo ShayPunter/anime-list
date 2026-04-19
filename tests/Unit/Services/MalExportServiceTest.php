@@ -25,7 +25,7 @@ class MalExportServiceTest extends TestCase
         UserAnimeList::factory()->for($user)->for($anime)->create([
             'status' => UserAnimeList::STATUS_COMPLETED,
             'progress' => 12,
-            'score' => 80,
+            'score' => 8,
         ]);
 
         $xml = $this->service->generate($user);
@@ -35,7 +35,6 @@ class MalExportServiceTest extends TestCase
         $this->assertStringContainsString('<series_animedb_id>1234</series_animedb_id>', $xml);
         $this->assertStringContainsString('<my_status>Completed</my_status>', $xml);
         $this->assertStringContainsString('<my_watched_episodes>12</my_watched_episodes>', $xml);
-        // Score divided by 10 (80 -> 8)
         $this->assertStringContainsString('<my_score>8</my_score>', $xml);
     }
 

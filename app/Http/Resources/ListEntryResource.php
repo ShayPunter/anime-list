@@ -16,7 +16,7 @@ class ListEntryResource extends JsonResource
             'anime_id' => $this->anime_id,
             'status' => $this->status,
             'score' => $this->score,
-            'display_score' => $this->score !== null ? round($this->score / 10, 1) : null,
+            'display_score' => $this->score,
             'progress' => $this->progress,
             'rewatch_count' => $this->rewatch_count,
             'is_rewatching' => $this->is_rewatching,
