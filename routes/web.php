@@ -59,6 +59,7 @@ Route::get('/search', function (\Illuminate\Http\Request $request) {
 Route::get('/terms', fn () => Inertia::render('TermsPage'))->name('terms');
 Route::get('/privacy', fn () => Inertia::render('PrivacyPage'))->name('privacy');
 Route::get('/developers', [DevelopersController::class, 'index'])->name('developers');
+Route::get('/alternatives', fn () => Inertia::render('AlternativesPage'))->name('alternatives');
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
 Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
 
