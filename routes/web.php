@@ -194,6 +194,7 @@ Route::prefix('api/v1')->name('api.v1.')->middleware('throttle:api')->group(func
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
+    Route::get('/users/search', [AdminUserController::class, 'search'])->name('users.search');
     Route::patch('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
