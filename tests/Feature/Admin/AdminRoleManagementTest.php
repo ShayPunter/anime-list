@@ -4,17 +4,10 @@ namespace Tests\Feature\Admin;
 
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\RolesSeeder;
 use Tests\TestCase;
 
 class AdminRoleManagementTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesSeeder::class);
-    }
-
     public function test_admin_can_view_roles_page(): void
     {
         $this->actingAsAdmin();

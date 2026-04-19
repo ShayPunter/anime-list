@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,6 +23,24 @@ return new class extends Migration
             $table->timestamps();
             $table->primary(['role_id', 'user_id']);
         });
+
+        $now = now();
+        DB::table('roles')->insert([
+            [
+                'slug' => 'owner',
+                'name' => 'Owner',
+                'description' => 'Full access to the application, including role management.',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'slug' => 'content-manager',
+                'name' => 'Content Manager',
+                'description' => 'Can create and edit site content.',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
     }
 
     public function down(): void
