@@ -29,7 +29,7 @@ class ProfileController extends Controller
         return Inertia::render('ProfilePage', [
             'profile' => new UserProfileResource($user),
             'stats' => $stats,
-            'avg_score' => $scoreData?->avg_score ? round($scoreData->avg_score / 10, 2) : null,
+            'avg_score' => $scoreData?->avg_score ? round($scoreData->avg_score, 2) : null,
             'episodes_watched' => $episodesWatched,
         ]);
     }

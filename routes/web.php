@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\DevelopersController;
+use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\Api\V1\AnimeController as ApiAnimeController;
 use App\Http\Controllers\Api\V1\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\V1\ListController as ApiListController;
@@ -64,6 +65,13 @@ Route::get('/developers', [DevelopersController::class, 'index'])->name('develop
 Route::get('/alternatives', fn () => Inertia::render('AlternativesPage'))->name('alternatives');
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
 Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
+
+// Discover (gated behind the `discover-page` Pennant flag at the controller level)
+Route::get('/discover', [DiscoverController::class, 'index'])->name('discover');
+Route::get('/api/discover/mood/{slug}', [DiscoverController::class, 'mood'])
+    ->middleware('throttle:api')
+    ->where('slug', '[a-z0-9-]+')
+    ->name('api.discover.mood');
 
 // JSON search endpoint
 Route::get('/api/search', SearchController::class)->middleware('throttle:api')->name('api.search');

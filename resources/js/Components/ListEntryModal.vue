@@ -40,7 +40,7 @@ const { storeMutation, updateMutation, destroyMutation } = useListMutations()
 const saving = computed(() => storeMutation.isPending.value || updateMutation.isPending.value)
 
 function save() {
-    const score = displayScore.value > 0 ? Math.round(displayScore.value * 10) : null
+    const score = displayScore.value > 0 ? displayScore.value : null
     const payload = {
         status: status.value,
         score,
@@ -119,13 +119,13 @@ const displayTitle = computed(() => props.anime.title_english || props.anime.tit
 
             <div>
                 <label class="block text-sm text-gray-400 mb-1">
-                    Score: {{ displayScore > 0 ? displayScore.toFixed(1) : '-' }}
+                    Score: {{ displayScore > 0 ? displayScore : '-' }}
                 </label>
                 <Slider
                     :model-value="displayScore"
                     :min="0"
                     :max="10"
-                    :step="0.5"
+                    :step="1"
                     class="w-full"
                     @update:model-value="(v: number | number[]) => displayScore = Array.isArray(v) ? v[0] : v"
                 />

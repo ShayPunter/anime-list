@@ -12,6 +12,34 @@ use Inertia\Response;
 
 class AdminUserController extends Controller
 {
+    public function search(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->input('q', ''));
+
+        if ($query === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $users = User::query()
+            ->select(['id', 'name', 'username', 'avatar_url'])
+            ->where(function ($q) use ($query) {
+                $q->where('username', 'like', "%{$query}%")
+                    ->orWhere('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->orderBy('username')
+            ->limit(10)
+            ->get()
+            ->map(fn (User $user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+                'avatar_url' => $user->avatar_url,
+            ]);
+
+        return response()->json(['data' => $users]);
+    }
+
     public function index(Request $request): Response
     {
         $query = User::query()
@@ -26,7 +54,7 @@ class AdminUserController extends Controller
             });
         }
 
-        $users = $query->latest()->paginate(20)->through(fn (User $user) => [
+        $paginator = $query->latest()->paginate(20)->withQueryString()->through(fn (User $user) => [
             'id' => $user->id,
             'name' => $user->name,
             'username' => $user->username,
@@ -39,32 +67,25 @@ class AdminUserController extends Controller
         ]);
 
         return Inertia::render('Admin/UsersPage', [
-            'users' => $users,
+            'users' => [
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+                'links' => [
+                    'first' => $paginator->url(1),
+                    'last' => $paginator->url($paginator->lastPage()),
+                    'prev' => $paginator->previousPageUrl(),
+                    'next' => $paginator->nextPageUrl(),
+                ],
+            ],
             'filters' => [
                 'search' => $search,
             ],
         ]);
-    }
-
-    public function search(Request $request): JsonResponse
-    {
-        $term = trim((string) $request->query('q', ''));
-
-        if ($term === '') {
-            return response()->json([]);
-        }
-
-        $users = User::query()
-            ->select(['id', 'name', 'username', 'avatar_url'])
-            ->where(fn ($q) => $q
-                ->where('username', 'like', "%{$term}%")
-                ->orWhere('name', 'like', "%{$term}%")
-            )
-            ->orderBy('username')
-            ->limit(10)
-            ->get();
-
-        return response()->json($users);
     }
 
     public function toggleAdmin(Request $request, User $user): RedirectResponse

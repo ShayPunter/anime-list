@@ -7,8 +7,8 @@ use GuzzleHttp\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
 
@@ -68,5 +68,7 @@ class AppServiceProvider extends ServiceProvider
         Feature::define('studio-pages', fn ($user) => false);
         Feature::define('voice-actor-pages', fn ($user) => false);
         Feature::define('public-api', fn ($user) => false);
+        Feature::define('discover-page', fn ($user) => false);
+        Feature::define('picked-for-you', fn ($user) => false);
     }
 }

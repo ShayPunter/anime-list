@@ -32,7 +32,13 @@ function handleScoreChange(entry: ListEntryResource, event: Event) {
     emit('update', entry.id, { score })
 }
 
+function canIncrementProgress(entry: ListEntryResource): boolean {
+    const total = entry.anime?.episodes
+    return total == null || entry.progress < total
+}
+
 function incrementProgress(entry: ListEntryResource) {
+    if (!canIncrementProgress(entry)) return
     emit('update', entry.id, { progress: entry.progress + 1 })
 }
 </script>
@@ -107,7 +113,9 @@ function incrementProgress(entry: ListEntryResource) {
                             <span class="text-gray-500">{{ entry.anime?.episodes ?? '?' }}</span>
                             <button
                                 v-if="!readonly"
-                                class="ml-1 rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300 hover:bg-gray-600 transition"
+                                class="ml-1 rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300 hover:bg-gray-600 transition disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-gray-700"
+                                :disabled="!canIncrementProgress(entry)"
+                                :title="canIncrementProgress(entry) ? 'Add one episode' : 'Already at total episode count'"
                                 @click="incrementProgress(entry)"
                             >
                                 +

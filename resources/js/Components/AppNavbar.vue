@@ -11,6 +11,7 @@ defineProps<{
 }>()
 
 const showPlaylists = useFeature('playlists')
+const showDiscover = useFeature('discover-page')
 const showDropdown = ref(false)
 
 function closeDropdown() {
@@ -28,6 +29,7 @@ function handleLogout() {
             <div class="flex items-center gap-6">
                 <Link :href="route('home')" class="text-xl font-bold text-primary-400">AniTrack</Link>
                 <div class="hidden md:flex items-center gap-4">
+                    <Link v-if="showDiscover" :href="route('discover')" class="text-gray-400 hover:text-gray-100 transition">Discover</Link>
                     <Link :href="route('seasonal')" class="text-gray-400 hover:text-gray-100 transition">Seasonal</Link>
                     <Link :href="route('schedule')" class="text-gray-400 hover:text-gray-100 transition">Schedule</Link>
                     <Link :href="route('top.rated')" class="text-gray-400 hover:text-gray-100 transition">Top</Link>

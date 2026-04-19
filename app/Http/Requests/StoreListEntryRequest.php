@@ -25,7 +25,7 @@ class StoreListEntryRequest extends FormRequest
                     ->whereNull('deleted_at'),
             ],
             'status' => ['required', 'string', Rule::in(UserAnimeList::STATUSES)],
-            'score' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'score' => ['nullable', 'integer', 'min:0', 'max:10'],
             'progress' => ['nullable', 'integer', 'min:0'],
             'started_at' => ['nullable', 'date'],
             'completed_at' => ['nullable', 'date'],

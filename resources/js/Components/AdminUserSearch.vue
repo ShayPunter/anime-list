@@ -40,10 +40,10 @@ watch(debouncedQuery, async (value) => {
 
     loading.value = true
     try {
-        const { data } = await axios.get<SearchUser[]>(route('admin.users.search'), {
+        const { data } = await axios.get<{ data: SearchUser[] }>(route('admin.users.search'), {
             params: { q: term },
         })
-        results.value = data.filter(u => !props.excludeIds.includes(u.id))
+        results.value = data.data.filter(u => !props.excludeIds.includes(u.id))
         activeIndex.value = results.value.length > 0 ? 0 : -1
     } catch {
         results.value = []

@@ -75,7 +75,7 @@ class MalImportService
             $status = self::STATUS_MAP[$malStatus] ?? UserAnimeList::STATUS_PLAN_TO_WATCH;
 
             $malScore = (int) $anime->my_score;
-            $score = $malScore > 0 ? min($malScore * 10, 100) : 0;
+            $score = $malScore > 0 ? min($malScore, 10) : 0;
 
             $startDate = self::parseMalDate((string) $anime->my_start_date);
             $finishDate = self::parseMalDate((string) $anime->my_finish_date);

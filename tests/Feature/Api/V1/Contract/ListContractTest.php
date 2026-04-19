@@ -139,7 +139,7 @@ class ListContractTest extends ApiContractTestCase
                 'anime_id' => $anime->id,
                 'status' => UserAnimeList::STATUS_WATCHING,
                 'progress' => 3,
-                'score' => 80,
+                'score' => 8,
             ]);
 
         $response->assertCreated()
@@ -147,10 +147,8 @@ class ListContractTest extends ApiContractTestCase
             ->assertJsonPath('anime_id', $anime->id)
             ->assertJsonPath('status', 'watching')
             ->assertJsonPath('progress', 3)
-            ->assertJsonPath('score', 80);
+            ->assertJsonPath('score', 8);
 
-        // display_score is score / 10; JSON encoding drops trailing zeros so
-        // it may surface as int or float — just assert numeric + value.
         $this->assertIsNumeric($response->json('display_score'));
         $this->assertEquals(8, $response->json('display_score'));
     }
@@ -184,14 +182,14 @@ class ListContractTest extends ApiContractTestCase
         $response = $this->withHeaders($this->bearerHeader($token))
             ->patchJson("/api/v1/list/{$entry->id}", [
                 'progress' => 5,
-                'score' => 90,
+                'score' => 9,
             ]);
 
         $response->assertOk()
             ->assertJsonStructure(self::ENTRY_STRUCTURE)
             ->assertJsonPath('id', $entry->id)
             ->assertJsonPath('progress', 5)
-            ->assertJsonPath('score', 90);
+            ->assertJsonPath('score', 9);
     }
 
     /** DELETE /api/v1/list/{entryId} → 204 No Content. */

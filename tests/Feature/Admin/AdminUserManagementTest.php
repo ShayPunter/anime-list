@@ -62,7 +62,7 @@ class AdminUserManagementTest extends TestCase
         $response = $this->getJson('/admin/users/search?q=ali');
 
         $response->assertOk();
-        $response->assertJsonCount(2);
+        $response->assertJsonCount(2, 'data');
         $response->assertJsonFragment(['username' => 'alice_alpha']);
         $response->assertJsonFragment(['username' => 'alicia_beta']);
         $response->assertJsonMissing(['username' => 'bob_other']);
@@ -84,8 +84,8 @@ class AdminUserManagementTest extends TestCase
         $this->actingAsAdmin();
         User::factory()->count(3)->create();
 
-        $this->getJson('/admin/users/search?q=')->assertOk()->assertExactJson([]);
-        $this->getJson('/admin/users/search')->assertOk()->assertExactJson([]);
+        $this->getJson('/admin/users/search?q=')->assertOk()->assertExactJson(['data' => []]);
+        $this->getJson('/admin/users/search')->assertOk()->assertExactJson(['data' => []]);
     }
 
     public function test_admin_user_search_limits_results(): void
@@ -96,7 +96,7 @@ class AdminUserManagementTest extends TestCase
         $response = $this->getJson('/admin/users/search?q=Common');
 
         $response->assertOk();
-        $this->assertCount(10, $response->json());
+        $this->assertCount(10, $response->json('data'));
     }
 
     public function test_non_admin_cannot_use_user_search(): void
