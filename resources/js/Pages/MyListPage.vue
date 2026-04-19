@@ -8,7 +8,7 @@ import LibraryRowsView from '@/Components/LibraryRowsView.vue'
 import LibraryDataTable from '@/Components/LibraryDataTable.vue'
 import ListEntryModal from '@/Components/ListEntryModal.vue'
 import { useListMutations } from '@/composables/useListMutations'
-import { statusDotColor } from '@/composables/useLibraryTheme'
+import { statusDotClass } from '@/composables/useLibraryTheme'
 import type { ListEntryResource, ListStatus, ListViewMode } from '@/types'
 import { LIST_STATUS_LABELS } from '@/types'
 
@@ -186,26 +186,32 @@ const sortOptions = [
 
 <template>
     <Head title="Library" />
-    <div class="library">
+    <div class="space-y-6">
         <!-- Hero -->
-        <div class="library-hero">
-            <div class="library-eyebrow">Library · @{{ username }}</div>
-            <h1 class="library-heading">Your collection.</h1>
-            <div class="library-subtitle">
-                {{ totalCount }} titles · {{ stats.totalEp.toLocaleString() }} episodes watched · {{ stats.days }} days of your life.
+        <div>
+            <div class="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">
+                Library · @{{ username }}
             </div>
+            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
+                Your collection
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm text-gray-400">
+                {{ totalCount }} titles · {{ stats.totalEp.toLocaleString() }} episodes watched · {{ stats.days }} days of your life.
+            </p>
         </div>
 
         <!-- Top actions -->
-        <div class="library-top-actions">
-            <div class="library-public-toggle">
+        <div class="flex flex-wrap items-center gap-3 border-b border-gray-800 pb-5">
+            <div class="flex items-center gap-2">
                 <ToggleSwitch v-model="listIsPublic" @update:model-value="togglePublic" />
-                <span>Public</span>
+                <span class="text-sm text-gray-400">Public</span>
             </div>
             <button
                 v-if="publicUrl"
-                class="library-action-btn"
-                :class="{ 'library-action-btn-copied': copied }"
+                class="flex items-center gap-1.5 rounded-lg border bg-gray-800 px-3 py-1.5 text-sm transition"
+                :class="copied
+                    ? 'border-green-500/50 text-green-400'
+                    : 'border-gray-700 text-gray-300 hover:border-gray-600'"
                 @click="copyUrl"
             >
                 <svg v-if="!copied" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -216,73 +222,87 @@ const sortOptions = [
                 </svg>
                 {{ copied ? 'Copied!' : 'Share' }}
             </button>
-            <a :href="route('list.export')" class="library-action-link">Export XML</a>
-            <Link :href="route('import')" class="library-action-link">Import</Link>
+            <a :href="route('list.export')" class="text-sm text-gray-400 transition hover:text-gray-200">Export XML</a>
+            <Link :href="route('import')" class="text-sm text-gray-400 transition hover:text-gray-200">Import</Link>
         </div>
 
         <!-- Stats grid -->
-        <div class="library-stats">
-            <div class="library-stat-cell">
-                <div class="library-stat-label">Watching</div>
-                <div class="library-stat-value">{{ stats.watching }}</div>
-                <div class="library-stat-hint">currently</div>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+                <p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Watching</p>
+                <p class="text-2xl font-bold text-primary-400">{{ stats.watching }}</p>
+                <p class="mt-1 text-[11px] text-gray-500">currently</p>
             </div>
-            <div class="library-stat-cell">
-                <div class="library-stat-label">Completed</div>
-                <div class="library-stat-value">{{ stats.completed }}</div>
-                <div class="library-stat-hint">all time</div>
+            <div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+                <p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Completed</p>
+                <p class="text-2xl font-bold text-gray-100">{{ stats.completed }}</p>
+                <p class="mt-1 text-[11px] text-gray-500">all time</p>
             </div>
-            <div class="library-stat-cell">
-                <div class="library-stat-label">Avg score</div>
-                <div class="library-stat-value">{{ stats.avg ? stats.avg.toFixed(1) : '—' }}</div>
-                <div class="library-stat-hint">on scored entries</div>
+            <div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+                <p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Avg score</p>
+                <p class="text-2xl font-bold text-gray-100">{{ stats.avg ? stats.avg.toFixed(1) : '—' }}</p>
+                <p class="mt-1 text-[11px] text-gray-500">on scored entries</p>
             </div>
-            <div class="library-stat-cell">
-                <div class="library-stat-label">Time spent</div>
-                <div class="library-stat-value">{{ stats.days }}d</div>
-                <div class="library-stat-hint">{{ stats.totalEp }} episodes</div>
+            <div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+                <p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Time spent</p>
+                <p class="text-2xl font-bold text-gray-100">{{ stats.days }}d</p>
+                <p class="mt-1 text-[11px] text-gray-500">{{ stats.totalEp }} episodes</p>
             </div>
         </div>
 
         <!-- Status tabs -->
-        <div class="library-tabs">
+        <div class="flex items-center gap-1 overflow-x-auto border-b border-gray-800">
             <button
                 v-for="t in tabs"
                 :key="t.key"
-                class="library-tab"
-                :class="{ 'library-tab-active': activeStatus === t.key }"
+                class="-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm transition"
+                :class="activeStatus === t.key
+                    ? 'border-primary-400 font-medium text-primary-400'
+                    : 'border-transparent text-gray-400 hover:text-gray-200'"
                 @click="activeStatus = t.key"
             >
                 <span
                     v-if="t.key !== 'all'"
-                    class="library-tab-dot"
-                    :style="{ background: statusDotColor(t.key as ListStatus) }"
+                    class="h-1.5 w-1.5 rounded-full"
+                    :class="statusDotClass(t.key as ListStatus)"
                 />
                 {{ t.label }}
-                <span class="library-tab-count">{{ t.count }}</span>
+                <span class="font-mono text-[11px] text-gray-500">{{ t.count }}</span>
             </button>
         </div>
 
         <!-- Toolbar -->
-        <div class="library-toolbar">
-            <div class="library-search">
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="flex min-w-[220px] max-w-[340px] flex-1 items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-gray-400 focus-within:border-gray-600">
                 <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                 </svg>
-                <input v-model="filterText" type="text" placeholder="Filter your list…" />
+                <input
+                    v-model="filterText"
+                    type="text"
+                    placeholder="Filter your list…"
+                    class="flex-1 border-0 bg-transparent text-sm text-gray-100 outline-none placeholder:text-gray-500"
+                />
             </div>
 
-            <select v-model="sortField" class="library-select">
+            <select
+                v-model="sortField"
+                class="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-sm text-gray-300"
+            >
                 <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
 
-            <div class="library-spacer" />
+            <div class="flex-1" />
 
-            <div class="library-view-toggle">
+            <div class="flex overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
                 <button
                     v-for="[key, label] in ([['card', 'Grid'], ['compact', 'Rows'], ['table', 'Table']] as [ListViewMode, string][])"
                     :key="key"
-                    :class="{ active: viewMode === key }"
+                    class="flex items-center justify-center px-2.5 py-1.5 transition"
+                    :class="[
+                        viewMode === key ? 'bg-gray-700 text-gray-100' : 'text-gray-500 hover:text-gray-300',
+                        key !== 'table' ? 'border-r border-gray-700' : '',
+                    ]"
                     :title="label"
                     @click="setViewMode(key)"
                 >
@@ -300,26 +320,33 @@ const sortOptions = [
         </div>
 
         <!-- Genre chips -->
-        <div v-if="allGenres.length > 0" class="library-chips">
+        <div v-if="allGenres.length > 0" class="flex flex-wrap gap-1.5">
             <button
                 v-for="g in allGenres.slice(0, 14)"
                 :key="g"
-                class="library-chip"
-                :class="{ 'library-chip-active': selectedGenres.includes(g) }"
+                class="rounded-full border px-3 py-1 text-xs transition"
+                :class="selectedGenres.includes(g)
+                    ? 'border-primary-400 bg-primary-400/10 text-primary-300'
+                    : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200'"
                 @click="toggleGenre(g)"
             >{{ g }}</button>
-            <button v-if="selectedGenres.length" class="library-chip library-chip-clear" @click="selectedGenres = []">
-                Clear
-            </button>
+            <button
+                v-if="selectedGenres.length"
+                class="rounded-full border border-dashed border-gray-700 px-3 py-1 text-xs text-gray-500 hover:text-gray-300"
+                @click="selectedGenres = []"
+            >Clear</button>
         </div>
 
         <!-- Main content -->
-        <div v-if="filteredEntries.length === 0" class="library-empty-state">
-            <div class="library-empty-title">Nothing here yet</div>
-            <div class="library-empty-hint">
+        <div
+            v-if="filteredEntries.length === 0"
+            class="rounded-xl border border-dashed border-gray-700 bg-gray-900/30 px-6 py-16 text-center"
+        >
+            <p class="text-lg font-medium text-gray-200">Nothing here yet</p>
+            <p class="mt-1 text-sm text-gray-500">
                 <template v-if="filterText || selectedGenres.length">No entries match your filters.</template>
                 <template v-else>Start by searching for an anime or importing from MAL.</template>
-            </div>
+            </p>
         </div>
 
         <LibraryCardsView
@@ -350,319 +377,3 @@ const sortOptions = [
         />
     </div>
 </template>
-
-<style scoped>
-.library {
-    --lib-bg: #0e0e0c;
-    --lib-bg-2: #151512;
-    --lib-surface: #181814;
-    --lib-ink: #f3f3ec;
-    --lib-ink-2: #cfcfc6;
-    --lib-mute: #8a8a80;
-    --lib-mute-2: #5a5a52;
-    --lib-line: #25251f;
-    --lib-line-2: #32322b;
-    --lib-accent: #ff5a1f;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-
-    background: var(--lib-bg);
-    color: var(--lib-ink);
-    margin: -24px -16px;
-    padding: 32px 24px 80px;
-    min-height: calc(100vh - 120px);
-}
-
-@media (min-width: 640px) {
-    .library { padding: 40px 40px 80px; }
-}
-
-.library-hero { margin-bottom: 20px; }
-
-.library-eyebrow {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--lib-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 10px;
-}
-
-.library-heading {
-    margin: 0;
-    font-size: 44px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    color: var(--lib-ink);
-}
-
-@media (min-width: 640px) {
-    .library-heading { font-size: 52px; }
-}
-
-.library-subtitle {
-    margin-top: 10px;
-    font-size: 15px;
-    color: var(--lib-mute);
-    max-width: 640px;
-}
-
-.library-top-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--lib-line);
-}
-
-.library-public-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--lib-mute);
-}
-
-.library-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--lib-line-2);
-    background: var(--lib-surface);
-    color: var(--lib-ink-2);
-    font-size: 13px;
-    transition: border-color .15s, color .15s;
-}
-
-.library-action-btn:hover { border-color: var(--lib-mute); color: var(--lib-ink); }
-.library-action-btn-copied { color: #4caf7c; border-color: #4caf7c; }
-
-.library-action-link {
-    font-size: 13px;
-    color: var(--lib-mute);
-    transition: color .15s;
-}
-
-.library-action-link:hover { color: var(--lib-ink); }
-
-/* Stats */
-.library-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--lib-line);
-    border: 1px solid var(--lib-line);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 32px;
-}
-
-@media (min-width: 640px) {
-    .library-stats { grid-template-columns: repeat(4, 1fr); }
-}
-
-.library-stat-cell {
-    padding: 18px 20px;
-    background: var(--lib-bg);
-}
-
-.library-stat-label {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--lib-mute);
-    margin-bottom: 8px;
-}
-
-.library-stat-value {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--lib-ink);
-    line-height: 1;
-    margin-bottom: 6px;
-}
-
-.library-stat-hint {
-    font-size: 11px;
-    color: var(--lib-mute);
-}
-
-/* Tabs */
-.library-tabs {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    border-bottom: 1px solid var(--lib-line);
-    margin-bottom: 20px;
-    overflow-x: auto;
-}
-
-.library-tab {
-    padding: 10px 14px;
-    font-size: 13px;
-    color: var(--lib-mute);
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: color .15s, border-color .15s;
-}
-
-.library-tab:hover { color: var(--lib-ink-2); }
-
-.library-tab-active {
-    color: var(--lib-ink);
-    border-bottom-color: var(--lib-ink);
-    font-weight: 500;
-}
-
-.library-tab-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    display: inline-block;
-}
-
-.library-tab-count {
-    font-size: 11px;
-    color: var(--lib-mute);
-    font-family: var(--font-mono);
-}
-
-/* Toolbar */
-.library-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.library-search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border: 1px solid var(--lib-line-2);
-    border-radius: 8px;
-    background: var(--lib-surface);
-    color: var(--lib-mute);
-    flex: 1;
-    min-width: 220px;
-    max-width: 340px;
-    transition: border-color .15s;
-}
-
-.library-search:focus-within { border-color: var(--lib-mute); }
-
-.library-search input {
-    flex: 1;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font-size: 13px;
-    color: var(--lib-ink);
-}
-
-.library-search input::placeholder { color: var(--lib-mute); }
-
-.library-select {
-    padding: 7px 10px;
-    border: 1px solid var(--lib-line-2);
-    border-radius: 8px;
-    background: var(--lib-surface);
-    color: var(--lib-ink-2);
-    font-size: 13px;
-    outline: 0;
-    cursor: pointer;
-}
-
-.library-spacer { flex: 1; }
-
-.library-view-toggle {
-    display: flex;
-    border: 1px solid var(--lib-line-2);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--lib-surface);
-}
-
-.library-view-toggle button {
-    padding: 6px 10px;
-    background: transparent;
-    color: var(--lib-mute);
-    border-right: 1px solid var(--lib-line-2);
-    transition: background .15s, color .15s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.library-view-toggle button:last-child { border-right: 0; }
-.library-view-toggle button:hover { color: var(--lib-ink-2); }
-
-.library-view-toggle button.active {
-    background: var(--lib-bg-2);
-    color: var(--lib-ink);
-}
-
-/* Chips */
-.library-chips {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 22px;
-    flex-wrap: wrap;
-}
-
-.library-chip {
-    padding: 5px 11px;
-    border-radius: 999px;
-    border: 1px solid var(--lib-line-2);
-    background: var(--lib-surface);
-    color: var(--lib-ink-2);
-    font-size: 12px;
-    transition: border-color .15s, background .15s, color .15s;
-}
-
-.library-chip:hover { border-color: var(--lib-mute); color: var(--lib-ink); }
-
-.library-chip-active {
-    background: var(--lib-ink);
-    color: var(--lib-bg);
-    border-color: var(--lib-ink);
-}
-
-.library-chip-clear {
-    color: var(--lib-mute);
-    border-style: dashed;
-}
-
-/* Empty state */
-.library-empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    border: 1px dashed var(--lib-line-2);
-    border-radius: 12px;
-    background: var(--lib-surface);
-}
-
-.library-empty-title {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--lib-ink);
-    margin-bottom: 6px;
-}
-
-.library-empty-hint {
-    font-size: 13px;
-    color: var(--lib-mute);
-}
-</style>
