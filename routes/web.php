@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlternativesController;
 use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\DevelopersController;
 use App\Http\Controllers\Api\V1\AnimeController as ApiAnimeController;
@@ -59,6 +60,7 @@ Route::get('/search', function (\Illuminate\Http\Request $request) {
 Route::get('/terms', fn () => Inertia::render('TermsPage'))->name('terms');
 Route::get('/privacy', fn () => Inertia::render('PrivacyPage'))->name('privacy');
 Route::get('/developers', [DevelopersController::class, 'index'])->name('developers');
+Route::get('/alternatives', [AlternativesController::class, 'index'])->name('alternatives');
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
 Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
 
