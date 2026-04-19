@@ -51,4 +51,60 @@ class AdminUserManagementTest extends TestCase
         $response->assertSee('alice_target');
         $response->assertDontSee('bob_other');
     }
+
+    public function test_admin_user_search_returns_matching_users(): void
+    {
+        $this->actingAsAdmin();
+        User::factory()->create(['username' => 'alice_alpha', 'name' => 'Alice Alpha']);
+        User::factory()->create(['username' => 'alicia_beta', 'name' => 'Alicia Beta']);
+        User::factory()->create(['username' => 'bob_other', 'name' => 'Bob Other']);
+
+        $response = $this->getJson('/admin/users/search?q=ali');
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonFragment(['username' => 'alice_alpha']);
+        $response->assertJsonFragment(['username' => 'alicia_beta']);
+        $response->assertJsonMissing(['username' => 'bob_other']);
+    }
+
+    public function test_admin_user_search_matches_display_name(): void
+    {
+        $this->actingAsAdmin();
+        User::factory()->create(['username' => 'target_user', 'name' => 'Zelda Hero']);
+
+        $response = $this->getJson('/admin/users/search?q=zelda');
+
+        $response->assertOk();
+        $response->assertJsonFragment(['username' => 'target_user']);
+    }
+
+    public function test_admin_user_search_returns_empty_for_blank_query(): void
+    {
+        $this->actingAsAdmin();
+        User::factory()->count(3)->create();
+
+        $this->getJson('/admin/users/search?q=')->assertOk()->assertExactJson(['data' => []]);
+        $this->getJson('/admin/users/search')->assertOk()->assertExactJson(['data' => []]);
+    }
+
+    public function test_admin_user_search_limits_results(): void
+    {
+        $this->actingAsAdmin();
+        User::factory()->count(12)->create(['name' => 'Common Name']);
+
+        $response = $this->getJson('/admin/users/search?q=Common');
+
+        $response->assertOk();
+        $this->assertCount(10, $response->json('data'));
+    }
+
+    public function test_non_admin_cannot_use_user_search(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+
+        $this->actingAs($user)
+            ->getJson('/admin/users/search?q=a')
+            ->assertForbidden();
+    }
 }
