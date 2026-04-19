@@ -15,8 +15,7 @@ class DiscoverController extends Controller
     public function __construct(
         private readonly DiscoverService $service,
         private readonly FeatureFlagService $featureFlags,
-    ) {
-    }
+    ) {}
 
     public function index(): Response
     {
@@ -35,8 +34,8 @@ class DiscoverController extends Controller
                 ['value' => DiscoverService::LENGTH_MOVIE, 'label' => 'Movies'],
             ],
             'moreLikeIt' => $user ? $this->service->moreLikeIt($user) : null,
-            'pickedForYou' => $user
-                ? ['status' => 'coming_soon', 'message' => 'Your personal taste engine is warming up.']
+            'pickedForYou' => $user && $this->featureFlags->active('picked-for-you', $user)
+                ? $this->service->pickedForYou($user)
                 : null,
         ];
 
