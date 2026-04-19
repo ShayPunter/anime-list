@@ -49,6 +49,8 @@ class AnimeData extends Data
         public readonly array $airing_schedules,
         /** @var CharacterEdgeData[] */
         public readonly array $characters,
+        /** @var EpisodeData[] */
+        public readonly array $episodes_data,
     ) {}
 
     public static function fromAniList(array $media): self
@@ -115,6 +117,12 @@ class AnimeData extends Data
             characters: array_map(
                 fn (array $edge) => CharacterEdgeData::fromAniList($edge),
                 $media['characters']['edges'] ?? [],
+            ),
+            episodes_data: EpisodeData::mergeFromAniList(
+                streaming: $media['streamingEpisodes'] ?? [],
+                schedule: $media['airingSchedule']['nodes'] ?? [],
+                totalEpisodes: $media['episodes'] ?? null,
+                defaultDuration: $media['duration'] ?? null,
             ),
         );
     }

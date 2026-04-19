@@ -115,7 +115,7 @@ class AdminAnimeController extends Controller
             'synopsis_rewritten_at' => now(),
         ])->save();
 
-        \Illuminate\Support\Facades\Cache::forget("anime:v2:{$anime->id}");
+        \Illuminate\Support\Facades\Cache::forget("anime:v3:{$anime->id}");
 
         return redirect()
             ->route('admin.anime.edit', $anime)
@@ -128,7 +128,7 @@ class AdminAnimeController extends Controller
             'synopsis_rewritten_at' => null,
         ])->save();
 
-        \Illuminate\Support\Facades\Cache::forget("anime:v2:{$anime->id}");
+        \Illuminate\Support\Facades\Cache::forget("anime:v3:{$anime->id}");
 
         return back()->with('message', 'Reverted to auto-synced description. The next sync will overwrite it.');
     }

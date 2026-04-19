@@ -10,10 +10,12 @@ use App\Jobs\ResolveAnimeRelations;
 use App\Models\Anime;
 use App\Models\AnimeRelation;
 use App\Models\UserAnimeList;
+use App\Http\Resources\AnimeCardResource;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
 use App\Services\AnimeDataPersistenceService;
 use App\Services\AnimeQueryService;
+use App\Services\DiscoverService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -81,9 +83,9 @@ class AnimeController extends Controller
         return redirect()->route('anime.show', $anime);
     }
 
-    public function show(Request $request, Anime $anime): Response
+    public function show(Request $request, Anime $anime, DiscoverService $discover): Response
     {
-        $cacheKey = "anime:v2:{$anime->id}";
+        $cacheKey = "anime:v3:{$anime->id}";
         $model = Cache::get($cacheKey);
 
         if ($model === null) {
@@ -97,6 +99,7 @@ class AnimeController extends Controller
                 'externalIds',
                 'nextAiringEpisode',
                 'airingSchedules' => fn ($q) => $q->upcoming()->limit(12),
+                'episodes' => fn ($q) => $q->orderBy('number'),
                 'relations.relatedAnime.genres',
                 'characters' => fn ($q) => $q->orderByRaw(
                     "CASE anime_character.role "
@@ -125,10 +128,15 @@ class AnimeController extends Controller
             : "View {$title} on AniTrack";
         $image = $model->cover_image_large ?: $model->cover_image_medium;
 
+        $recommendations = AnimeCardResource::collection(
+            $discover->similarTo($model, 8)
+        )->resolve();
+
         return Inertia::render('AnimeDetailPage', [
             'anime' => (new AnimeResource($model))->resolve(),
             'list_entry' => $listEntry ? (new ListEntryResource($listEntry))->resolve() : null,
             'seasons' => $this->getSeasonChain($model),
+            'recommendations' => $recommendations,
             'og' => [
                 'title' => $title,
                 'description' => $description,

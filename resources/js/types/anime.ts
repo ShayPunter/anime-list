@@ -41,7 +41,21 @@ export interface AnimeDetail extends AnimeCard {
     characters?: AnimeCharacterEntry[]
     external_ids: ExternalId[]
     airing_schedules: AiringScheduleEntry[]
+    episodes_list?: EpisodeEntry[]
     relations: AnimeRelationEntry[]
+}
+
+export interface EpisodeEntry {
+    id: number
+    number: number
+    title: string | null
+    thumbnail_url: string | null
+    air_date: string | null
+    runtime_minutes: number | null
+    score: number | null
+    site_url: string | null
+    source_site: string | null
+    status: 'aired' | 'upcoming' | 'unknown'
 }
 
 export interface AnimeCharacterEntry {

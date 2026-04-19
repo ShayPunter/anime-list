@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { useFeature } from '@/composables/useFeature'
 import ScoreBadge from '@/Components/ScoreBadge.vue'
 import AddToListButton from '@/Components/AddToListButton.vue'
-import type { AnimeDetail, SeasonEntry, StudioEntry, VoiceActorEntry } from '@/types/anime'
-import type { ListEntryResource, User } from '@/types'
+import ListEntryModal from '@/Components/ListEntryModal.vue'
+import type { AnimeCard, AnimeDetail, EpisodeEntry, SeasonEntry, StudioEntry, VoiceActorEntry } from '@/types/anime'
+import type { ListEntryResource, ListStatus, User } from '@/types'
+import { LIST_STATUS_LABELS } from '@/types'
 import { useCountdown } from '@/composables/useCountdown'
+import { useListMutations } from '@/composables/useListMutations'
+import { statusDotClass } from '@/composables/useLibraryTheme'
 
 defineOptions({ layout: AppLayout })
 
@@ -22,6 +26,7 @@ const props = defineProps<{
     anime: AnimeDetail
     list_entry: ListEntryResource | null
     seasons: SeasonEntry[]
+    recommendations: AnimeCard[]
     og: OgMeta
 }>()
 
@@ -109,6 +114,22 @@ const relations = computed(() => (props.anime.relations ?? []).filter(r => r.rel
 const hasTrailer = computed(() => !!props.anime.trailer_url && !!embedUrl(props.anime.trailer_url!))
 const hasSeasons = computed(() => props.seasons.length > 1)
 
+const episodesList = computed<EpisodeEntry[]>(() => props.anime.episodes_list ?? [])
+const episodesTabEnabled = useFeature('episodes-tab')
+
+type EpisodeFilter = 'all' | 'aired' | 'upcoming'
+const episodeFilter = ref<EpisodeFilter>('all')
+const EPISODE_FILTERS: EpisodeFilter[] = ['all', 'aired', 'upcoming']
+const filteredEpisodes = computed<EpisodeEntry[]>(() => {
+    if (episodeFilter.value === 'all') return episodesList.value
+    return episodesList.value.filter(ep => ep.status === episodeFilter.value)
+})
+const episodeCounts = computed(() => ({
+    all: episodesList.value.length,
+    aired: episodesList.value.filter(ep => ep.status === 'aired').length,
+    upcoming: episodesList.value.filter(ep => ep.status === 'upcoming').length,
+}))
+
 function embedUrl(url: string): string | null {
     try {
         const parsed = new URL(url)
@@ -127,11 +148,12 @@ function embedUrl(url: string): string | null {
 }
 
 // Tabs — only show those with content
-type TabKey = 'trailer' | 'seasons' | 'schedule' | 'characters'
+type TabKey = 'trailer' | 'franchise' | 'episodes' | 'schedule' | 'characters'
 const availableTabs = computed<{ key: TabKey; label: string }[]>(() => {
     const tabs: { key: TabKey; label: string }[] = []
     if (hasTrailer.value) tabs.push({ key: 'trailer', label: 'Trailer' })
-    if (hasSeasons.value) tabs.push({ key: 'seasons', label: 'Seasons' })
+    if (hasSeasons.value) tabs.push({ key: 'franchise', label: 'Franchise' })
+    if (episodesTabEnabled.value && episodesList.value.length) tabs.push({ key: 'episodes', label: 'Episodes' })
     if (schedules.value.length) tabs.push({ key: 'schedule', label: 'Schedule' })
     if (characters.value.length) tabs.push({ key: 'characters', label: 'Characters' })
     return tabs
@@ -149,6 +171,51 @@ const currentTab = computed<TabKey | null>(() => {
 function setTab(key: TabKey) {
     activeTab.value = key
 }
+
+// Status dropdown + quick actions
+const STATUS_OPTIONS: ListStatus[] = ['watching', 'completed', 'on_hold', 'dropped', 'plan_to_watch']
+const statusMenuOpen = ref(false)
+const statusMenuRef = ref<HTMLElement | null>(null)
+const editModalOpen = ref(false)
+const { updateMutation } = useListMutations()
+
+function reloadEntry() {
+    router.reload({ only: ['list_entry'] })
+}
+
+function toggleStatusMenu() {
+    statusMenuOpen.value = !statusMenuOpen.value
+}
+
+function changeStatus(status: ListStatus) {
+    statusMenuOpen.value = false
+    if (!props.list_entry || props.list_entry.status === status) return
+    updateMutation.mutate({ id: props.list_entry.id, status }, { onSuccess: reloadEntry })
+}
+
+function incrementProgress() {
+    if (!props.list_entry) return
+    const total = props.anime.episodes
+    const next = total != null
+        ? Math.min(total, props.list_entry.progress + 1)
+        : props.list_entry.progress + 1
+    if (next === props.list_entry.progress) return
+    updateMutation.mutate({ id: props.list_entry.id, progress: next }, { onSuccess: reloadEntry })
+}
+
+const canIncrement = computed(() => {
+    if (!props.list_entry) return false
+    const total = props.anime.episodes
+    return total == null || props.list_entry.progress < total
+})
+
+function handleDocClick(e: MouseEvent) {
+    if (statusMenuOpen.value && statusMenuRef.value && !statusMenuRef.value.contains(e.target as Node)) {
+        statusMenuOpen.value = false
+    }
+}
+onMounted(() => document.addEventListener('mousedown', handleDocClick))
+onBeforeUnmount(() => document.removeEventListener('mousedown', handleDocClick))
 
 function goBack() {
     if (window.history.length > 1) {
@@ -258,9 +325,45 @@ function displayScore(): string {
             <!-- Action bar -->
             <div class="mt-8 flex flex-wrap items-center gap-3 rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-3 backdrop-blur-sm md:px-5">
                 <template v-if="isAuthenticated && list_entry">
-                    <div class="min-w-[180px]">
-                        <AddToListButton :anime="anime" :initial-entry="list_entry" />
+                    <!-- Status dropdown -->
+                    <div ref="statusMenuRef" class="relative">
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 transition hover:bg-gray-700"
+                            @click="toggleStatusMenu"
+                        >
+                            <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass(list_entry.status)" />
+                            {{ LIST_STATUS_LABELS[list_entry.status] }}
+                            <svg viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3 text-gray-400">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div
+                            v-if="statusMenuOpen"
+                            class="absolute left-0 top-full z-50 mt-1 min-w-[170px] rounded-lg border border-gray-700 bg-gray-900 p-1 shadow-lg"
+                        >
+                            <button
+                                v-for="s in STATUS_OPTIONS"
+                                :key="s"
+                                type="button"
+                                class="flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-xs text-gray-200 transition hover:bg-gray-800"
+                                :class="list_entry.status === s ? 'bg-gray-800' : ''"
+                                @click="changeStatus(s)"
+                            >
+                                <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass(s)" />
+                                {{ LIST_STATUS_LABELS[s] }}
+                                <svg
+                                    v-if="list_entry.status === s"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    class="ml-auto h-3 w-3 text-gray-400"
+                                >
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
+
                     <div class="hidden h-6 w-px bg-gray-800 sm:block" />
                     <div class="text-sm">
                         <span class="font-mono font-medium text-gray-100">{{ list_entry.progress }} / {{ anime.episodes ?? '?' }}</span>
@@ -273,12 +376,35 @@ function displayScore(): string {
                             <span class="ml-2 text-gray-500">your score</span>
                         </div>
                     </template>
+
+                    <div class="flex-1" />
+
+                    <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="!canIncrement || updateMutation.isPending.value"
+                        @click="incrementProgress"
+                    >
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        +1 episode
+                    </button>
+                    <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 transition hover:bg-gray-700"
+                        @click="editModalOpen = true"
+                    >
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 3l3 3-9 9H5v-3l9-9zM13 4l3 3" />
+                        </svg>
+                        Edit
+                    </button>
                 </template>
                 <template v-else-if="isAuthenticated">
                     <div class="text-sm text-gray-400">Not in your list</div>
-                    <div class="min-w-[180px]">
-                        <AddToListButton :anime="anime" :initial-entry="null" />
-                    </div>
+                    <div class="flex-1" />
+                    <AddToListButton :anime="anime" :initial-entry="null" />
                 </template>
                 <template v-else>
                     <div class="text-sm text-gray-400">
@@ -286,14 +412,16 @@ function displayScore(): string {
                         to track this anime
                     </div>
                 </template>
-
-                <div class="flex-1" />
-
-                <div class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">
-                    <span class="hidden sm:inline">Status</span>
-                    <span class="rounded-full bg-gray-800 px-2 py-0.5 text-gray-300">{{ statusLabel(anime.status) }}</span>
-                </div>
             </div>
+
+            <ListEntryModal
+                v-if="editModalOpen && list_entry"
+                :anime="anime"
+                :entry="list_entry"
+                @close="editModalOpen = false"
+                @saved="() => { editModalOpen = false; reloadEntry() }"
+                @deleted="() => { editModalOpen = false; reloadEntry() }"
+            />
         </div>
 
         <!-- Main grid -->
@@ -311,7 +439,7 @@ function displayScore(): string {
 
                     <!-- Tabs -->
                     <section v-if="availableTabs.length">
-                        <div class="flex items-center gap-1 overflow-x-auto border-b border-gray-800">
+                        <div class="flex items-center gap-1 overflow-x-auto border-b border-gray-800 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                             <button
                                 v-for="t in availableTabs"
                                 :key="t.key"
@@ -339,8 +467,8 @@ function displayScore(): string {
                                 </div>
                             </div>
 
-                            <!-- Seasons -->
-                            <div v-else-if="currentTab === 'seasons'">
+                            <!-- Franchise -->
+                            <div v-else-if="currentTab === 'franchise'">
                                 <div class="mb-4 flex items-baseline justify-between">
                                     <div>
                                         <div class="font-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">Franchise timeline</div>
@@ -398,6 +526,94 @@ function displayScore(): string {
                                             </div>
                                             <ScoreBadge :score="s.average_score" size="sm" />
                                         </component>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Episodes -->
+                            <div v-else-if="currentTab === 'episodes'">
+                                <div class="mb-3 flex flex-wrap items-center gap-1.5">
+                                    <button
+                                        v-for="f in EPISODE_FILTERS"
+                                        :key="f"
+                                        type="button"
+                                        class="rounded-full border px-3 py-1 text-xs transition"
+                                        :class="episodeFilter === f
+                                            ? 'border-primary-400 bg-primary-400/10 text-primary-300'
+                                            : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200'"
+                                        @click="episodeFilter = f"
+                                    >
+                                        <span class="capitalize">{{ f }}</span>
+                                        <span class="ml-1.5 font-mono text-[11px] text-gray-500">{{ episodeCounts[f] }}</span>
+                                    </button>
+                                </div>
+
+                                <div v-if="!filteredEpisodes.length" class="rounded-xl border border-dashed border-gray-700 bg-gray-900/30 px-6 py-10 text-center text-sm text-gray-500">
+                                    No episodes match this filter.
+                                </div>
+
+                                <div v-else class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/50">
+                                    <div class="hidden grid-cols-[3rem_minmax(0,1fr)_10rem_5rem_4rem] gap-3 border-b border-gray-800 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500 md:grid">
+                                        <div>EP</div>
+                                        <div>Title</div>
+                                        <div>Air date</div>
+                                        <div>Runtime</div>
+                                        <div class="text-right">Score</div>
+                                    </div>
+                                    <div
+                                        v-for="(ep, i) in filteredEpisodes"
+                                        :key="ep.id"
+                                        class="grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 md:grid-cols-[3rem_minmax(0,1fr)_10rem_5rem_4rem]"
+                                        :class="i > 0 ? 'border-t border-gray-800' : ''"
+                                    >
+                                        <div class="font-mono text-xs font-semibold text-primary-400">
+                                            {{ String(ep.number).padStart(2, '0') }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <span class="truncate text-sm font-medium text-gray-100">
+                                                    {{ ep.title || `Episode ${ep.number}` }}
+                                                </span>
+                                                <span
+                                                    v-if="ep.status === 'upcoming'"
+                                                    class="rounded-full bg-primary-400/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-primary-300"
+                                                >
+                                                    Upcoming
+                                                </span>
+                                                <span
+                                                    v-else-if="ep.status === 'unknown'"
+                                                    class="rounded-full border border-dashed border-gray-700 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-gray-500"
+                                                >
+                                                    TBA
+                                                </span>
+                                            </div>
+                                            <div class="mt-1 flex items-center gap-2 text-[11px] text-gray-500 md:hidden">
+                                                <span v-if="ep.air_date" class="font-mono">{{ formatLocalDate(ep.air_date) }}</span>
+                                                <span v-if="ep.air_date && ep.status === 'upcoming'" class="font-mono text-primary-400">
+                                                    · {{ formatCountdown(ep.air_date) }}
+                                                </span>
+                                                <span v-if="ep.runtime_minutes" class="font-mono">· {{ ep.runtime_minutes }}m</span>
+                                            </div>
+                                        </div>
+                                        <div class="hidden font-mono text-xs text-gray-400 md:block">
+                                            <template v-if="ep.air_date">
+                                                <div>{{ formatLocalDate(ep.air_date) }}</div>
+                                                <div v-if="ep.status === 'upcoming'" class="text-primary-400">
+                                                    {{ formatCountdown(ep.air_date) }}
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                <span class="text-gray-600">—</span>
+                                            </template>
+                                        </div>
+                                        <div class="hidden font-mono text-xs text-gray-400 md:block">
+                                            <template v-if="ep.runtime_minutes">{{ ep.runtime_minutes }} min</template>
+                                            <span v-else class="text-gray-600">—</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <ScoreBadge v-if="ep.score != null" :score="ep.score / 10" size="sm" />
+                                            <span v-else class="font-mono text-xs text-gray-600">—</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -626,32 +842,34 @@ function displayScore(): string {
             </div>
 
             <!-- Recommendations row -->
-            <div v-if="relations.length > 4" class="mt-14 border-t border-gray-800 pt-10">
+            <div v-if="recommendations.length" class="mt-14 border-t border-gray-800 pt-10">
                 <div class="mb-5">
                     <div class="font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">If you like this, try</div>
                     <h2 class="mt-1 text-xl font-semibold text-gray-100">You might also enjoy</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
                     <Link
-                        v-for="rel in relations.slice(0, 6)"
-                        :key="rel.id"
-                        :href="rel.related_anime?.slug ? route('anime.show', { anime: rel.related_anime.slug }) : '#'"
+                        v-for="rec in recommendations"
+                        :key="rec.id ?? rec.anilist_id"
+                        :href="rec.slug ? route('anime.show', { anime: rec.slug }) : '#'"
                         class="group"
                     >
                         <div class="aspect-[3/4] overflow-hidden rounded-lg bg-gray-800 transition group-hover:ring-1 group-hover:ring-gray-600">
                             <img
-                                v-if="rel.related_anime?.cover_image_medium"
-                                :src="rel.related_anime.cover_image_medium"
-                                :alt="rel.related_anime?.title_english || rel.related_anime?.title_romaji"
+                                v-if="rec.cover_image_large || rec.cover_image_medium"
+                                :src="(rec.cover_image_large || rec.cover_image_medium) ?? undefined"
+                                :alt="rec.title_english || rec.title_romaji"
                                 class="h-full w-full object-cover transition-transform group-hover:scale-105"
                                 loading="lazy"
                             />
                         </div>
                         <div class="mt-2 line-clamp-2 text-xs font-medium text-gray-200 transition group-hover:text-primary-300">
-                            {{ rel.related_anime?.title_english || rel.related_anime?.title_romaji }}
+                            {{ rec.title_english || rec.title_romaji }}
                         </div>
-                        <div class="mt-1 font-mono text-[10px] uppercase tracking-wider text-gray-500">
-                            ★ {{ rel.related_anime?.average_score?.toFixed(1) ?? '—' }} · {{ relationLabel(rel.relation_type) }}
+                        <div class="mt-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-gray-500">
+                            <span v-if="rec.average_score != null">★ {{ rec.average_score.toFixed(1) }}</span>
+                            <span v-if="rec.average_score != null && rec.format">·</span>
+                            <span v-if="rec.format">{{ rec.format.replace(/_/g, ' ') }}</span>
                         </div>
                     </Link>
                 </div>
