@@ -16,9 +16,9 @@ interface Platform {
 const platforms: Platform[] = [
     {
         name: 'AniTrack',
-        tagline: 'That’s us — the one you’re on right now.',
+        tagline: 'That’s us, the one you’re on right now.',
         description:
-            'A modern, fast anime tracker built on top of the AniList GraphQL API with a clean, distraction-free interface. Personal watchlists, progress tracking, seasonal schedules and shareable profiles — without the clutter.',
+            'A modern, fast anime tracker built on top of the AniList GraphQL API with a clean, distraction-free interface. Personal watchlists, progress tracking, seasonal schedules and shareable profiles, without the clutter.',
         pros: [
             'Snappy, modern UI with a proper dark theme',
             'Seasonal calendar and weekly airing schedule baked in',
@@ -38,7 +38,7 @@ const platforms: Platform[] = [
             'The largest and longest-running anime database on the web, with a huge community, forums and reviews. If you’ve been in the hobby for a decade, you probably already have an account.',
         pros: [
             'Massive, near-exhaustive database',
-            'Huge user base — reviews and discussions on almost every title',
+            'Huge user base, with reviews and discussions on almost every title',
             'Industry-standard scoring most sites reference',
         ],
         cons: [
@@ -134,7 +134,7 @@ const recommendations: { title: string; body: string }[] = [
     {
         title: 'If you want the best balance of speed, design and features → AniTrack',
         body:
-            'A modern UI, AniList-powered data, seasonal schedules and MAL/AniList import make it the easiest place to land today — especially if you’re tired of clunky, ad-laden alternatives.',
+            'A modern UI, AniList-powered data, seasonal schedules and MAL/AniList import make it the easiest place to land today, especially if you’re tired of clunky, ad-laden alternatives.',
     },
     {
         title: 'If you care about community size above all → MyAnimeList',
@@ -173,7 +173,7 @@ const recommendations: { title: string; body: string }[] = [
     <Head title="MyAnimeList Alternatives">
         <meta
             name="description"
-            content="A side-by-side look at the best MyAnimeList alternatives, including AniTrack, AniList, Kitsu, Anime-Planet, Shikimori and AniDB — with honest pros, cons and recommendations."
+            content="A side-by-side look at the best MyAnimeList alternatives, including AniTrack, AniList, Kitsu, Anime-Planet, Shikimori and AniDB, with honest pros, cons and recommendations."
         />
         <link rel="canonical" :href="route('alternatives')" />
     </Head>
@@ -183,7 +183,7 @@ const recommendations: { title: string; body: string }[] = [
             <h1 class="text-3xl font-bold">MyAnimeList Alternatives</h1>
             <p class="text-gray-400 leading-relaxed">
                 MyAnimeList has been the default anime tracker for well over a decade, but it’s far from the only
-                option. Here’s an honest, up-to-date look at the main alternatives — starting, shamelessly, with us.
+                option. Here’s an honest, up-to-date look at the main alternatives, starting, shamelessly, with us.
                 For each one we’ve broken down what it is, what it does well, where it falls short, and at the
                 bottom we’ve put together a short recommendation list to help you pick.
             </p>
@@ -248,7 +248,7 @@ const recommendations: { title: string; body: string }[] = [
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold text-gray-100">What we recommend</h2>
             <p class="text-gray-400 leading-relaxed">
-                There’s no single right answer — it depends on what you actually want from a tracker. In rough
+                There’s no single right answer. It depends on what you actually want from a tracker. In rough
                 order, here’s how we’d suggest picking:
             </p>
             <ol class="list-decimal space-y-3 pl-6 text-gray-300">
