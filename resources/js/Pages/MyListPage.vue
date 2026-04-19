@@ -98,7 +98,7 @@ const stats = computed(() => {
     const watching = props.counts?.watching ?? 0
     const completed = props.counts?.completed ?? 0
 
-    const scored = props.entries.filter(e => e.display_score != null)
+    const scored = props.entries.filter(e => e.display_score != null && e.display_score > 0)
     const avg = scored.length
         ? scored.reduce((n, e) => n + (e.display_score as number), 0) / scored.length
         : 0
