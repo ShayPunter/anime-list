@@ -158,6 +158,63 @@ class UserListApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_progress_cannot_exceed_total_episodes(): void
+    {
+        $user = User::factory()->create();
+        $anime = Anime::factory()->create(['episodes' => 20]);
+        $entry = UserAnimeList::factory()->for($user)->for($anime)->create([
+            'status' => UserAnimeList::STATUS_COMPLETED,
+            'progress' => 20,
+        ]);
+
+        $this->actingAs($user)->patchJson("/api/list/{$entry->id}", [
+            'progress' => 21,
+        ])->assertUnprocessable()->assertJsonValidationErrors('progress');
+
+        $this->assertDatabaseHas('user_anime_lists', [
+            'id' => $entry->id,
+            'progress' => 20,
+        ]);
+    }
+
+    public function test_progress_equal_to_total_episodes_is_allowed(): void
+    {
+        $user = User::factory()->create();
+        $anime = Anime::factory()->create(['episodes' => 12]);
+        $entry = UserAnimeList::factory()->for($user)->for($anime)->create([
+            'status' => UserAnimeList::STATUS_WATCHING,
+            'progress' => 11,
+        ]);
+
+        $this->actingAs($user)->patchJson("/api/list/{$entry->id}", [
+            'progress' => 12,
+        ])->assertOk();
+
+        $this->assertDatabaseHas('user_anime_lists', [
+            'id' => $entry->id,
+            'progress' => 12,
+        ]);
+    }
+
+    public function test_progress_is_uncapped_when_anime_episode_count_is_unknown(): void
+    {
+        $user = User::factory()->create();
+        $anime = Anime::factory()->create(['episodes' => null]);
+        $entry = UserAnimeList::factory()->for($user)->for($anime)->create([
+            'status' => UserAnimeList::STATUS_WATCHING,
+            'progress' => 50,
+        ]);
+
+        $this->actingAs($user)->patchJson("/api/list/{$entry->id}", [
+            'progress' => 999,
+        ])->assertOk();
+
+        $this->assertDatabaseHas('user_anime_lists', [
+            'id' => $entry->id,
+            'progress' => 999,
+        ]);
+    }
+
     public function test_completing_an_entry_fills_progress_to_total_episodes(): void
     {
         $user = User::factory()->create();
