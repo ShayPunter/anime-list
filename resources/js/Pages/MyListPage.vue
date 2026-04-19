@@ -19,13 +19,35 @@ const props = defineProps<{
     counts: Record<string, number>
 }>()
 
-const activeStatus = ref<ListStatus | 'all'>('all')
+const VALID_STATUSES = ['all', 'watching', 'completed', 'plan_to_watch', 'on_hold', 'dropped'] as const
+
+function readStatusFromUrl(): ListStatus | 'all' {
+    if (typeof window === 'undefined') return 'all'
+    const param = new URLSearchParams(window.location.search).get('status')
+    return (VALID_STATUSES as readonly string[]).includes(param ?? '')
+        ? (param as ListStatus | 'all')
+        : 'all'
+}
+
+const activeStatus = ref<ListStatus | 'all'>(readStatusFromUrl())
 const viewMode = ref<ListViewMode>('card')
 const sortField = ref<string>('-updated_at')
 const filterText = ref('')
 const selectedGenres = ref<string[]>([])
 
+function changeStatus(status: ListStatus | 'all') {
+    activeStatus.value = status
+    const url = new URL(window.location.href)
+    if (status === 'all') {
+        url.searchParams.delete('status')
+    } else {
+        url.searchParams.set('status', status)
+    }
+    window.history.replaceState(window.history.state, '', url.toString())
+}
+
 onMounted(() => {
+    activeStatus.value = readStatusFromUrl()
     const saved = localStorage.getItem('list_view') as ListViewMode | null
     if (saved && ['table', 'card', 'compact'].includes(saved)) {
         viewMode.value = saved
@@ -259,7 +281,7 @@ const sortOptions = [
                 :class="activeStatus === t.key
                     ? 'border-primary-400 font-medium text-primary-400'
                     : 'border-transparent text-gray-400 hover:text-gray-200'"
-                @click="activeStatus = t.key"
+                @click="changeStatus(t.key)"
             >
                 <span
                     v-if="t.key !== 'all'"
