@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ListEntryResource } from '@/types'
 import { LIST_STATUS_LABELS } from '@/types'
-import { statusDotColor } from '@/composables/useLibraryTheme'
+import { statusDotClass } from '@/composables/useLibraryTheme'
 
 defineProps<{
     entries: ListEntryResource[]
@@ -38,8 +38,8 @@ function formatLabel(entry: ListEntryResource): string {
 </script>
 
 <template>
-    <div class="library-table">
-        <div class="library-table-head">
+    <div class="overflow-hidden rounded-lg border border-gray-800 bg-gray-900/50">
+        <div class="grid grid-cols-[36px_minmax(0,2.4fr)_minmax(0,1fr)_60px_minmax(0,1fr)_70px_minmax(0,0.9fr)_32px] items-center gap-3 border-b border-gray-800 px-3 py-2.5 font-mono text-[10px] uppercase tracking-wider text-gray-500">
             <div>#</div>
             <div>Title</div>
             <div>Status</div>
@@ -53,54 +53,57 @@ function formatLabel(entry: ListEntryResource): string {
         <div
             v-for="(e, i) in entries"
             :key="e.id"
-            class="library-table-row"
-            :class="{ 'library-table-row-top': i === 0 }"
+            class="grid grid-cols-[36px_minmax(0,2.4fr)_minmax(0,1fr)_60px_minmax(0,1fr)_70px_minmax(0,0.9fr)_32px] items-center gap-3 px-3 py-2.5 text-sm transition hover:bg-gray-900"
+            :class="i > 0 ? 'border-t border-gray-800' : ''"
         >
-            <div class="library-table-num">{{ String(i + 1).padStart(2, '0') }}</div>
+            <div class="font-mono text-[11px] text-gray-500">{{ String(i + 1).padStart(2, '0') }}</div>
 
             <Link
                 v-if="e.anime"
                 :href="e.anime.slug ? route('anime.show', { anime: e.anime.slug }) : '#'"
-                class="library-table-title-cell"
+                class="group flex min-w-0 items-center gap-2.5"
             >
-                <div class="library-table-cover">
+                <div class="h-[42px] w-[30px] flex-none overflow-hidden rounded bg-gray-800">
                     <img
                         v-if="e.anime.cover_image_medium || e.anime.cover_image_large"
                         :src="(e.anime.cover_image_medium || e.anime.cover_image_large)!"
                         :alt="displayTitle(e)"
                         loading="lazy"
+                        class="h-full w-full object-cover"
                     />
                 </div>
-                <div class="library-table-title-text">
-                    <div class="library-table-title-en">{{ displayTitle(e) }}</div>
-                    <div class="library-table-title-ro">{{ e.anime.title_romaji }}</div>
+                <div class="min-w-0 flex-1">
+                    <div class="truncate font-medium text-gray-100 transition group-hover:text-primary-400">
+                        {{ displayTitle(e) }}
+                    </div>
+                    <div class="truncate text-[11px] text-gray-500">{{ e.anime.title_romaji }}</div>
                 </div>
             </Link>
 
-            <div class="library-table-status">
-                <span class="library-dot" :style="{ background: statusDotColor(e.status) }" />
+            <div class="inline-flex items-center gap-1.5 text-xs text-gray-300">
+                <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass(e.status)" />
                 {{ LIST_STATUS_LABELS[e.status] }}
             </div>
 
-            <div class="library-table-score" :class="{ 'library-table-mute': !e.display_score }">
+            <div class="font-mono text-xs" :class="e.display_score ? 'text-gray-100' : 'text-gray-600'">
                 {{ e.display_score ? `★ ${e.display_score}` : '—' }}
             </div>
 
-            <div class="library-table-progress">
-                <div class="library-table-progress-nums">
+            <div>
+                <div class="mb-1 flex justify-between font-mono text-[11px] text-gray-500">
                     <span>{{ e.progress }}</span>
                     <span>{{ e.anime?.episodes ?? '?' }}</span>
                 </div>
-                <div class="library-bar">
-                    <div class="library-bar-fill" :style="{ width: `${progressPercent(e)}%` }" />
+                <div class="h-[2px] overflow-hidden rounded-full bg-gray-800">
+                    <div class="h-full bg-primary-400" :style="{ width: `${progressPercent(e)}%` }" />
                 </div>
             </div>
 
-            <div class="library-table-mute">{{ formatLabel(e) }}</div>
+            <div class="text-xs text-gray-500">{{ formatLabel(e) }}</div>
 
-            <div class="library-table-updated">{{ daysAgo(e.updated_at) }}</div>
+            <div class="font-mono text-[11px] text-gray-500">{{ daysAgo(e.updated_at) }}</div>
 
-            <button class="library-table-more" title="Edit entry" @click="emit('edit', e)">
+            <button class="p-1 text-gray-500 transition hover:text-gray-200" title="Edit entry" @click="emit('edit', e)">
                 <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
                     <circle cx="4" cy="10" r="1.5" />
                     <circle cx="10" cy="10" r="1.5" />
@@ -109,164 +112,8 @@ function formatLabel(entry: ListEntryResource): string {
             </button>
         </div>
 
-        <p v-if="entries.length === 0" class="library-empty">No entries found.</p>
+        <p v-if="entries.length === 0" class="px-4 py-8 text-center text-sm text-gray-500">
+            No entries found.
+        </p>
     </div>
 </template>
-
-<style scoped>
-.library-table {
-    border: 1px solid var(--lib-line);
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--lib-surface);
-}
-
-.library-table-head,
-.library-table-row {
-    display: grid;
-    grid-template-columns: 40px 2.2fr 0.9fr 0.7fr 1fr 0.7fr 0.9fr 40px;
-    gap: 12px;
-    padding: 10px 14px;
-    align-items: center;
-}
-
-.library-table-head {
-    border-bottom: 1px solid var(--lib-line);
-    font-size: 10px;
-    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--lib-mute);
-}
-
-.library-table-row {
-    border-top: 1px solid var(--lib-line);
-    font-size: 13px;
-}
-
-.library-table-row.library-table-row-top { border-top: none; }
-
-.library-table-num {
-    color: var(--lib-mute);
-    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
-    font-size: 11px;
-}
-
-.library-table-title-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    color: var(--lib-ink);
-    transition: color .15s;
-}
-
-.library-table-title-cell:hover .library-table-title-en { color: var(--lib-accent); }
-
-.library-table-cover {
-    width: 30px;
-    height: 42px;
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--lib-line);
-    flex: 0 0 auto;
-}
-
-.library-table-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.library-table-title-text {
-    min-width: 0;
-    flex: 1;
-}
-
-.library-table-title-en {
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color .15s;
-}
-
-.library-table-title-ro {
-    font-size: 11px;
-    color: var(--lib-mute);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.library-table-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--lib-ink-2);
-}
-
-.library-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    display: inline-block;
-}
-
-.library-table-score {
-    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
-    font-size: 12px;
-    color: var(--lib-ink);
-}
-
-.library-table-progress-nums {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
-    color: var(--lib-mute);
-    margin-bottom: 3px;
-}
-
-.library-bar {
-    height: 2px;
-    background: var(--lib-line);
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.library-bar-fill {
-    height: 100%;
-    background: var(--lib-ink);
-}
-
-.library-table-mute {
-    font-size: 12px;
-    color: var(--lib-mute);
-}
-
-.library-table-updated {
-    font-size: 11px;
-    color: var(--lib-mute);
-    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
-}
-
-.library-table-more {
-    color: var(--lib-mute);
-    transition: color .15s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.library-table-more:hover { color: var(--lib-ink); }
-
-.library-empty {
-    padding: 32px 14px;
-    text-align: center;
-    color: var(--lib-mute);
-    font-size: 13px;
-}
-</style>
