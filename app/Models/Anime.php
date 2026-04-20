@@ -138,7 +138,7 @@ class Anime extends Model
             ->orderBy('airs_at');
     }
 
-    public function episodes(): HasMany
+    public function episodeList(): HasMany
     {
         return $this->hasMany(Episode::class);
     }
