@@ -107,6 +107,18 @@ class AniListQueryBuilder
                 }
             }
         }
+        recommendations(page: 1, perPage: 25, sort: [RATING_DESC]) {
+            edges {
+                node {
+                    id
+                    rating
+                    mediaRecommendation {
+                        id
+                        type
+                    }
+                }
+            }
+        }
     GRAPHQL;
 
     public static function animePage(): string
@@ -244,6 +256,42 @@ class AniListQueryBuilder
                 }
                 media(type: ANIME, idMal_in: \$malIds) {
                     {$fields}
+                }
+            }
+        }
+        GRAPHQL;
+    }
+
+    /**
+     * Lightweight page query that fetches only the anilist id + recommendations
+     * edges. Used by the recommendations backfill so we don't re-sync unrelated
+     * media fields for every anime.
+     */
+    public static function recommendationsPage(): string
+    {
+        return <<<'GRAPHQL'
+        query ($page: Int, $perPage: Int) {
+            Page(page: $page, perPage: $perPage) {
+                pageInfo {
+                    hasNextPage
+                    currentPage
+                    lastPage
+                    total
+                }
+                media(type: ANIME, sort: [ID]) {
+                    id
+                    recommendations(page: 1, perPage: 25, sort: [RATING_DESC]) {
+                        edges {
+                            node {
+                                id
+                                rating
+                                mediaRecommendation {
+                                    id
+                                    type
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
