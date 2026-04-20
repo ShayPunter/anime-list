@@ -27,8 +27,8 @@ interface MoreLikeIt {
 }
 
 interface PickedForYou {
-    status: 'coming_soon' | 'ready'
-    message: string
+    source: 'precomputed' | 'live'
+    items: AnimeCardType[]
 }
 
 defineProps<{
@@ -183,14 +183,25 @@ function animeUrl(anime: AnimeCardType): string {
             </div>
         </section>
 
-        <!-- Picked For You (placeholder) -->
-        <section v-if="pickedForYou">
+        <!-- Picked For You -->
+        <section v-if="pickedForYou && pickedForYou.items.length">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-100">Picked for you</h2>
+                <p class="mt-1 text-sm text-gray-400">Tuned to the titles you've rated.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                <AnimeCard
+                    v-for="anime in pickedForYou.items"
+                    :key="anime.id ?? anime.anilist_id"
+                    :anime="anime"
+                    view-mode="grid"
+                />
+            </div>
+        </section>
+        <section v-else-if="pickedForYou">
             <h2 class="mb-3 text-xl font-bold text-gray-100">Picked for you</h2>
             <div class="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-8 text-center">
-                <p class="text-gray-300">{{ pickedForYou.message }}</p>
-                <p class="mt-1 text-sm text-gray-500">
-                    Once you've rated a few more titles, we'll tune recommendations to your taste.
-                </p>
+                <p class="text-gray-300">Rate a few titles you've enjoyed and we'll tune recommendations to your taste.</p>
             </div>
         </section>
 
