@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('slug')->nullable()->unique();
             $table->string('image_large')->nullable();
             $table->string('image_medium')->nullable();
-            $table->string('gender', 32)->nullable();
+            $table->string('gender', 255)->nullable();
             $table->date('birthdate')->nullable();
             $table->string('site_url')->nullable();
             $table->timestamps();

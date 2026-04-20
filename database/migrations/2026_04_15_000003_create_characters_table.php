@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('image_large')->nullable();
             $table->string('image_medium')->nullable();
             $table->text('description')->nullable();
-            $table->string('gender', 32)->nullable();
+            $table->string('gender', 255)->nullable();
             $table->string('site_url')->nullable();
             $table->timestamps();
 
