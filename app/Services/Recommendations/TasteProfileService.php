@@ -11,13 +11,13 @@ class TasteProfileService
     public const CACHE_TTL_SECONDS = 6 * 3600;
 
     /**
-     * Score → weight mapping for completed/watching entries.
+     * Score → weight mapping for completed/watching entries (0-10 user score scale).
      * Dropped and on-hold contribute a negative signal.
      */
     private const SCORE_WEIGHTS = [
-        90 => 3.0,
-        70 => 1.0,
-        50 => 0.0,
+        9 => 3.0,
+        7 => 1.0,
+        5 => 0.0,
     ];
 
     public function for(User $user): TasteProfile
@@ -70,7 +70,7 @@ class TasteProfileService
                 continue;
             }
 
-            if ($entry->score >= 80 && $entry->status === UserAnimeList::STATUS_COMPLETED) {
+            if ($entry->score >= 8 && $entry->status === UserAnimeList::STATUS_COMPLETED) {
                 $anchors[] = ['id' => $anime->id, 'score' => (int) $entry->score];
             }
 

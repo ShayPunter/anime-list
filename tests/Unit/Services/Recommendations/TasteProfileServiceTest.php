@@ -47,7 +47,7 @@ class TasteProfileServiceTest extends TestCase
         UserAnimeList::factory()->completed()->create([
             'user_id' => $user->id,
             'anime_id' => $loved->id,
-            'score' => 95,
+            'score' => 10,
         ]);
 
         $profile = $this->service->build($user);
@@ -69,7 +69,7 @@ class TasteProfileServiceTest extends TestCase
             'user_id' => $user->id,
             'anime_id' => $loved->id,
             'status' => UserAnimeList::STATUS_DROPPED,
-            'score' => 30,
+            'score' => 3,
         ]);
 
         $profile = $this->service->build($user);
@@ -78,31 +78,55 @@ class TasteProfileServiceTest extends TestCase
         $this->assertLessThan(0, $profile->genreAffinity['Horror']);
     }
 
-    public function test_anchors_pick_the_top_scored_completed_entries(): void
+    public function test_anchors_are_sorted_with_highest_score_first(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create(['name' => 'Drama']);
 
-        $entries = [];
-        foreach ([85, 95, 70, 90, 100, 82, 88] as $score) {
+        $eight = Anime::factory()->create();
+        $nine = Anime::factory()->create();
+        $ten = Anime::factory()->create();
+        foreach ([$eight, $nine, $ten] as $anime) {
+            $anime->genres()->attach($genre);
+        }
+
+        UserAnimeList::factory()->completed()->create([
+            'user_id' => $user->id, 'anime_id' => $eight->id, 'score' => 8,
+        ]);
+        UserAnimeList::factory()->completed()->create([
+            'user_id' => $user->id, 'anime_id' => $ten->id, 'score' => 10,
+        ]);
+        UserAnimeList::factory()->completed()->create([
+            'user_id' => $user->id, 'anime_id' => $nine->id, 'score' => 9,
+        ]);
+
+        $profile = $this->service->build($user);
+
+        $this->assertSame($ten->id, $profile->anchorAnimeIds[0]);
+        $this->assertSame($nine->id, $profile->anchorAnimeIds[1]);
+        $this->assertSame($eight->id, $profile->anchorAnimeIds[2]);
+    }
+
+    public function test_anchors_are_capped_at_five_entries(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create(['name' => 'Drama']);
+
+        // Seven completed entries, all above the anchor threshold of 8.
+        for ($i = 0; $i < 7; $i++) {
             $anime = Anime::factory()->create();
             $anime->genres()->attach($genre);
 
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $anime->id,
-                'score' => $score,
+                'score' => 8 + ($i % 3),
             ]);
-
-            $entries[$score] = $anime->id;
         }
 
         $profile = $this->service->build($user);
 
-        // Anchors capped at 5, highest scores first.
         $this->assertCount(5, $profile->anchorAnimeIds);
-        $this->assertSame($entries[100], $profile->anchorAnimeIds[0]);
-        $this->assertSame($entries[95], $profile->anchorAnimeIds[1]);
     }
 
     public function test_plan_to_watch_genres_are_tracked_separately(): void
@@ -140,7 +164,7 @@ class TasteProfileServiceTest extends TestCase
         UserAnimeList::factory()->completed()->create([
             'user_id' => $user->id,
             'anime_id' => $anime->id,
-            'score' => 90,
+            'score' => 9,
         ]);
 
         $profile = $this->service->build($user);

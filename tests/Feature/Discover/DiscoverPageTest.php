@@ -36,7 +36,7 @@ class DiscoverPageTest extends TestCase
             'user_id' => $user->id,
             'anime_id' => $anchor->id,
             'status' => UserAnimeList::STATUS_COMPLETED,
-            'score' => 90,
+            'score' => 9,
         ]);
 
         Recommendation::create([

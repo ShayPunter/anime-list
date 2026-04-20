@@ -135,7 +135,7 @@ class DiscoverService
     {
         $anchor = UserAnimeList::query()
             ->where('user_id', $user->id)
-            ->where('score', '>=', 80)
+            ->where('score', '>=', 8)
             ->whereIn('status', [
                 UserAnimeList::STATUS_COMPLETED,
                 UserAnimeList::STATUS_WATCHING,
