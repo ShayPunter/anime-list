@@ -141,6 +141,9 @@ class SyncAnimePage implements ShouldQueue
             ResolveAnimeRelations::dispatch()
                 ->onQueue('import')
                 ->delay($delay);
+            ResolveAnimeRecommendations::dispatch()
+                ->onQueue('import')
+                ->delay($delay);
 
             if ($this->mode === 'incremental') {
                 Cache::forever('sync:incremental:last_run', now()->timestamp);

@@ -51,6 +51,8 @@ class AnimeData extends Data
         public readonly array $characters,
         /** @var EpisodeData[] */
         public readonly array $episodes_data,
+        /** @var AnimeRecommendationData[] */
+        public readonly array $recommendations,
     ) {}
 
     public static function fromAniList(array $media): self
@@ -124,6 +126,12 @@ class AnimeData extends Data
                 totalEpisodes: $media['episodes'] ?? null,
                 defaultDuration: $media['duration'] ?? null,
             ),
+            recommendations: array_values(array_filter(
+                array_map(
+                    fn (array $edge) => AnimeRecommendationData::fromAniList($edge),
+                    $media['recommendations']['edges'] ?? [],
+                ),
+            )),
         );
     }
 

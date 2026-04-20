@@ -41,6 +41,7 @@ class AnimeDataPersistenceService
             $this->upsertEpisodesBatch($dtos, $animeMap);
             $this->upsertExternalIdsBatch($dtos, $animeMap);
             $this->pushPendingRelations($dtos);
+            $this->pushPendingRecommendations($dtos);
             $this->invalidateCaches($dtos, $animeMap);
 
             return $animeModels;
@@ -69,6 +70,10 @@ class AnimeDataPersistenceService
 
         if (! empty($dto->relations)) {
             $this->pushPendingRelations([$dto]);
+        }
+
+        if (! empty($dto->recommendations)) {
+            $this->pushPendingRecommendations([$dto]);
         }
 
         Cache::forget("anime:v3:{$anime->id}");
@@ -536,6 +541,40 @@ class AnimeDataPersistenceService
             } catch (\Throwable $e) {
                 Log::error('Failed to push pending relations to Redis', [
                     'count' => count($pendingRelations),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Stash recommendations into Redis for deferred resolution. The recommended
+     * anime may not yet exist locally when its source is first synced (AniList
+     * returns recommendations that point to arbitrary media ids), so we resolve
+     * anilist_id -> internal id after the sync sweep finishes.
+     *
+     * @param  AnimeData[]  $dtos
+     */
+    private function pushPendingRecommendations(array $dtos): void
+    {
+        $pending = [];
+        foreach ($dtos as $dto) {
+            foreach ($dto->recommendations as $r) {
+                $pending[] = json_encode([
+                    'from_anilist_id' => $dto->anilist_id,
+                    'to_anilist_id' => $r->recommended_anilist_id,
+                    'anilist_recommendation_id' => $r->anilist_recommendation_id,
+                    'rating' => $r->rating,
+                ]);
+            }
+        }
+
+        if (! empty($pending)) {
+            try {
+                Redis::rpush('sync:pending_recommendations', ...$pending);
+            } catch (\Throwable $e) {
+                Log::error('Failed to push pending recommendations to Redis', [
+                    'count' => count($pending),
                     'error' => $e->getMessage(),
                 ]);
             }
