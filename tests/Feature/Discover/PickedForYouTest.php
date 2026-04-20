@@ -74,7 +74,7 @@ class PickedForYouTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $seed->id,
-                'score' => 90,
+                'score' => 9,
             ]);
         }
 

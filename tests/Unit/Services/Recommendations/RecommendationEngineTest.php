@@ -33,7 +33,7 @@ class RecommendationEngineTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $seed->id,
-                'score' => 90,
+                'score' => 9,
             ]);
         }
 
@@ -61,7 +61,7 @@ class RecommendationEngineTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $anime->id,
-                'score' => 90,
+                'score' => 9,
             ]);
         }
 
@@ -86,7 +86,7 @@ class RecommendationEngineTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $seed->id,
-                'score' => 95,
+                'score' => 10,
             ]);
         }
 
@@ -154,7 +154,7 @@ class RecommendationEngineTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $seed->id,
-                'score' => 95,
+                'score' => 10,
             ]);
             $anchors[] = $seed;
         }
@@ -192,7 +192,7 @@ class RecommendationEngineTest extends TestCase
             UserAnimeList::factory()->completed()->create([
                 'user_id' => $user->id,
                 'anime_id' => $seed->id,
-                'score' => 95,
+                'score' => 10,
             ]);
         }
 
