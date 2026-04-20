@@ -99,7 +99,7 @@ class AnimeController extends Controller
                 'externalIds',
                 'nextAiringEpisode',
                 'airingSchedules' => fn ($q) => $q->upcoming()->limit(12),
-                'episodes' => fn ($q) => $q->orderBy('number'),
+                'episodeList' => fn ($q) => $q->orderBy('number'),
                 'relations.relatedAnime.genres',
                 'characters' => fn ($q) => $q->orderByRaw(
                     "CASE anime_character.role "
