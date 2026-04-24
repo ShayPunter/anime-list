@@ -4,22 +4,27 @@ namespace App\Services;
 
 use App\Exceptions\AniListApiException;
 use App\Exceptions\AniListRateLimitException;
+use App\Exceptions\AniListServiceUnavailableException;
 use App\Models\RawApiResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class AniListClient
 {
+    private const CIRCUIT_BREAKER_KEY = 'anilist:outage_until';
+
     public function __construct(
         private readonly Client $http,
         private readonly int $requestsPerMinute,
         private readonly int $maxRetries,
         private readonly int $backoffBase,
         private readonly int $rateLimitBackoff,
+        private readonly int $serviceUnavailableBackoff,
         private readonly bool $storeRawResponses,
     ) {}
 
@@ -28,6 +33,8 @@ class AniListClient
      */
     public function query(string $query, array $variables = []): array
     {
+        $this->assertCircuitClosed();
+
         return $this->executeWithRetry(function () use ($query, $variables) {
             $this->enforceRateLimit();
 
@@ -198,6 +205,10 @@ class AniListClient
                     continue;
                 }
 
+                if ($status === 403) {
+                    throw $this->tripCircuitBreaker($e);
+                }
+
                 throw new AniListApiException(
                     statusCode: $status,
                     message: $e->getMessage(),
@@ -228,5 +239,53 @@ class AniListClient
                 sleep($delay);
             }
         }
+    }
+
+    /**
+     * Short-circuit outbound requests while AniList is known to be down.
+     * Prevents queued jobs from hammering the API during a prolonged outage.
+     */
+    private function assertCircuitClosed(): void
+    {
+        $openUntil = (int) Cache::get(self::CIRCUIT_BREAKER_KEY, 0);
+        if ($openUntil <= time()) {
+            return;
+        }
+
+        throw new AniListServiceUnavailableException(
+            statusCode: 503,
+            retryAfter: max(1, $openUntil - time()),
+            message: 'AniList API circuit breaker open after recent outage',
+        );
+    }
+
+    /**
+     * Open the circuit breaker and convert the upstream 403 into a dedicated
+     * exception so callers can back off instead of retrying immediately.
+     */
+    private function tripCircuitBreaker(ClientException $e): AniListServiceUnavailableException
+    {
+        $retryAfter = $this->serviceUnavailableBackoff;
+        Cache::put(self::CIRCUIT_BREAKER_KEY, time() + $retryAfter, $retryAfter);
+
+        $body = (string) $e->getResponse()->getBody();
+        $decoded = json_decode($body, true);
+        $errors = is_array($decoded['errors'] ?? null) ? $decoded['errors'] : [];
+        $upstreamMessage = $errors[0]['message'] ?? null;
+
+        Log::warning('AniList API returned 403, tripping circuit breaker', [
+            'retry_after_s' => $retryAfter,
+            'upstream_message' => $upstreamMessage,
+            'body_preview' => mb_substr($body, 0, 500),
+        ]);
+
+        return new AniListServiceUnavailableException(
+            statusCode: 403,
+            retryAfter: $retryAfter,
+            errors: $errors,
+            message: $upstreamMessage
+                ? "AniList API temporarily unavailable: {$upstreamMessage}"
+                : 'AniList API temporarily unavailable (HTTP 403).',
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\AniListServiceUnavailableException;
 use App\Models\AiringSchedule;
 use App\Models\Anime;
 use App\Services\AniListClient;
@@ -32,12 +33,18 @@ class SyncAiringSchedulePage implements ShouldQueue
 
     public function handle(AniListClient $client): void
     {
-        $data = $client->query(AniListQueryBuilder::airingSchedulePage(), [
-            'page' => $this->page,
-            'perPage' => $this->perPage,
-            'airingAt_greater' => $this->airingAtGreater,
-            'airingAt_lesser' => $this->airingAtLesser,
-        ]);
+        try {
+            $data = $client->query(AniListQueryBuilder::airingSchedulePage(), [
+                'page' => $this->page,
+                'perPage' => $this->perPage,
+                'airingAt_greater' => $this->airingAtGreater,
+                'airingAt_lesser' => $this->airingAtLesser,
+            ]);
+        } catch (AniListServiceUnavailableException $e) {
+            $this->pauseForOutage($e);
+
+            return;
+        }
 
         // Store raw response
         $client->storeRawResponse(
@@ -125,6 +132,19 @@ class SyncAiringSchedulePage implements ShouldQueue
             Cache::put('sync:schedule:status', 'completed', $progressTtl);
             Log::info('Airing schedule sync complete', ['total_pages' => $this->page]);
         }
+    }
+
+    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    {
+        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
+        Cache::put('sync:schedule:status', 'paused', $progressTtl);
+
+        Log::warning('SyncAiringSchedulePage paused: AniList unavailable', [
+            'page' => $this->page,
+            'retry_after_s' => $e->retryAfter,
+        ]);
+
+        $this->release($e->retryAfter);
     }
 
     private function invalidateScheduleCaches(): void
