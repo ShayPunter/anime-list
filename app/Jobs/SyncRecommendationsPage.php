@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\AniListServiceUnavailableException;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
 use Illuminate\Bus\Queueable;
@@ -33,10 +34,16 @@ class SyncRecommendationsPage implements ShouldQueue
 
     public function handle(AniListClient $client): void
     {
-        $data = $client->query(AniListQueryBuilder::recommendationsPage(), [
-            'page' => $this->page,
-            'perPage' => $this->perPage,
-        ]);
+        try {
+            $data = $client->query(AniListQueryBuilder::recommendationsPage(), [
+                'page' => $this->page,
+                'perPage' => $this->perPage,
+            ]);
+        } catch (AniListServiceUnavailableException $e) {
+            $this->pauseForOutage($e);
+
+            return;
+        }
 
         $pageData = $data['Page'] ?? null;
         if ($pageData === null) {
@@ -98,6 +105,19 @@ class SyncRecommendationsPage implements ShouldQueue
 
             Log::info('SyncRecommendationsPage sweep complete', ['total_pages' => $this->page]);
         }
+    }
+
+    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    {
+        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
+        Cache::put('sync:recommendations:status', 'paused', $progressTtl);
+
+        Log::warning('SyncRecommendationsPage paused: AniList unavailable', [
+            'page' => $this->page,
+            'retry_after_s' => $e->retryAfter,
+        ]);
+
+        $this->release($e->retryAfter);
     }
 
     public function failed(\Throwable $e): void

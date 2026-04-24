@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\AniListServiceUnavailableException;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
 use App\Services\AnimeDataPersistenceService;
@@ -59,7 +60,13 @@ class SyncAnimePage implements ShouldQueue
             }
         }
 
-        $data = $client->query($query, $variables);
+        try {
+            $data = $client->query($query, $variables);
+        } catch (AniListServiceUnavailableException $e) {
+            $this->pauseForOutage($e);
+
+            return;
+        }
 
         // Store raw response
         $client->storeRawResponse(
@@ -151,6 +158,20 @@ class SyncAnimePage implements ShouldQueue
 
             Log::info("Sync {$this->mode} page sweep complete", ['total_pages' => $this->page]);
         }
+    }
+
+    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    {
+        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
+        Cache::put("sync:{$this->mode}:status", 'paused', $progressTtl);
+
+        Log::warning('SyncAnimePage paused: AniList unavailable', [
+            'page' => $this->page,
+            'mode' => $this->mode,
+            'retry_after_s' => $e->retryAfter,
+        ]);
+
+        $this->release($e->retryAfter);
     }
 
     public function failed(\Throwable $e): void

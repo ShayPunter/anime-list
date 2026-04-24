@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\AniListApiException;
 use App\Exceptions\AniListRateLimitException;
+use App\Exceptions\AniListServiceUnavailableException;
 use App\Http\Resources\AnimeResource;
 use App\Http\Resources\ListEntryResource;
 use App\Jobs\ResolveAnimeRelations;
@@ -52,6 +53,14 @@ class AnimeController extends Controller
         // Fetch from AniList API
         try {
             $data = $client->query(AniListQueryBuilder::singleAnime(), ['id' => $anilistId]);
+        } catch (AniListServiceUnavailableException $e) {
+            Log::warning('On-demand fetch paused (AniList unavailable)', [
+                'anilist_id' => $anilistId,
+                'retry_after_s' => $e->retryAfter,
+            ]);
+
+            return redirect()->route('home')
+                ->with('flash', ['type' => 'error', 'message' => 'AniList is temporarily unavailable. Please try again shortly.']);
         } catch (AniListRateLimitException $e) {
             Log::warning('On-demand fetch rate limited', ['anilist_id' => $anilistId]);
 

@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 maxRetries: config('anilist.retry.max_attempts'),
                 backoffBase: config('anilist.retry.backoff_base_seconds'),
                 rateLimitBackoff: config('anilist.retry.rate_limit_backoff_seconds'),
+                serviceUnavailableBackoff: config('anilist.retry.service_unavailable_backoff_seconds'),
                 storeRawResponses: config('anilist.sync.store_raw_responses'),
             );
         });

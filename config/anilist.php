@@ -16,6 +16,10 @@ return [
         'max_attempts' => 3,
         'backoff_base_seconds' => 5,
         'rate_limit_backoff_seconds' => 60,
+        // Backoff for AniList service-unavailable responses (HTTP 403
+        // "temporarily disabled" or sustained 5xx). Also doubles as the
+        // circuit-breaker TTL so queued jobs stop hitting the endpoint.
+        'service_unavailable_backoff_seconds' => 900,
     ],
 
     'sync' => [
