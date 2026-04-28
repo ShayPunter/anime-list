@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAnimeController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminFeatureFlagController;
+use App\Http\Controllers\Admin\AdminJobObservabilityController;
+use App\Http\Controllers\Admin\AdminRoleController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\AnimeController;
-use App\Http\Controllers\DevelopersController;
-use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\Api\V1\AnimeController as ApiAnimeController;
 use App\Http\Controllers\Api\V1\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\V1\ListController as ApiListController;
@@ -11,23 +15,20 @@ use App\Http\Controllers\Api\V1\UserController as ApiUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasskeyController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Admin\AdminAnimeController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminFeatureFlagController;
-use App\Http\Controllers\Admin\AdminRoleController;
-use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\DevelopersController;
+use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlaylistController;
-use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeasonalController;
-use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StudioController;
+use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\UserListController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -211,4 +212,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/roles', [AdminRoleController::class, 'index'])->name('roles');
     Route::post('/roles/{role}/users', [AdminRoleController::class, 'assign'])->name('roles.assign');
     Route::delete('/roles/{role}/users/{user}', [AdminRoleController::class, 'remove'])->name('roles.remove');
+
+    Route::get('/jobs', [AdminJobObservabilityController::class, 'index'])->name('jobs');
+    Route::post('/jobs/anime', [AdminJobObservabilityController::class, 'enqueueAnime'])->name('jobs.enqueue-anime');
+    Route::post('/jobs/sync/incremental', [AdminJobObservabilityController::class, 'enqueueIncrementalSync'])->name('jobs.sync.incremental');
+    Route::post('/jobs/failed/{uuid}/retry', [AdminJobObservabilityController::class, 'retryFailed'])->name('jobs.failed.retry');
+    Route::delete('/jobs/failed/{uuid}', [AdminJobObservabilityController::class, 'forgetFailed'])->name('jobs.failed.forget');
 });
