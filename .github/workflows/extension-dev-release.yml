@@ -25,7 +25,7 @@ concurrency:
 jobs:
   dev-release:
     name: Build and publish dev release
-    runs-on: [self-hosted, full]
+    runs-on: [self-hosted, Linux, X64, docker, easypanel, full]
     permissions:
       contents: write
 

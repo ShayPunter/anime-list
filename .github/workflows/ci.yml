@@ -7,7 +7,7 @@ on:
 jobs:
   tests:
     name: Tests
-    runs-on: [self-hosted, full]
+    runs-on: [self-hosted, Linux, X64, docker, easypanel, full]
 
     steps:
       - name: Checkout code
