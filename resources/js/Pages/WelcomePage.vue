@@ -256,6 +256,53 @@ const stats = computed(() => [
                 </div>
             </section>
 
+            <!-- MAL import callout -->
+            <section class="container mx-auto px-4 pb-16 sm:pb-24">
+                <div class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+                    <div class="grid grid-cols-1 items-center gap-8 p-8 sm:p-10 md:grid-cols-5">
+                        <div class="md:col-span-3">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-primary-400">Switching from MyAnimeList?</p>
+                            <h2 class="mt-3 text-2xl font-bold tracking-tight text-gray-50 sm:text-3xl">
+                                Bring your watchlist with you in
+                                <span class="bg-gradient-to-r from-primary-300 to-fuchsia-400 bg-clip-text text-transparent">under a minute.</span>
+                            </h2>
+                            <p class="mt-3 text-sm leading-relaxed text-gray-400 sm:text-base">
+                                Export your list from MAL, drop the XML file into our importer,
+                                and we will match every title, preserve your scores, status and
+                                episode progress, and keep your dates intact. Years of tracking,
+                                moved over in a couple of clicks.
+                            </p>
+                            <ul class="mt-5 grid grid-cols-1 gap-2 text-sm text-gray-300 sm:grid-cols-2">
+                                <li v-for="bullet in ['Scores and statuses preserved', 'Episode progress carried over', 'Start dates and finish dates kept', 'Preview matches before committing']" :key="bullet" class="flex items-center gap-2">
+                                    <svg class="h-4 w-4 flex-shrink-0 text-primary-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ bullet }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <div class="flex items-center justify-center gap-3 rounded-xl border border-gray-800 bg-gray-950/60 p-5">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-lg border border-gray-800 bg-gray-900 text-xs font-bold tracking-wider text-gray-400">
+                                    MAL
+                                </div>
+                                <svg class="h-5 w-5 flex-shrink-0 text-primary-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                <div class="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold tracking-wider text-white">
+                                    AT
+                                </div>
+                            </div>
+                            <p class="mt-3 text-center text-xs text-gray-500">
+                                <Link :href="route('register')" class="font-semibold text-primary-400 hover:text-primary-300">Sign up</Link>
+                                then head to Import. Done in about a minute.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Free forever pitch -->
             <section class="container mx-auto px-4 pb-16 sm:pb-24">
                 <div class="mx-auto max-w-3xl text-center">
