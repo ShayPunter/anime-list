@@ -27,13 +27,23 @@ Schedule::command('sync:anime --status=NOT_YET_RELEASED')
         Log::error('Scheduled NOT_YET_RELEASED anime sync failed');
     });
 
-// Weekly incremental sync for everything else
+// Weekly incremental sync for everything else (excludes FINISHED — see monthly job below)
 Schedule::command('sync:anime')
     ->weeklyOn(1, '03:00')
     ->timezone('UTC')
     ->withoutOverlapping(120)
     ->onFailure(function () {
         Log::error('Scheduled incremental anime sync failed');
+    });
+
+// Monthly incremental sweep for FINISHED anime — most never change, so we only
+// pick up the small number AniList edited in the past month.
+Schedule::command('sync:anime --finished')
+    ->monthlyOn(1, '02:00')
+    ->timezone('UTC')
+    ->withoutOverlapping(240)
+    ->onFailure(function () {
+        Log::error('Scheduled FINISHED incremental anime sync failed');
     });
 
 Schedule::command('sync:schedule')

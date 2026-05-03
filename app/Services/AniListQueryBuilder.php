@@ -142,9 +142,10 @@ class AniListQueryBuilder
         GRAPHQL;
     }
 
-    public static function updatedSince(): string
+    public static function updatedSince(bool $finishedOnly = false): string
     {
         $fields = self::MEDIA_FIELDS;
+        $statusFilter = $finishedOnly ? 'status: FINISHED' : 'status_not: FINISHED';
 
         return <<<GRAPHQL
         query (\$page: Int, \$perPage: Int) {
@@ -155,7 +156,7 @@ class AniListQueryBuilder
                     lastPage
                     total
                 }
-                media(type: ANIME, sort: [UPDATED_AT_DESC]) {
+                media(type: ANIME, sort: [UPDATED_AT_DESC], {$statusFilter}) {
                     {$fields}
                 }
             }
