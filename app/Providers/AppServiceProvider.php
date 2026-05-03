@@ -72,5 +72,6 @@ class AppServiceProvider extends ServiceProvider
         Feature::define('discover-page', fn ($user) => false);
         Feature::define('picked-for-you', fn ($user) => false);
         Feature::define('episodes-tab', fn ($user) => true);
+        Feature::define('landing-page', fn ($user) => false);
     }
 }

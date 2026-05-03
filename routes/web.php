@@ -30,6 +30,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StudioController;
 use App\Http\Controllers\TopAnimeController;
 use App\Http\Controllers\UserListController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -38,6 +39,7 @@ Route::get('/sitemap.xml', SitemapController::class);
 
 // Public pages
 Route::get('/', HomeController::class)->name('home');
+Route::get('/welcome', WelcomeController::class)->name('welcome');
 Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', function (int $id) {
     $anime = \App\Models\Anime::find($id);
