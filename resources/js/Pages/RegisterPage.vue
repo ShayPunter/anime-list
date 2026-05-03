@@ -4,14 +4,10 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 
 defineOptions({ layout: AppLayout })
 
-const prefilledEmail = typeof window !== 'undefined'
-    ? (new URLSearchParams(window.location.search).get('email') ?? '').trim()
-    : ''
-
 const form = useForm({
     name: '',
     username: '',
-    email: prefilledEmail,
+    email: '',
     password: '',
     password_confirmation: '',
 })

@@ -1,36 +1,47 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { useAnimeSearch } from '@/composables/useAnimeSearch'
+import type { AnimeCard } from '@/types/anime'
 
-const heroEmail = ref('')
-const ctaEmail = ref('')
+const props = defineProps<{
+    featuredAnime: AnimeCard[]
+    totalAnime: number
+}>()
 
-function handoff(email: string) {
-    const trimmed = email.trim()
-    if (!trimmed) {
-        return
+const { query, results, isLoading } = useAnimeSearch()
+
+const displayed = computed<AnimeCard[]>(() => {
+    if (query.value.trim().length >= 2) {
+        return results.value.slice(0, 12)
     }
-    router.visit(route('register', { email: trimmed }))
+    return props.featuredAnime
+})
+
+const showingSearch = computed(() => query.value.trim().length >= 2)
+
+function displayTitle(anime: AnimeCard): string {
+    return anime.title_english || anime.title_romaji
 }
 
-interface PosterCard {
-    title: string
-    status: string
-    progress: string
-    from: string
-    to: string
+function animeUrl(anime: AnimeCard): string {
+    if (anime.slug) {
+        return route('anime.show', { anime: anime.slug })
+    }
+    if (anime.anilist_id) {
+        return route('anime.show.anilist', { anilistId: anime.anilist_id })
+    }
+    return '#'
 }
 
-// NOTE: titles are placeholders for visual fidelity only — no artwork is used.
-// Swap currently-airing series in this list as the season rotates.
-const posters: PosterCard[] = [
-    { title: 'Frieren', status: 'Watching', progress: 'Ep 24 / 28', from: '#6366f1', to: '#0ea5e9' },
-    { title: 'Solo Leveling', status: 'Watching', progress: 'Ep 11 / 13', from: '#7c3aed', to: '#ec4899' },
-    { title: 'Jujutsu Kaisen', status: 'Watching', progress: 'Ep 18 / 23', from: '#dc2626', to: '#f97316' },
-    { title: 'Dandadan', status: 'Watching', progress: 'Ep 7 / 12', from: '#10b981', to: '#06b6d4' },
-    { title: 'Apothecary Diaries', status: 'Watching', progress: 'Ep 14 / 24', from: '#a855f7', to: '#6366f1' },
-    { title: 'Bleach: TYBW', status: 'Watching', progress: 'Ep 9 / 13', from: '#0ea5e9' , to: '#1e3a8a' },
-]
+function progressLabel(anime: AnimeCard): string {
+    if (anime.episodes) {
+        return `${anime.episodes} ep`
+    }
+    if (anime.format) {
+        return anime.format.replace(/_/g, ' ')
+    }
+    return ''
+}
 
 interface Feature {
     label: string
@@ -56,15 +67,20 @@ const features: Feature[] = [
     },
 ]
 
-// NOTE: stat copy below is intentionally non-numeric where we cannot back the
-// number up. Adjust "10K+ anime in database" to the real catalogue size before
-// pointing ad spend at this page.
-const stats = [
-    { value: '10K+', label: 'Anime in database' },
+const animeStat = computed(() => {
+    if (props.totalAnime >= 1000) {
+        const thousands = Math.floor(props.totalAnime / 1000)
+        return `${thousands}K+`
+    }
+    return `${props.totalAnime}+`
+})
+
+const stats = computed(() => [
+    { value: animeStat.value, label: 'Anime in database' },
     { value: '100%', label: 'Free, forever' },
     { value: '0', label: 'Ads, ever' },
     { value: '<30s', label: 'To get set up' },
-]
+])
 </script>
 
 <template>
@@ -94,7 +110,7 @@ const stats = [
             <!-- Hero -->
             <section class="relative overflow-hidden">
                 <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_-10%,rgba(99,102,241,0.18),transparent_70%)]"></div>
-                <div class="container relative mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-20">
+                <div class="container relative mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-16">
                     <div class="mx-auto max-w-3xl text-center">
                         <span class="inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-3 py-1 text-xs font-medium text-primary-300">
                             <span class="h-1.5 w-1.5 rounded-full bg-primary-400"></span>
@@ -113,27 +129,20 @@ const stats = [
                             Get notified when new episodes drop and pick up where you left off on any device.
                         </p>
 
-                        <form
-                            class="mx-auto mt-8 flex w-full max-w-lg flex-col gap-2 sm:flex-row"
-                            @submit.prevent="handoff(heroEmail)"
-                        >
-                            <label for="hero-email" class="sr-only">Email address</label>
-                            <input
-                                id="hero-email"
-                                v-model="heroEmail"
-                                type="email"
-                                required
-                                autocomplete="email"
-                                placeholder="you@example.com"
-                                class="w-full flex-1 rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-3 text-gray-100 placeholder:text-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
-                            />
-                            <button
-                                type="submit"
-                                class="rounded-lg bg-primary-600 px-5 py-3 font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
+                        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <Link
+                                :href="route('register')"
+                                class="rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg shadow-primary-950/50 transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
                             >
-                                Start tracking — free
-                            </button>
-                        </form>
+                                Sign up free
+                            </Link>
+                            <Link
+                                :href="route('login')"
+                                class="rounded-lg border border-gray-700 bg-gray-900/60 px-6 py-3 font-semibold text-gray-200 transition hover:border-gray-600 hover:bg-gray-800"
+                            >
+                                I already have an account
+                            </Link>
+                        </div>
 
                         <ul class="mx-auto mt-5 flex max-w-lg flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-gray-400">
                             <li v-for="claim in ['Free forever', 'No credit card', 'No ads, ever']" :key="claim" class="flex items-center gap-1.5">
@@ -144,51 +153,87 @@ const stats = [
                             </li>
                         </ul>
                     </div>
+                </div>
+            </section>
 
-                    <!-- Mock dashboard preview -->
-                    <div class="mx-auto mt-14 max-w-5xl">
-                        <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/60 shadow-2xl shadow-primary-950/40">
-                            <!-- Browser chrome -->
-                            <div class="flex items-center gap-2 border-b border-gray-800 bg-gray-950/80 px-4 py-2.5">
-                                <div class="flex gap-1.5">
-                                    <span class="h-2.5 w-2.5 rounded-full bg-red-500/70"></span>
-                                    <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/70"></span>
-                                    <span class="h-2.5 w-2.5 rounded-full bg-green-500/70"></span>
-                                </div>
-                                <div class="ml-3 flex-1 truncate rounded-md bg-gray-800/70 px-3 py-1 text-center text-xs text-gray-400">
-                                    anitrack.app/my-list
-                                </div>
+            <!-- Live anime explorer -->
+            <section class="container mx-auto px-4 pb-16 sm:pb-24">
+                <div class="mx-auto max-w-5xl">
+                    <div class="mb-5 text-center">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-primary-400">Try it now</p>
+                        <h2 class="mt-2 text-2xl font-bold text-gray-50 sm:text-3xl">
+                            Search {{ animeStat }} anime in our database
+                        </h2>
+                        <p class="mt-2 text-sm text-gray-400">
+                            Find a show, then sign up to add it to your list.
+                        </p>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/60">
+                        <div class="border-b border-gray-800 bg-gray-950/60 p-3 sm:p-4">
+                            <div class="relative">
+                                <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                </svg>
+                                <input
+                                    v-model="query"
+                                    type="search"
+                                    placeholder="Search Frieren, Solo Leveling, anything..."
+                                    class="w-full rounded-lg border border-gray-700 bg-gray-900 py-3 pl-10 pr-4 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                                />
                             </div>
+                        </div>
 
-                            <!-- Poster grid -->
-                            <div class="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3 sm:gap-4 sm:p-6">
-                                <div
-                                    v-for="poster in posters"
-                                    :key="poster.title"
-                                    class="group rounded-lg border border-gray-800 bg-gray-950/40 p-2 transition hover:border-primary-500/40"
+                        <div class="p-4 sm:p-6">
+                            <div v-if="showingSearch && isLoading && displayed.length === 0" class="py-12 text-center text-sm text-gray-500">
+                                Searching...
+                            </div>
+                            <div v-else-if="showingSearch && displayed.length === 0" class="py-12 text-center text-sm text-gray-500">
+                                No anime matched "{{ query }}". Try another title.
+                            </div>
+                            <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6">
+                                <Link
+                                    v-for="anime in displayed"
+                                    :key="anime.id ?? anime.anilist_id"
+                                    :href="animeUrl(anime)"
+                                    class="group block rounded-lg border border-gray-800 bg-gray-950/40 p-2 transition hover:border-primary-500/40 hover:bg-gray-900"
                                 >
-                                    <div
-                                        class="relative aspect-[3/4] overflow-hidden rounded-md"
-                                        :style="`background-image: linear-gradient(135deg, ${poster.from}, ${poster.to});`"
-                                    >
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-                                        <p class="absolute inset-x-2 bottom-2 text-center text-sm font-semibold text-white drop-shadow">
-                                            {{ poster.title }}
-                                        </p>
+                                    <div class="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-800">
+                                        <img
+                                            v-if="anime.cover_image_medium"
+                                            :src="anime.cover_image_medium"
+                                            :alt="displayTitle(anime)"
+                                            loading="lazy"
+                                            class="h-full w-full object-cover transition group-hover:scale-105"
+                                        />
+                                        <span
+                                            v-if="anime.average_score"
+                                            class="absolute right-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-primary-300 backdrop-blur"
+                                        >
+                                            {{ anime.average_score.toFixed(1) }}
+                                        </span>
                                     </div>
-                                    <p class="mt-2 flex items-center justify-between px-1 text-xs">
-                                        <span class="text-primary-300">{{ poster.status }}</span>
-                                        <span class="text-gray-500">{{ poster.progress }}</span>
+                                    <p class="mt-2 line-clamp-1 px-1 text-xs font-medium text-gray-100">
+                                        {{ displayTitle(anime) }}
                                     </p>
-                                </div>
+                                    <p class="mt-0.5 line-clamp-1 px-1 text-[11px] text-gray-500">
+                                        {{ progressLabel(anime) }}
+                                    </p>
+                                </Link>
                             </div>
                         </div>
                     </div>
+
+                    <p class="mt-4 text-center text-xs text-gray-500">
+                        Found something to watch?
+                        <Link :href="route('register')" class="font-semibold text-primary-400 hover:text-primary-300">Create a free account</Link>
+                        to start tracking.
+                    </p>
                 </div>
             </section>
 
             <!-- Features -->
-            <section class="container mx-auto px-4 py-16 sm:py-24">
+            <section class="container mx-auto px-4 pb-16 sm:pb-24">
                 <div class="mx-auto max-w-5xl rounded-2xl border border-gray-800 bg-gray-950">
                     <div class="grid grid-cols-1 divide-y divide-gray-800 md:grid-cols-3 md:divide-x md:divide-y-0">
                         <div v-for="feature in features" :key="feature.label" class="p-8 sm:p-10">
@@ -250,30 +295,17 @@ const stats = [
                         <span class="bg-gradient-to-r from-primary-300 to-fuchsia-400 bg-clip-text text-transparent">It's free.</span>
                     </h2>
 
-                    <form
-                        class="mx-auto mt-8 flex w-full max-w-lg flex-col gap-2 sm:flex-row"
-                        @submit.prevent="handoff(ctaEmail)"
-                    >
-                        <label for="cta-email" class="sr-only">Email address</label>
-                        <input
-                            id="cta-email"
-                            v-model="ctaEmail"
-                            type="email"
-                            required
-                            autocomplete="email"
-                            placeholder="you@example.com"
-                            class="w-full flex-1 rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-3 text-gray-100 placeholder:text-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
-                        />
-                        <button
-                            type="submit"
-                            class="rounded-lg bg-primary-600 px-5 py-3 font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
+                    <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                        <Link
+                            :href="route('register')"
+                            class="rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg shadow-primary-950/50 transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
                         >
-                            Create account
-                        </button>
-                    </form>
+                            Create your account
+                        </Link>
+                    </div>
 
                     <p class="mt-4 text-sm text-gray-500">
-                        Create your account in under thirty seconds. No card, no trial, no catch.
+                        Under thirty seconds. No card, no trial, no catch.
                     </p>
                 </div>
             </section>

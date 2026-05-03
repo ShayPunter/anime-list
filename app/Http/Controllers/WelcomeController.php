@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AnimeCardResource;
+use App\Models\Anime;
 use App\Services\FeatureFlagService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +22,27 @@ class WelcomeController extends Controller
             abort(404);
         }
 
-        return Inertia::render('WelcomePage');
+        $featuredAnime = Cache::remember('welcome:featured_anime', 21600, function () {
+            return AnimeCardResource::collection(
+                Anime::query()
+                    ->where('is_adult', false)
+                    ->whereNotNull('cover_image_medium')
+                    ->orderByDesc('popularity')
+                    ->with('genres')
+                    ->limit(12)
+                    ->get()
+            )->resolve();
+        });
+
+        $totalAnime = Cache::remember(
+            'welcome:total_anime',
+            86400,
+            fn () => Anime::query()->where('is_adult', false)->count(),
+        );
+
+        return Inertia::render('WelcomePage', [
+            'featuredAnime' => $featuredAnime,
+            'totalAnime' => $totalAnime,
+        ]);
     }
 }
