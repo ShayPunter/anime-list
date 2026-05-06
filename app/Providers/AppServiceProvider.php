@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\AniListClient;
+use App\Services\FeatureFlagService;
 use GuzzleHttp\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -19,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->scoped(FeatureFlagService::class);
+
         $this->app->singleton(AniListClient::class, function ($app) {
             $guzzle = new Client([
                 'base_uri' => config('anilist.endpoint'),
