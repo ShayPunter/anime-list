@@ -86,8 +86,9 @@ class AnimeController extends Controller
             $anime->saveQuietly();
         }
 
-        // Resolve relations so season chains are available immediately
-        ResolveAnimeRelations::dispatchSync();
+        // Queue relation resolution; running it synchronously here ties up the
+        // request's DB connection while the job pops from Redis and upserts.
+        ResolveAnimeRelations::dispatch()->onQueue('import');
 
         return redirect()->route('anime.show', $anime);
     }
