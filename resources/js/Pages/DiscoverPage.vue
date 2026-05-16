@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import AnimeCard from '@/Components/AnimeCard.vue'
 import ScoreBadge from '@/Components/ScoreBadge.vue'
+import SearchBar from '@/Components/SearchBar.vue'
 import { useDiscoverMood, type DiscoverLength } from '@/composables/useDiscoverMood'
 import type { AnimeCard as AnimeCardType } from '@/types/anime'
 
@@ -75,22 +76,33 @@ function animeUrl(anime: AnimeCardType): string {
 
 <template>
     <Head title="Discover">
-        <meta name="description" content="Discover anime by mood, find hidden gems, and see what's trending this week on AniTrack." />
+        <meta name="description" content="AniTrack — discover, track and manage your anime. Find what to watch next by mood, see what's trending this week, and uncover hidden gems." />
         <link rel="canonical" :href="route('discover')" />
-        <meta property="og:title" content="Discover — AniTrack" />
-        <meta property="og:description" content="Find anime by mood, length, and taste." />
+        <meta property="og:title" content="AniTrack — Discover, track and manage your anime" />
+        <meta property="og:description" content="Discover, track and manage your anime — all in one place." />
         <meta property="og:type" content="website" />
     </Head>
 
-    <div class="space-y-14">
-        <!-- I'm in the mood for -->
-        <section>
-            <header class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-100">Discover</h1>
-                <p class="mt-1 text-gray-400">Start with a mood — we'll do the rest.</p>
-            </header>
+    <div class="space-y-20">
+        <!-- Hero / Search -->
+        <section class="pt-6 pb-2 text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-100 sm:text-5xl">
+                AniTrack
+            </h1>
+            <p class="mx-auto mt-3 max-w-xl text-base text-gray-400 sm:text-lg">
+                Discover, track and manage your anime.
+            </p>
+            <div class="mx-auto mt-8 max-w-xl">
+                <SearchBar />
+            </div>
+        </section>
 
-            <h2 class="mb-4 text-lg font-semibold text-gray-200">I'm in the mood for…</h2>
+        <!-- Mood Picker -->
+        <section>
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">I'm in the mood for…</h2>
+                <p class="mt-1 text-sm text-gray-400">Pick a vibe and we'll find a match.</p>
+            </header>
 
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 <button
@@ -138,21 +150,22 @@ function animeUrl(anime: AnimeCardType): string {
                 </button>
             </div>
 
-            <!-- Mood results -->
+            <!-- Mood results (horizontal scroller) -->
             <div v-if="activeMood" class="mt-8">
                 <div v-if="moodLoading" class="py-12 text-center text-gray-500">
                     Finding matches…
                 </div>
                 <div
                     v-else-if="moodResults.length"
-                    class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+                    class="flex gap-4 overflow-x-auto pb-4"
                 >
-                    <AnimeCard
+                    <div
                         v-for="anime in moodResults"
                         :key="anime.id ?? anime.anilist_id"
-                        :anime="anime"
-                        view-mode="grid"
-                    />
+                        class="w-40 shrink-0 sm:w-44"
+                    >
+                        <AnimeCard :anime="anime" view-mode="grid" />
+                    </div>
                 </div>
                 <div v-else class="py-12 text-center text-gray-500">
                     No matches for that combination. Try a different length.
@@ -160,23 +173,62 @@ function animeUrl(anime: AnimeCardType): string {
             </div>
         </section>
 
+        <!-- Trending this week (horizontal scroller with rank) -->
+        <section v-if="trending.length">
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">Trending this week</h2>
+                <p class="mt-1 text-sm text-gray-400">The top 10 right now.</p>
+            </header>
+
+            <div class="flex gap-4 overflow-x-auto pb-4">
+                <Link
+                    v-for="(anime, index) in trending"
+                    :key="anime.id ?? anime.anilist_id"
+                    :href="animeUrl(anime)"
+                    class="group relative w-40 shrink-0 sm:w-44"
+                >
+                    <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">
+                        <img
+                            v-if="anime.cover_image_large || anime.cover_image_medium"
+                            :src="(anime.cover_image_large || anime.cover_image_medium) ?? undefined"
+                            :alt="displayTitle(anime)"
+                            class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            loading="lazy"
+                        />
+                        <div
+                            class="absolute -bottom-2 -left-2 text-6xl font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:text-7xl"
+                            style="-webkit-text-stroke: 2px rgb(17 24 39);"
+                        >
+                            {{ index + 1 }}
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-right">
+                            <ScoreBadge :score="anime.average_score" size="sm" />
+                        </div>
+                    </div>
+                    <h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400">
+                        {{ displayTitle(anime) }}
+                    </h3>
+                </Link>
+            </div>
+        </section>
+
         <!-- More Like It -->
         <section v-if="moreLikeIt">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-100">More like it</h2>
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">More like it</h2>
                 <p class="mt-1 text-sm text-gray-400">
                     Because you liked
                     <Link :href="animeUrl(moreLikeIt.anchor)" class="font-medium text-primary-400 hover:text-primary-300">
                         {{ displayTitle(moreLikeIt.anchor) }}
                     </Link>
                 </p>
-            </div>
+            </header>
 
             <div class="flex gap-4 overflow-x-auto pb-4">
                 <div
                     v-for="anime in moreLikeIt.similar"
                     :key="anime.id ?? anime.anilist_id"
-                    class="w-36 shrink-0"
+                    class="w-40 shrink-0 sm:w-44"
                 >
                     <AnimeCard :anime="anime" view-mode="grid" />
                 </div>
@@ -185,21 +237,24 @@ function animeUrl(anime: AnimeCardType): string {
 
         <!-- Picked For You -->
         <section v-if="pickedForYou && pickedForYou.items.length">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-100">Picked for you</h2>
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">Picked for you</h2>
                 <p class="mt-1 text-sm text-gray-400">Tuned to the titles you've rated.</p>
-            </div>
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                <AnimeCard
+            </header>
+            <div class="flex gap-4 overflow-x-auto pb-4">
+                <div
                     v-for="anime in pickedForYou.items"
                     :key="anime.id ?? anime.anilist_id"
-                    :anime="anime"
-                    view-mode="grid"
-                />
+                    class="w-40 shrink-0 sm:w-44"
+                >
+                    <AnimeCard :anime="anime" view-mode="grid" />
+                </div>
             </div>
         </section>
         <section v-else-if="pickedForYou">
-            <h2 class="mb-3 text-xl font-bold text-gray-100">Picked for you</h2>
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">Picked for you</h2>
+            </header>
             <div class="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-8 text-center">
                 <p class="text-gray-300">Rate a few titles you've enjoyed and we'll tune recommendations to your taste.</p>
             </div>
@@ -207,61 +262,19 @@ function animeUrl(anime: AnimeCardType): string {
 
         <!-- Hidden Gems -->
         <section v-if="hiddenGems.length">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-100">Hidden gems</h2>
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">Hidden gems</h2>
                 <p class="mt-1 text-sm text-gray-400">Highly rated, rarely watched.</p>
-            </div>
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                <AnimeCard
+            </header>
+            <div class="flex gap-4 overflow-x-auto pb-4">
+                <div
                     v-for="anime in hiddenGems"
                     :key="anime.id ?? anime.anilist_id"
-                    :anime="anime"
-                    view-mode="grid"
-                />
-            </div>
-        </section>
-
-        <!-- Trending Top 10 -->
-        <section v-if="trending.length">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-100">Trending this week</h2>
-                <p class="mt-1 text-sm text-gray-400">The top 10 right now.</p>
-            </div>
-            <ol class="space-y-3">
-                <li
-                    v-for="(anime, index) in trending"
-                    :key="anime.id ?? anime.anilist_id"
-                    class="flex items-center gap-4 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition hover:border-gray-700"
+                    class="w-40 shrink-0 sm:w-44"
                 >
-                    <div class="w-10 shrink-0 text-center text-3xl font-bold text-gray-600 tabular-nums">
-                        {{ index + 1 }}
-                    </div>
-                    <Link
-                        :href="animeUrl(anime)"
-                        class="flex min-w-0 flex-1 items-center gap-4"
-                    >
-                        <div class="h-20 w-14 shrink-0 overflow-hidden rounded bg-gray-800">
-                            <img
-                                v-if="anime.cover_image_medium || anime.cover_image_large"
-                                :src="(anime.cover_image_medium || anime.cover_image_large) ?? undefined"
-                                :alt="displayTitle(anime)"
-                                class="h-full w-full object-cover"
-                                loading="lazy"
-                            />
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="truncate text-base font-semibold text-gray-100">
-                                {{ displayTitle(anime) }}
-                            </h3>
-                            <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                                <span v-if="anime.format">{{ anime.format.replace(/_/g, ' ') }}</span>
-                                <span v-if="anime.season_year">{{ anime.season_year }}</span>
-                                <ScoreBadge :score="anime.average_score" size="sm" />
-                            </div>
-                        </div>
-                    </Link>
-                </li>
-            </ol>
+                    <AnimeCard :anime="anime" view-mode="grid" />
+                </div>
+            </div>
         </section>
     </div>
 </template>
