@@ -35,7 +35,8 @@ class SyncAnimePage implements ShouldQueue
     public function handle(AniListClient $client, AnimeDataPersistenceService $persistenceService): void
     {
         $query = match ($this->mode) {
-            'incremental' => AniListQueryBuilder::updatedSince(),
+            'incremental' => AniListQueryBuilder::updatedSince(false),
+            'finished_incremental' => AniListQueryBuilder::updatedSince(true),
             'targeted' => AniListQueryBuilder::animeByStatus(),
             default => AniListQueryBuilder::animePage(),
         };
@@ -114,7 +115,7 @@ class SyncAnimePage implements ShouldQueue
         // In incremental mode, stop when all items on page are older than cutoff
         $shouldContinue = $pageInfo['hasNextPage'] ?? false;
 
-        if ($shouldContinue && $this->mode === 'incremental' && $this->updatedAtGreater !== null && ! empty($mediaItems)) {
+        if ($shouldContinue && in_array($this->mode, ['incremental', 'finished_incremental'], true) && $this->updatedAtGreater !== null && ! empty($mediaItems)) {
             $allOlderThanCutoff = collect($mediaItems)->every(
                 fn ($item) => ($item['updatedAt'] ?? 0) <= $this->updatedAtGreater
             );
@@ -152,8 +153,8 @@ class SyncAnimePage implements ShouldQueue
                 ->onQueue('import')
                 ->delay($delay);
 
-            if ($this->mode === 'incremental') {
-                Cache::forever('sync:incremental:last_run', now()->timestamp);
+            if (in_array($this->mode, ['incremental', 'finished_incremental'], true)) {
+                Cache::forever("sync:{$this->mode}:last_run", now()->timestamp);
             }
 
             Log::info("Sync {$this->mode} page sweep complete", ['total_pages' => $this->page]);

@@ -15,6 +15,7 @@ class SyncAnimeCommand extends Command
                             {--status= : Sync only anime with this AniList status (RELEASING, NOT_YET_RELEASED, etc.)}
                             {--season= : Sync only this season (WINTER, SPRING, SUMMER, FALL)}
                             {--season-year= : Sync only this year (e.g. 2026)}
+                            {--finished : Run incremental sync limited to FINISHED anime (defaults to a 31-day cutoff)}
                             {--watch : Watch progress after dispatching}';
 
     protected $description = 'Sync anime data from AniList API';
@@ -29,6 +30,9 @@ class SyncAnimeCommand extends Command
         } elseif ($this->option('full') || $this->option('page') || $this->option('resume')) {
             $result = $this->runFullSync($progressTtl);
             $mode = 'full';
+        } elseif ($this->option('finished')) {
+            $result = $this->runFinishedIncrementalSync($progressTtl);
+            $mode = 'finished_incremental';
         } else {
             $result = $this->runIncrementalSync($progressTtl);
             $mode = 'incremental';
@@ -153,6 +157,37 @@ class SyncAnimeCommand extends Command
         )->onQueue('sync');
 
         $this->info('Incremental sync dispatched.');
+
+        if (! $this->option('watch')) {
+            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
+        }
+
+        return self::SUCCESS;
+    }
+
+    private function runFinishedIncrementalSync(int $progressTtl): int
+    {
+        $lastRun = Cache::get('sync:finished_incremental:last_run');
+        $updatedAtGreater = $lastRun ?? now()->subDays(31)->timestamp;
+
+        $this->info('Running FINISHED-only incremental sync for anime updated since '.date('Y-m-d H:i:s', $updatedAtGreater));
+
+        Cache::put('sync:finished_incremental:status', 'running', $progressTtl);
+        Cache::put('sync:finished_incremental:progress', [
+            'last_completed_page' => 0,
+            'last_page' => 0,
+            'total' => 0,
+            'started_at' => now()->toIso8601String(),
+        ], $progressTtl);
+
+        SyncAnimePage::dispatch(
+            page: 1,
+            perPage: config('anilist.sync.per_page', 50),
+            mode: 'finished_incremental',
+            updatedAtGreater: $updatedAtGreater,
+        )->onQueue('sync');
+
+        $this->info('Finished-anime incremental sync dispatched.');
 
         if (! $this->option('watch')) {
             $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
