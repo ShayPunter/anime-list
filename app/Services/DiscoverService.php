@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\AnimeCardResource;
 use App\Models\Anime;
+use App\Models\AiringSchedule;
 use App\Models\Genre;
 use App\Models\Recommendation;
 use App\Models\User;
@@ -104,6 +105,40 @@ class DiscoverService
                 ->get();
 
             return AnimeCardResource::collection($results)->resolve();
+        });
+    }
+
+    public function recentlyUpdated(int $limit = 12): array
+    {
+        return Cache::remember("discover:recently_updated:{$limit}", 1800, function () use ($limit) {
+            // Oversample so we have room to dedupe by anime — a batch of episodes
+            // often airs at the same time, and we only want each show once.
+            $schedules = AiringSchedule::query()
+                ->whereBetween('airs_at', [now()->subDays(14), now()])
+                ->whereHas('anime', fn ($q) => $q->where('is_adult', false))
+                ->with(['anime' => fn ($q) => $q->with(['genres', 'nextAiringEpisode'])])
+                ->orderByDesc('airs_at')
+                ->limit($limit * 5)
+                ->get();
+
+            $seen = [];
+            $items = [];
+            foreach ($schedules as $schedule) {
+                if (! $schedule->anime || isset($seen[$schedule->anime_id])) {
+                    continue;
+                }
+                $seen[$schedule->anime_id] = true;
+                $items[] = [
+                    'anime' => (new AnimeCardResource($schedule->anime))->resolve(request()),
+                    'latest_episode' => (int) $schedule->episode,
+                    'aired_at' => $schedule->airs_at->toIso8601String(),
+                ];
+                if (count($items) >= $limit) {
+                    break;
+                }
+            }
+
+            return $items;
         });
     }
 

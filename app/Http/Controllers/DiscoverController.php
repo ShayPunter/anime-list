@@ -24,6 +24,7 @@ class DiscoverController extends Controller
         $props = [
             'moods' => $this->service->moods(),
             'trending' => $this->service->trendingTop10(),
+            'recentlyUpdated' => $this->service->recentlyUpdated(),
             'hiddenGems' => $this->service->hiddenGems(),
             'lengths' => [
                 ['value' => DiscoverService::LENGTH_SHORT, 'label' => 'Short (1–12 eps)'],
