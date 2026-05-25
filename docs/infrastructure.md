@@ -14,7 +14,7 @@ Laravel Herd provides a native PHP environment on Windows without Docker.
 - Laravel Herd installed with PHP 8.4
 - MySQL 8 running locally (via Herd or standalone)
 - Redis running locally
-- Node.js 22+ and pnpm installed
+- Node.js 22+ and npm installed
 
 **Steps:**
 
@@ -40,8 +40,8 @@ php artisan key:generate
 php artisan migrate
 
 # 6. Install frontend dependencies and start Vite dev server
-pnpm install
-pnpm dev
+npm install
+npm run dev
 
 # 7. (Optional) Start Horizon for queue processing
 php artisan horizon
@@ -142,7 +142,7 @@ All services are defined in `docker-compose.yml` at the project root.
 - **Ports:** `5173:5173`
 - **Volumes:** Project root to `/var/www/html`; `node_modules` as a named volume
 - **Working directory:** `/var/www/html`
-- **Command:** `sh -c "npm install -g pnpm && pnpm install && pnpm dev"`
+- **Command:** `sh -c "npm install && npm run dev"`
 
 #### mysql
 
@@ -580,7 +580,7 @@ AniTrack uses **Laravel Forge** for production deployment. Docker is **not used 
 | Nginx               | nginx:alpine container                | System Nginx managed by Forge        |
 | MySQL               | mysql:8.4 container                   | Managed MySQL or external service    |
 | Redis               | redis:alpine container                | Managed Redis or external service    |
-| Vite                | node:22-alpine container (dev server) | `pnpm build` during deploy (no dev server) |
+| Vite                | node:22-alpine container (dev server) | `npm run build` during deploy (no dev server) |
 | Mail                | MailHog container                     | Real SMTP provider                   |
 | Queue               | Horizon container                     | Horizon daemon via Forge             |
 | Scheduler           | scheduler container                   | System cron via Forge                |
@@ -596,8 +596,8 @@ git pull origin main
 
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-pnpm install
-pnpm build
+npm ci
+npm run build
 
 php artisan migrate --force
 php artisan config:cache
@@ -614,6 +614,6 @@ Forge automatically restarts the Horizon daemon after deployment.
 
 - **No Docker:** The production server runs services natively, not in containers.
 - **ext-pcntl:** Available on the Linux production server (unlike Windows local dev), so `--ignore-platform-reqs` is not needed.
-- **Vite:** Only `pnpm build` runs during deployment to generate static assets. There is no Vite dev server in production.
+- **Vite:** Only `npm run build` runs during deployment to generate static assets. There is no Vite dev server in production.
 - **Horizon auth:** Add your email to the allowlist in `HorizonServiceProvider@gate` before deploying.
 - **Dark mode only:** No light theme -- the UI uses PrimeVue 4 with the Aura theme and `.dark` CSS selector.
