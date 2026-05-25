@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Type-check and build
-    runs-on: [self-hosted, Linux, X64, docker, easypanel, full]
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: chrome-extension
