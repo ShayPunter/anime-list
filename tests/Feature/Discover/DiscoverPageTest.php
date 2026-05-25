@@ -7,27 +7,23 @@ use App\Models\Genre;
 use App\Models\Recommendation;
 use App\Models\User;
 use App\Models\UserAnimeList;
-use App\Services\FeatureFlagService;
 use Tests\TestCase;
 
 class DiscoverPageTest extends TestCase
 {
-    public function test_discover_page_is_404_when_flag_disabled_for_guest(): void
+    public function test_discover_page_renders_at_root_for_guest(): void
     {
-        $this->get('/discover')->assertNotFound();
+        $this->get('/')->assertOk();
     }
 
-    public function test_discover_page_renders_when_flag_enabled_globally(): void
+    public function test_legacy_discover_url_redirects_to_root(): void
     {
-        app(FeatureFlagService::class)->setGlobalStatus('discover-page', 'everyone');
-
-        $this->get('/discover')->assertOk();
+        $this->get('/discover')->assertRedirect('/');
     }
 
     public function test_discover_page_renders_personalized_sections_for_authenticated_user(): void
     {
         $user = User::factory()->create();
-        app(FeatureFlagService::class)->activateForUser('discover-page', $user);
 
         $anchor = Anime::factory()->create(['is_adult' => false]);
         $similar = Anime::factory()->create(['is_adult' => false]);
@@ -47,21 +43,18 @@ class DiscoverPageTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get('/discover')
+            ->get('/')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('DiscoverPage')
                 ->has('moods')
                 ->has('lengths', 4)
                 ->has('moreLikeIt')
-                ->has('pickedForYou')
             );
     }
 
     public function test_mood_endpoint_filters_by_genre(): void
     {
-        app(FeatureFlagService::class)->setGlobalStatus('discover-page', 'everyone');
-
         $sliceOfLife = Genre::factory()->create(['name' => 'Slice of Life']);
         $thriller = Genre::factory()->create(['name' => 'Thriller']);
 
@@ -88,10 +81,5 @@ class DiscoverPageTest extends TestCase
         $titles = collect($response->json('data'))->pluck('title_english')->all();
         $this->assertContains('Cozy Title', $titles);
         $this->assertNotContains('Tense Title', $titles);
-    }
-
-    public function test_mood_endpoint_is_404_when_flag_disabled(): void
-    {
-        $this->getJson('/api/discover/mood/cozy-and-slow')->assertNotFound();
     }
 }

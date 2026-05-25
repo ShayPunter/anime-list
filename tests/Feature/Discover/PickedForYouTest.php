@@ -15,10 +15,9 @@ class PickedForYouTest extends TestCase
     public function test_picked_for_you_is_null_when_feature_flag_is_off(): void
     {
         $user = User::factory()->create();
-        app(FeatureFlagService::class)->activateForUser('discover-page', $user);
 
         $this->actingAs($user)
-            ->get('/discover')
+            ->get('/')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('DiscoverPage')
@@ -29,9 +28,7 @@ class PickedForYouTest extends TestCase
     public function test_picked_for_you_surfaces_precomputed_recommendations_when_present(): void
     {
         $user = User::factory()->create();
-        $features = app(FeatureFlagService::class);
-        $features->activateForUser('discover-page', $user);
-        $features->activateForUser('picked-for-you', $user);
+        app(FeatureFlagService::class)->activateForUser('picked-for-you', $user);
 
         $target = Anime::factory()->create([
             'title_english' => 'Precomputed Pick',
@@ -48,7 +45,7 @@ class PickedForYouTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get('/discover')
+            ->get('/')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('DiscoverPage')
@@ -61,9 +58,7 @@ class PickedForYouTest extends TestCase
     public function test_picked_for_you_falls_back_to_live_compute_when_table_is_empty(): void
     {
         $user = User::factory()->create();
-        $features = app(FeatureFlagService::class);
-        $features->activateForUser('discover-page', $user);
-        $features->activateForUser('picked-for-you', $user);
+        app(FeatureFlagService::class)->activateForUser('picked-for-you', $user);
 
         $action = Genre::factory()->create(['name' => 'Action']);
 
@@ -85,7 +80,7 @@ class PickedForYouTest extends TestCase
         $candidate->genres()->attach($action);
 
         $this->actingAs($user)
-            ->get('/discover')
+            ->get('/')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('DiscoverPage')

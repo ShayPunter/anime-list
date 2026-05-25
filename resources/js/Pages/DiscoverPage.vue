@@ -77,7 +77,7 @@ function animeUrl(anime: AnimeCardType): string {
 <template>
     <Head title="Discover">
         <meta name="description" content="AniTrack — discover, track and manage your anime. Find what to watch next by mood, see what's trending this week, and uncover hidden gems." />
-        <link rel="canonical" :href="route('discover')" />
+        <link rel="canonical" :href="route('home')" />
         <meta property="og:title" content="AniTrack — Discover, track and manage your anime" />
         <meta property="og:description" content="Discover, track and manage your anime — all in one place." />
         <meta property="og:type" content="website" />

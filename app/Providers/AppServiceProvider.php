@@ -72,7 +72,6 @@ class AppServiceProvider extends ServiceProvider
         Feature::define('studio-pages', fn ($user) => false);
         Feature::define('voice-actor-pages', fn ($user) => false);
         Feature::define('public-api', fn ($user) => false);
-        Feature::define('discover-page', fn ($user) => false);
         Feature::define('picked-for-you', fn ($user) => false);
         Feature::define('episodes-tab', fn ($user) => true);
         Feature::define('landing-page', fn ($user) => false);
