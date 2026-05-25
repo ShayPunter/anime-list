@@ -107,12 +107,12 @@ class AdminJobObservabilityController extends Controller
 
         $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
         $syncStates = [];
-        foreach (['full', 'incremental', 'targeted', 'schedule'] as $mode) {
+        foreach (['full', 'incremental', 'finished_incremental', 'targeted', 'schedule'] as $mode) {
             $syncStates[$mode] = [
                 'status' => Cache::get("sync:{$mode}:status", 'unknown'),
                 'progress' => Cache::get("sync:{$mode}:progress"),
-                'last_run' => $mode === 'incremental'
-                    ? Cache::get('sync:incremental:last_run')
+                'last_run' => in_array($mode, ['incremental', 'finished_incremental'], true)
+                    ? Cache::get("sync:{$mode}:last_run")
                     : null,
             ];
         }

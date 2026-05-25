@@ -332,7 +332,7 @@ function progressPercent(state: SyncState): number | null {
                         </div>
                     </div>
                     <div v-else class="mt-2 text-xs text-gray-600">No active progress</div>
-                    <div v-if="mode === 'incremental' && state.last_run" class="mt-1 text-[11px] text-gray-600">
+                    <div v-if="state.last_run" class="mt-1 text-[11px] text-gray-600">
                         Last run cutoff {{ formatTimestamp(state.last_run) }}
                     </div>
                 </div>
