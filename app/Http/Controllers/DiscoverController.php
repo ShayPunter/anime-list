@@ -19,8 +19,6 @@ class DiscoverController extends Controller
 
     public function index(): Response
     {
-        $this->ensureEnabled();
-
         $user = Auth::user();
 
         $props = [
@@ -44,8 +42,6 @@ class DiscoverController extends Controller
 
     public function mood(Request $request, string $slug): JsonResponse
     {
-        $this->ensureEnabled();
-
         $length = $request->string('length')->toString() ?: null;
         if ($length && ! in_array($length, DiscoverService::LENGTHS, true)) {
             $length = null;
@@ -58,12 +54,5 @@ class DiscoverController extends Controller
             'length' => $length,
             'data' => $results,
         ]);
-    }
-
-    private function ensureEnabled(): void
-    {
-        if (! $this->featureFlags->active('discover-page', Auth::user())) {
-            abort(404);
-        }
     }
 }

@@ -17,7 +17,6 @@ use App\Http\Controllers\Auth\PasskeyController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DevelopersController;
 use App\Http\Controllers\DiscoverController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlaylistController;
@@ -38,7 +37,7 @@ use Inertia\Inertia;
 Route::get('/sitemap.xml', SitemapController::class);
 
 // Public pages
-Route::get('/', HomeController::class)->name('home');
+Route::get('/', [DiscoverController::class, 'index'])->name('home');
 Route::get('/welcome', WelcomeController::class)->name('welcome');
 Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', function (int $id) {
@@ -69,8 +68,8 @@ Route::get('/alternatives', fn () => Inertia::render('AlternativesPage'))->name(
 Route::get('/top', [TopAnimeController::class, 'rated'])->name('top.rated');
 Route::get('/top/popular', [TopAnimeController::class, 'popular'])->name('top.popular');
 
-// Discover (gated behind the `discover-page` Pennant flag at the controller level)
-Route::get('/discover', [DiscoverController::class, 'index'])->name('discover');
+// Discover is now the home page; keep /discover as a permanent redirect for old links.
+Route::permanentRedirect('/discover', '/');
 Route::get('/api/discover/mood/{slug}', [DiscoverController::class, 'mood'])
     ->middleware('throttle:api')
     ->where('slug', '[a-z0-9-]+')
