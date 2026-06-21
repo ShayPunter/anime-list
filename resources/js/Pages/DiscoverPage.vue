@@ -32,9 +32,16 @@ interface PickedForYou {
     items: AnimeCardType[]
 }
 
+interface RecentlyUpdatedItem {
+    anime: AnimeCardType
+    latest_episode: number
+    aired_at: string
+}
+
 defineProps<{
     moods: Mood[]
     trending: AnimeCardType[]
+    recentlyUpdated: RecentlyUpdatedItem[]
     hiddenGems: AnimeCardType[]
     lengths: LengthOption[]
     moreLikeIt: MoreLikeIt | null
@@ -71,6 +78,17 @@ function animeUrl(anime: AnimeCardType): string {
         return route('anime.show.anilist', { anilistId: anime.anilist_id })
     }
     return '#'
+}
+
+function airedAgo(iso: string): string {
+    const diffMs = Date.now() - new Date(iso).getTime()
+    if (diffMs < 0) return 'just now'
+    const minutes = Math.floor(diffMs / 60000)
+    if (minutes < 60) return minutes <= 1 ? 'just now' : `${minutes}m ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    return days === 1 ? '1d ago' : `${days}d ago`
 }
 </script>
 
@@ -207,6 +225,42 @@ function animeUrl(anime: AnimeCardType): string {
                     </div>
                     <h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400">
                         {{ displayTitle(anime) }}
+                    </h3>
+                </Link>
+            </div>
+        </section>
+
+        <!-- Recently Updated -->
+        <section v-if="recentlyUpdated.length">
+            <header class="mb-6 border-b border-gray-800 pb-4">
+                <h2 class="text-2xl font-bold text-gray-100">Recently updated</h2>
+                <p class="mt-1 text-sm text-gray-400">Fresh episodes just dropped.</p>
+            </header>
+
+            <div class="flex gap-4 overflow-x-auto pb-4">
+                <Link
+                    v-for="item in recentlyUpdated"
+                    :key="item.anime.id ?? item.anime.anilist_id"
+                    :href="animeUrl(item.anime)"
+                    class="group relative w-40 shrink-0 sm:w-44"
+                >
+                    <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800">
+                        <img
+                            v-if="item.anime.cover_image_large || item.anime.cover_image_medium"
+                            :src="(item.anime.cover_image_large || item.anime.cover_image_medium) ?? undefined"
+                            :alt="displayTitle(item.anime)"
+                            class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            loading="lazy"
+                        />
+                        <div class="absolute left-2 top-2 rounded-md bg-primary-500/90 px-2 py-0.5 text-xs font-semibold text-white shadow">
+                            Ep {{ item.latest_episode }}
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                            <div class="text-xs font-medium text-gray-300">{{ airedAgo(item.aired_at) }}</div>
+                        </div>
+                    </div>
+                    <h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400">
+                        {{ displayTitle(item.anime) }}
                     </h3>
                 </Link>
             </div>
