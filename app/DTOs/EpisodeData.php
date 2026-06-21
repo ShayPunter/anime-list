@@ -7,6 +7,14 @@ use Spatie\LaravelData\Data;
 
 class EpisodeData extends Data
 {
+    /**
+     * Upper bound on episode numbers we will persist. Comfortably above the
+     * longest-running anime (Sazae-san sits in the thousands) while rejecting
+     * the bogus values AniList occasionally returns, and capping the gap-fill
+     * loop so a garbage `Media.episodes` count can't explode the insert.
+     */
+    private const MAX_EPISODE_NUMBER = 50000;
+
     public function __construct(
         public readonly int $number,
         public readonly ?string $title,
@@ -27,10 +35,10 @@ class EpisodeData extends Data
      *   we parse "Episode N" out of the title, falling back to list position.
      * - airingSchedule.nodes provides authoritative episode number + air date.
      *
-     * @param  array<int, array>  $streaming   AniList `streamingEpisodes` array
-     * @param  array<int, array>  $schedule    AniList `airingSchedule.nodes` array
-     * @param  ?int               $totalEpisodes  `Media.episodes` — used to fill gaps
-     * @param  ?int               $defaultDuration `Media.duration` — per-episode fallback
+     * @param  array<int, array>  $streaming  AniList `streamingEpisodes` array
+     * @param  array<int, array>  $schedule  AniList `airingSchedule.nodes` array
+     * @param  ?int  $totalEpisodes  `Media.episodes` — used to fill gaps
+     * @param  ?int  $defaultDuration  `Media.duration` — per-episode fallback
      * @return self[]
      */
     public static function mergeFromAniList(
@@ -44,11 +52,12 @@ class EpisodeData extends Data
         // First pass: schedule entries are authoritative for number + air_date
         foreach ($schedule as $node) {
             $num = $node['episode'] ?? null;
-            if (! $num) {
+            if (! self::isValidEpisodeNumber($num)) {
                 continue;
             }
+            $num = (int) $num;
             $byNumber[$num] = [
-                'number' => (int) $num,
+                'number' => $num,
                 'title' => null,
                 'thumbnail_url' => null,
                 'air_date' => isset($node['airingAt'])
@@ -63,6 +72,9 @@ class EpisodeData extends Data
         // Second pass: streaming episodes contribute title/thumbnail/url
         foreach ($streaming as $index => $ep) {
             $num = self::parseEpisodeNumber($ep['title'] ?? null) ?? ($index + 1);
+            if (! self::isValidEpisodeNumber($num)) {
+                continue;
+            }
             if (! isset($byNumber[$num])) {
                 $byNumber[$num] = [
                     'number' => $num,
@@ -82,6 +94,7 @@ class EpisodeData extends Data
 
         // Third pass: fill gaps up to $totalEpisodes with unknown-air-date rows
         if ($totalEpisodes !== null && $totalEpisodes > 0) {
+            $totalEpisodes = min($totalEpisodes, self::MAX_EPISODE_NUMBER);
             for ($n = 1; $n <= $totalEpisodes; $n++) {
                 if (! isset($byNumber[$n])) {
                     $byNumber[$n] = [
@@ -110,6 +123,22 @@ class EpisodeData extends Data
             site_url: $row['site_url'],
             source_site: $row['source_site'],
         ), array_values($byNumber));
+    }
+
+    /**
+     * AniList occasionally returns episode numbers that are zero, negative, or
+     * absurdly large (which previously overflowed the DB column and failed the
+     * whole sync batch). Only accept positive numbers within a sane range.
+     */
+    private static function isValidEpisodeNumber(mixed $num): bool
+    {
+        if (! is_numeric($num)) {
+            return false;
+        }
+
+        $num = (int) $num;
+
+        return $num >= 1 && $num <= self::MAX_EPISODE_NUMBER;
     }
 
     private static function parseEpisodeNumber(?string $title): ?int

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('episodes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('anime_id')->constrained('anime')->cascadeOnDelete();
-            $table->unsignedSmallInteger('number');
+            $table->unsignedInteger('number');
             $table->string('title', 500)->nullable();
             $table->text('description')->nullable();
             $table->string('thumbnail_url', 1024)->nullable();
