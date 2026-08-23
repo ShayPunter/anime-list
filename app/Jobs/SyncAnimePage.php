@@ -3,15 +3,16 @@
 namespace App\Jobs;
 
 use App\Exceptions\AniListServiceUnavailableException;
+use App\Models\SyncRun;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
 use App\Services\AnimeDataPersistenceService;
+use App\Services\SyncRunTracker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class SyncAnimePage implements ShouldQueue
@@ -20,7 +21,18 @@ class SyncAnimePage implements ShouldQueue
 
     public int $timeout = 300;
 
-    public int $tries = 3;
+    /**
+     * Attempts are bounded by retryUntil() rather than a fixed count: the job
+     * releases itself back onto the queue while AniList is unavailable, and
+     * every one of those releases would otherwise burn an attempt and kill the
+     * whole page chain with MaxAttemptsExceededException.
+     */
+    public int $tries = 0;
+
+    /**
+     * Genuine errors (as opposed to outage releases) still fail fast.
+     */
+    public int $maxExceptions = 3;
 
     public function __construct(
         public readonly int $page,
@@ -30,10 +42,25 @@ class SyncAnimePage implements ShouldQueue
         public readonly ?string $anilistStatus = null,
         public readonly ?string $anilistSeason = null,
         public readonly ?int $anilistSeasonYear = null,
+        public readonly ?int $syncRunId = null,
     ) {}
 
-    public function handle(AniListClient $client, AnimeDataPersistenceService $persistenceService): void
+    /**
+     * Long enough to sit out several AniList circuit-breaker windows
+     * (900s each by default) before giving up on the page.
+     */
+    public function retryUntil(): \DateTimeInterface
     {
+        return now()->addHours(6);
+    }
+
+    public function handle(
+        AniListClient $client,
+        AnimeDataPersistenceService $persistenceService,
+        SyncRunTracker $tracker,
+    ): void {
+        $run = $this->resolveRun($tracker);
+
         $query = match ($this->mode) {
             'incremental' => AniListQueryBuilder::updatedSince(false),
             'finished_incremental' => AniListQueryBuilder::updatedSince(true),
@@ -64,7 +91,7 @@ class SyncAnimePage implements ShouldQueue
         try {
             $data = $client->query($query, $variables);
         } catch (AniListServiceUnavailableException $e) {
-            $this->pauseForOutage($e);
+            $this->pauseForOutage($tracker, $run, $e);
 
             return;
         }
@@ -103,14 +130,13 @@ class SyncAnimePage implements ShouldQueue
             $persistenceService->persistBatch($mediaItems);
         }
 
-        // Update progress
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put("sync:{$this->mode}:progress", [
-            'last_completed_page' => $this->page,
-            'last_page' => $pageInfo['lastPage'] ?? 0,
-            'total' => $pageInfo['total'] ?? 0,
-            'started_at' => Cache::get("sync:{$this->mode}:progress")['started_at'] ?? now()->toIso8601String(),
-        ], $progressTtl);
+        $tracker->advance(
+            run: $run,
+            page: $this->page,
+            lastPage: (int) ($pageInfo['lastPage'] ?? 0),
+            totalItems: (int) ($pageInfo['total'] ?? 0),
+            processedDelta: count($mediaItems),
+        );
 
         // In incremental mode, stop when all items on page are older than cutoff
         $shouldContinue = $pageInfo['hasNextPage'] ?? false;
@@ -139,10 +165,10 @@ class SyncAnimePage implements ShouldQueue
                 anilistStatus: $this->anilistStatus,
                 anilistSeason: $this->anilistSeason,
                 anilistSeasonYear: $this->anilistSeasonYear,
+                syncRunId: $run->id,
             )->onQueue('sync');
         } else {
-            // Sync complete
-            Cache::put("sync:{$this->mode}:status", 'completed', $progressTtl);
+            $tracker->complete($run);
 
             // Resolve deferred relations after sync completes
             $delay = $this->mode === 'full' ? now()->addMinutes(5) : now()->addSeconds(10);
@@ -153,18 +179,37 @@ class SyncAnimePage implements ShouldQueue
                 ->onQueue('import')
                 ->delay($delay);
 
-            if (in_array($this->mode, ['incremental', 'finished_incremental'], true)) {
-                Cache::forever("sync:{$this->mode}:last_run", now()->timestamp);
-            }
-
             Log::info("Sync {$this->mode} page sweep complete", ['total_pages' => $this->page]);
         }
     }
 
-    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    /**
+     * Reattach to the run this chain belongs to. A job dispatched without one
+     * (an old payload retried from the failed table, say) opens its own so the
+     * sweep is still visible on the admin panel.
+     */
+    private function resolveRun(SyncRunTracker $tracker): SyncRun
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put("sync:{$this->mode}:status", 'paused', $progressTtl);
+        return $tracker->find($this->syncRunId)
+            ?? $tracker->start($this->mode, $this->runLabel(), $this->updatedAtGreater);
+    }
+
+    private function runLabel(): ?string
+    {
+        if ($this->mode !== 'targeted') {
+            return null;
+        }
+
+        return trim(implode(' ', array_filter([
+            $this->anilistStatus,
+            $this->anilistSeason,
+            $this->anilistSeasonYear,
+        ]))) ?: null;
+    }
+
+    private function pauseForOutage(SyncRunTracker $tracker, SyncRun $run, AniListServiceUnavailableException $e): void
+    {
+        $tracker->pause($run, $e->getMessage());
 
         Log::warning('SyncAnimePage paused: AniList unavailable', [
             'page' => $this->page,
@@ -177,8 +222,12 @@ class SyncAnimePage implements ShouldQueue
 
     public function failed(\Throwable $e): void
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put("sync:{$this->mode}:status", 'failed', $progressTtl);
+        $tracker = app(SyncRunTracker::class);
+        $run = $tracker->find($this->syncRunId);
+
+        if ($run !== null) {
+            $tracker->fail($run, $e);
+        }
 
         Log::error('SyncAnimePage failed', [
             'page' => $this->page,

@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SyncRecommendationsPage;
+use App\Models\SyncRun;
+use App\Services\SyncRunTracker;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 
 class SyncRecommendationsCommand extends Command
 {
@@ -14,21 +15,20 @@ class SyncRecommendationsCommand extends Command
 
     protected $description = 'Backfill AniList anime-to-anime recommendations into the recommendations table';
 
+    public function __construct(private readonly SyncRunTracker $tracker)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
         $page = max(1, (int) $this->option('page'));
         $perPage = max(1, (int) $this->option('per-page'));
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
 
-        Cache::put('sync:recommendations:status', 'running', $progressTtl);
-        Cache::put('sync:recommendations:progress', [
-            'last_completed_page' => $page - 1,
-            'last_page' => 0,
-            'total' => 0,
-            'started_at' => now()->toIso8601String(),
-        ], $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_RECOMMENDATIONS);
+        $run->forceFill(['current_page' => $page - 1])->save();
 
-        SyncRecommendationsPage::dispatch(page: $page, perPage: $perPage)->onQueue('sync');
+        SyncRecommendationsPage::dispatch(page: $page, perPage: $perPage, syncRunId: $run->id)->onQueue('sync');
 
         $this->info("Recommendations backfill dispatched starting from page {$page}.");
         $this->info('Monitor with: php artisan horizon');

@@ -242,6 +242,31 @@ class AniListQueryBuilder
         GRAPHQL;
     }
 
+    /**
+     * Fetch a specific set of anime by AniList id. Used by the stale-data
+     * refresh sweep so a batch of rows costs one request instead of one each.
+     */
+    public static function animeByIds(): string
+    {
+        $fields = self::MEDIA_FIELDS;
+
+        return <<<GRAPHQL
+        query (\$page: Int, \$perPage: Int, \$ids: [Int]) {
+            Page(page: \$page, perPage: \$perPage) {
+                pageInfo {
+                    hasNextPage
+                    currentPage
+                    lastPage
+                    total
+                }
+                media(type: ANIME, id_in: \$ids) {
+                    {$fields}
+                }
+            }
+        }
+        GRAPHQL;
+    }
+
     public static function animeByMalIds(): string
     {
         $fields = self::MEDIA_FIELDS;

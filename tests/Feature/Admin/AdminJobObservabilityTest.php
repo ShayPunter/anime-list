@@ -3,8 +3,12 @@
 namespace Tests\Feature\Admin;
 
 use App\Jobs\RefreshAnimeFromAniList;
+use App\Jobs\RefreshStaleAnimeBatch;
 use App\Jobs\SyncAnimePage;
 use App\Models\Anime;
+use App\Models\SyncRun;
+use App\Services\AnimeRefreshPolicy;
+use App\Services\SyncRunTracker;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -85,6 +89,125 @@ class AdminJobObservabilityTest extends TestCase
         $this->post('/admin/jobs/sync/incremental')->assertRedirect();
 
         Queue::assertPushed(SyncAnimePage::class, fn ($job) => $job->mode === 'incremental');
+
+        // The dispatch opens a tracked run so the panel can report on it.
+        $run = SyncRun::where('mode', SyncRun::MODE_INCREMENTAL)->firstOrFail();
+        $this->assertSame(SyncRun::STATUS_RUNNING, $run->status);
+        Queue::assertPushed(SyncAnimePage::class, fn ($job) => $job->syncRunId === $run->id);
+    }
+
+    public function test_incremental_sync_is_not_dispatched_twice_concurrently(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+        app(SyncRunTracker::class)->start(SyncRun::MODE_INCREMENTAL);
+
+        $this->from('/admin/jobs')
+            ->post('/admin/jobs/sync/incremental')
+            ->assertRedirect('/admin/jobs')
+            ->assertSessionHasErrors('sync');
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_jobs_page_reports_the_latest_run_per_sync_mode(): void
+    {
+        $this->actingAsAdmin();
+        $tracker = app(SyncRunTracker::class);
+
+        // Two targeted syncs overlap on the schedule; each needs its own row
+        // rather than overwriting the other's status.
+        $tracker->complete($tracker->start(SyncRun::MODE_TARGETED, 'RELEASING'));
+        $tracker->start(SyncRun::MODE_TARGETED, 'NOT_YET_RELEASED');
+        $tracker->fail($tracker->start(SyncRun::MODE_SCHEDULE), 'kaboom');
+
+        $this->get('/admin/jobs')->assertInertia(fn ($page) => $page
+            ->has('syncRuns', 3)
+            ->where('syncRuns.0.label', 'NOT_YET_RELEASED')
+            ->where('syncRuns.0.status', SyncRun::STATUS_RUNNING)
+            ->where('syncRuns.1.label', 'RELEASING')
+            ->where('syncRuns.1.status', SyncRun::STATUS_COMPLETED)
+            ->where('syncRuns.2.mode', SyncRun::MODE_SCHEDULE)
+            ->where('syncRuns.2.status', SyncRun::STATUS_FAILED));
+    }
+
+    public function test_stale_metrics_ignore_anime_excluded_from_refreshes(): void
+    {
+        $this->actingAsAdmin();
+
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+        Anime::factory()->create([
+            'synced_at' => now()->subDays(90),
+            'refresh_excluded_at' => now(),
+            'refresh_exclusion_reason' => AnimeRefreshPolicy::REASON_FINISHED,
+        ]);
+
+        $this->get('/admin/jobs')->assertInertia(fn ($page) => $page
+            ->where('metrics.stale_sync', 1)
+            ->where('metrics.refresh_excluded', 1)
+            ->where('metrics.refresh_excluded_by_reason.0.reason', AnimeRefreshPolicy::REASON_FINISHED)
+            ->where('metrics.refresh_excluded_by_reason.0.count', 1));
+    }
+
+    public function test_admin_can_dispatch_a_stale_refresh_sweep(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+
+        $this->post('/admin/jobs/sync/stale-refresh')->assertRedirect();
+
+        $run = SyncRun::where('mode', SyncRun::MODE_STALE_REFRESH)->firstOrFail();
+        Queue::assertPushed(
+            RefreshStaleAnimeBatch::class,
+            fn (RefreshStaleAnimeBatch $job) => $job->syncRunId === $run->id,
+        );
+    }
+
+    public function test_stale_refresh_is_not_dispatched_while_one_is_running(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+        app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+
+        $this->from('/admin/jobs')
+            ->post('/admin/jobs/sync/stale-refresh')
+            ->assertRedirect('/admin/jobs')
+            ->assertSessionHasErrors('sync');
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_stale_refresh_does_nothing_when_the_backlog_is_empty(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+
+        Anime::factory()->create(['synced_at' => now()]);
+
+        $this->post('/admin/jobs/sync/stale-refresh')->assertRedirect();
+
+        Queue::assertNothingPushed();
+        $this->assertSame(0, SyncRun::where('mode', SyncRun::MODE_STALE_REFRESH)->count());
+    }
+
+    public function test_admin_can_clear_refresh_exclusions(): void
+    {
+        $this->actingAsAdmin();
+
+        $excluded = Anime::factory()->create([
+            'synced_at' => now()->subDays(90),
+            'refresh_excluded_at' => now(),
+            'refresh_exclusion_reason' => AnimeRefreshPolicy::REASON_FINISHED,
+        ]);
+
+        $this->delete('/admin/jobs/refresh-exclusions')->assertRedirect();
+
+        $excluded->refresh();
+        $this->assertNull($excluded->refresh_excluded_at);
+        $this->assertNull($excluded->refresh_exclusion_reason);
     }
 
     public function test_admin_can_forget_failed_job(): void
@@ -111,5 +234,7 @@ class AdminJobObservabilityTest extends TestCase
 
         $this->actingAs($user)->get('/admin/jobs')->assertForbidden();
         $this->actingAs($user)->post('/admin/jobs/anime', ['anilist_id' => 1])->assertForbidden();
+        $this->actingAs($user)->post('/admin/jobs/sync/stale-refresh')->assertForbidden();
+        $this->actingAs($user)->delete('/admin/jobs/refresh-exclusions')->assertForbidden();
     }
 }

@@ -25,6 +25,25 @@ return [
     'sync' => [
         'per_page' => 50,
         'store_raw_responses' => (bool) env('ANILIST_STORE_RAW', true),
-        'progress_cache_ttl' => 86400,
+    ],
+
+    /*
+     * Backfill sweep for anime whose local copy has gone stale. Most of the
+     * catalogue is long-finished and never changes upstream, so those rows are
+     * flagged out of the sweep once refreshed rather than being re-fetched
+     * forever; the monthly FINISHED incremental sync still picks up genuine
+     * upstream edits.
+     */
+    'refresh' => [
+        // An anime is stale once its last successful sync is this old.
+        'stale_after_days' => (int) env('ANILIST_REFRESH_STALE_AFTER_DAYS', 30),
+        // Anime per AniList request during the stale sweep.
+        'batch_size' => (int) env('ANILIST_REFRESH_BATCH_SIZE', 50),
+        // Upper bound on batches per sweep, so one run cannot monopolise the
+        // sync queue or the AniList rate limit budget.
+        'max_batches_per_run' => (int) env('ANILIST_REFRESH_MAX_BATCHES', 200),
+        // A finished or cancelled show whose last episode aired at least this
+        // long ago is flagged out of future stale sweeps.
+        'exclude_finished_after_days' => (int) env('ANILIST_REFRESH_EXCLUDE_FINISHED_AFTER_DAYS', 180),
     ],
 ];

@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Anime;
+use App\Models\SyncRun;
 use App\Models\User;
 use App\Models\UserAnimeList;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -42,9 +41,9 @@ class AdminDashboardController extends Controller
             ]);
 
         $syncStatuses = [
-            'releasing' => Cache::get('sync:targeted:status', 'unknown'),
-            'incremental' => Cache::get('sync:incremental:status', 'unknown'),
-            'schedule' => Cache::get('sync:schedule:status', 'unknown'),
+            'releasing' => $this->latestStatus(SyncRun::MODE_TARGETED, 'RELEASING'),
+            'incremental' => $this->latestStatus(SyncRun::MODE_INCREMENTAL),
+            'schedule' => $this->latestStatus(SyncRun::MODE_SCHEDULE),
         ];
 
         return Inertia::render('Admin/DashboardPage', [
@@ -52,5 +51,14 @@ class AdminDashboardController extends Controller
             'recentUsers' => $recentUsers,
             'syncStatuses' => $syncStatuses,
         ]);
+    }
+
+    private function latestStatus(string $mode, ?string $label = null): string
+    {
+        return SyncRun::query()
+            ->where('mode', $mode)
+            ->when($label !== null, fn ($q) => $q->where('label', $label))
+            ->orderByDesc('id')
+            ->value('status') ?? 'never run';
     }
 }

@@ -51,6 +51,8 @@ class Anime extends Model
         'is_adult',
         'anilist_updated_at',
         'synced_at',
+        'refresh_excluded_at',
+        'refresh_exclusion_reason',
     ];
 
     protected function casts(): array
@@ -64,6 +66,7 @@ class Anime extends Model
             'anilist_updated_at' => 'datetime',
             'synced_at' => 'datetime',
             'synopsis_rewritten_at' => 'datetime',
+            'refresh_excluded_at' => 'datetime',
         ];
     }
 
@@ -183,6 +186,33 @@ class Anime extends Model
     public function scopeAdultContent(Builder $query, bool $include = false): Builder
     {
         return $include ? $query : $query->where('is_adult', false);
+    }
+
+    /**
+     * Anime whose local copy has not been refreshed from AniList recently
+     * (never-synced rows included).
+     */
+    public function scopeStale(Builder $query, ?int $days = null): Builder
+    {
+        $days ??= (int) config('anilist.refresh.stale_after_days', 30);
+        $cutoff = now()->subDays($days);
+
+        return $query->where(function (Builder $q) use ($cutoff) {
+            $q->whereNull('synced_at')->orWhere('synced_at', '<', $cutoff);
+        });
+    }
+
+    /**
+     * Anime the stale-refresh sweep is still allowed to fetch.
+     */
+    public function scopeRefreshable(Builder $query): Builder
+    {
+        return $query->whereNull('refresh_excluded_at');
+    }
+
+    public function scopeRefreshExcluded(Builder $query): Builder
+    {
+        return $query->whereNotNull('refresh_excluded_at');
     }
 
     // Score normalization (stored 0-100, displayed 0-10)

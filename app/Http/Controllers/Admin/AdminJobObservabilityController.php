@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\RefreshAnimeFromAniList;
+use App\Jobs\RefreshStaleAnimeBatch;
 use App\Jobs\SyncAnimePage;
 use App\Models\Anime;
+use App\Models\SyncRun;
+use App\Services\AnimeRefreshPolicy;
+use App\Services\SyncRunTracker;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,15 +23,21 @@ class AdminJobObservabilityController extends Controller
 {
     private const TRACKED_QUEUES = ['default', 'sync', 'import', 'recommendations'];
 
+    public function __construct(
+        private readonly SyncRunTracker $tracker,
+        private readonly AnimeRefreshPolicy $refreshPolicy,
+    ) {}
+
     public function index(Request $request): Response
     {
         $now = now();
 
-        $queuedByQueue = DB::table('jobs')
-            ->select('queue', DB::raw('count(*) as count'))
-            ->groupBy('queue')
-            ->pluck('count', 'queue')
-            ->all();
+        // Queue depth has to come from the queue driver itself. Production runs
+        // on Redis, so reading the `jobs` table here only ever reported zero.
+        $queuedByQueue = [];
+        foreach (self::TRACKED_QUEUES as $queue) {
+            $queuedByQueue[] = ['queue' => $queue, 'count' => $this->queueSize($queue)];
+        }
 
         $failedByQueue = DB::table('failed_jobs')
             ->select('queue', DB::raw('count(*) as count'))
@@ -38,11 +48,6 @@ class AdminJobObservabilityController extends Controller
         $failedLast24h = DB::table('failed_jobs')
             ->where('failed_at', '>=', $now->copy()->subDay())
             ->count();
-
-        $oldestPendingTs = DB::table('jobs')->min('created_at');
-        $oldestPendingAge = $oldestPendingTs !== null
-            ? max(0, $now->timestamp - (int) $oldestPendingTs)
-            : null;
 
         $animeAdded = [
             'last_24h' => Anime::where('created_at', '>=', $now->copy()->subDay())->count(),
@@ -56,12 +61,7 @@ class AdminJobObservabilityController extends Controller
             'last_30d' => Anime::where('synced_at', '>=', $now->copy()->subDays(30))->count(),
         ];
 
-        $totalAnime = Anime::count();
-        $neverSynced = Anime::whereNull('synced_at')->count();
-        $staleSync = Anime::where(function ($q) use ($now) {
-            $q->whereNull('synced_at')
-                ->orWhere('synced_at', '<', $now->copy()->subDays(30));
-        })->count();
+        $staleDays = (int) config('anilist.refresh.stale_after_days', 30);
 
         $recentFailed = DB::table('failed_jobs')
             ->orderByDesc('failed_at')
@@ -105,37 +105,27 @@ class AdminJobObservabilityController extends Controller
             ])
             ->all();
 
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        $syncStates = [];
-        foreach (['full', 'incremental', 'finished_incremental', 'targeted', 'schedule'] as $mode) {
-            $syncStates[$mode] = [
-                'status' => Cache::get("sync:{$mode}:status", 'unknown'),
-                'progress' => Cache::get("sync:{$mode}:progress"),
-                'last_run' => in_array($mode, ['incremental', 'finished_incremental'], true)
-                    ? Cache::get("sync:{$mode}:last_run")
-                    : null,
-            ];
-        }
-
         return Inertia::render('Admin/JobsPage', [
             'metrics' => [
-                'queued_total' => array_sum($queuedByQueue),
-                'queued_by_queue' => $this->normalizeQueueCounts($queuedByQueue),
+                'queued_total' => array_sum(array_column($queuedByQueue, 'count')),
+                'queued_by_queue' => $queuedByQueue,
                 'failed_total' => array_sum($failedByQueue),
                 'failed_by_queue' => $this->normalizeQueueCounts($failedByQueue),
                 'failed_last_24h' => $failedLast24h,
-                'oldest_pending_age_seconds' => $oldestPendingAge,
-                'anime_total' => $totalAnime,
+                'queue_wait_seconds' => $this->longestQueueWait(),
+                'anime_total' => Anime::count(),
                 'anime_added' => $animeAdded,
                 'anime_updated' => $animeUpdated,
-                'never_synced' => $neverSynced,
-                'stale_sync' => $staleSync,
+                'never_synced' => Anime::whereNull('synced_at')->count(),
+                'stale_sync' => Anime::query()->refreshable()->stale($staleDays)->count(),
+                'refresh_excluded' => Anime::query()->refreshExcluded()->count(),
+                'refresh_excluded_by_reason' => $this->exclusionBreakdown(),
+                'stale_after_days' => $staleDays,
             ],
             'recentFailed' => $recentFailed,
             'recentlyAdded' => $recentlyAdded,
             'recentlyUpdated' => $recentlyUpdated,
-            'syncStates' => $syncStates,
-            'progressTtl' => $progressTtl,
+            'syncRuns' => $this->syncRunPayload(),
         ]);
     }
 
@@ -165,20 +155,58 @@ class AdminJobObservabilityController extends Controller
 
     public function enqueueIncrementalSync(): RedirectResponse
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        $lastRun = Cache::get('sync:incremental:last_run');
-        $updatedAtGreater = $lastRun ?? now()->subDay()->timestamp;
+        if ($this->tracker->hasRunInProgress(SyncRun::MODE_INCREMENTAL)) {
+            return back()->withErrors([
+                'sync' => 'An incremental sync is already in progress.',
+            ]);
+        }
 
-        Cache::put('sync:incremental:status', 'running', $progressTtl);
+        $cutoff = $this->tracker->nextCutoffFor(SyncRun::MODE_INCREMENTAL, fallbackSeconds: 86400);
+        $run = $this->tracker->start(SyncRun::MODE_INCREMENTAL, cutoffAt: $cutoff);
 
         SyncAnimePage::dispatch(
             page: 1,
             perPage: config('anilist.sync.per_page', 50),
-            mode: 'incremental',
-            updatedAtGreater: $updatedAtGreater,
+            mode: SyncRun::MODE_INCREMENTAL,
+            updatedAtGreater: $cutoff,
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         return back()->with('message', 'Incremental sync dispatched.');
+    }
+
+    public function enqueueStaleRefresh(): RedirectResponse
+    {
+        if ($this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH)) {
+            return back()->withErrors([
+                'sync' => 'A stale refresh is already in progress.',
+            ]);
+        }
+
+        $staleDays = (int) config('anilist.refresh.stale_after_days', 30);
+        $pending = Anime::query()->refreshable()->stale($staleDays)->count();
+
+        if ($pending === 0) {
+            return back()->with('message', 'Nothing to refresh — no stale anime outside the exclusion list.');
+        }
+
+        $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);
+
+        RefreshStaleAnimeBatch::dispatch(syncRunId: $run->id)->onQueue('sync');
+
+        return back()->with('message', "Stale refresh dispatched for {$pending} anime.");
+    }
+
+    /**
+     * Put every excluded anime back into the refresh sweep.
+     */
+    public function clearRefreshExclusions(): RedirectResponse
+    {
+        $restored = $this->refreshPolicy->include(
+            Anime::query()->refreshExcluded()->pluck('id')->all()
+        );
+
+        return back()->with('message', "Cleared refresh exclusions on {$restored} anime.");
     }
 
     public function retryFailed(string $uuid): RedirectResponse
@@ -201,6 +229,89 @@ class AdminJobObservabilityController extends Controller
         }
 
         return back()->with('message', "Removed failed job {$uuid}.");
+    }
+
+    /**
+     * Latest run per sync mode (and per label, so the overlapping targeted
+     * syncs are reported separately instead of overwriting each other).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function syncRunPayload(): array
+    {
+        $runs = $this->tracker->latestRuns()
+            ->sortBy(fn (SyncRun $run) => [
+                array_search($run->mode, SyncRun::TRACKED_MODES, true),
+                $run->label ?? '',
+            ])
+            ->values();
+
+        return $runs->map(fn (SyncRun $run) => [
+            'id' => $run->id,
+            'mode' => $run->mode,
+            'label' => $run->label,
+            'status' => $run->status,
+            'stalled' => $run->isStalled(),
+            'current_page' => $run->current_page,
+            'last_page' => $run->last_page,
+            'total_items' => $run->total_items,
+            'processed_items' => $run->processed_items,
+            'cutoff_at' => $run->cutoff_at,
+            'started_at' => $run->started_at?->toIso8601String(),
+            'finished_at' => $run->finished_at?->toIso8601String(),
+            'heartbeat_at' => $run->heartbeat_at?->toIso8601String(),
+            'duration_seconds' => $run->durationSeconds(),
+            'last_error' => $run->last_error === null ? null : Str::limit($run->last_error, 240),
+        ])->all();
+    }
+
+    /**
+     * @return array<int, array{reason: string, count: int}>
+     */
+    private function exclusionBreakdown(): array
+    {
+        return Anime::query()
+            ->refreshExcluded()
+            ->select('refresh_exclusion_reason', DB::raw('count(*) as count'))
+            ->groupBy('refresh_exclusion_reason')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($row) => [
+                'reason' => $row->refresh_exclusion_reason ?? 'unspecified',
+                'count' => (int) $row->count,
+            ])
+            ->all();
+    }
+
+    private function queueSize(string $queue): int
+    {
+        try {
+            return (int) Queue::connection()->size($queue);
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Horizon's estimate, in seconds, of how long the busiest tracked queue
+     * would take to drain. Null when Horizon has no data (or is not running).
+     */
+    private function longestQueueWait(): ?int
+    {
+        if (! class_exists(\Laravel\Horizon\WaitTimeCalculator::class)) {
+            return null;
+        }
+
+        try {
+            $waits = app(\Laravel\Horizon\WaitTimeCalculator::class)->calculate();
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $tracked = collect($waits)
+            ->filter(fn ($seconds, $key) => in_array(Str::afterLast($key, ':'), self::TRACKED_QUEUES, true));
+
+        return $tracked->isEmpty() ? null : (int) $tracked->max();
     }
 
     /**

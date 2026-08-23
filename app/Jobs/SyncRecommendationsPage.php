@@ -3,14 +3,15 @@
 namespace App\Jobs;
 
 use App\Exceptions\AniListServiceUnavailableException;
+use App\Models\SyncRun;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
+use App\Services\SyncRunTracker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -25,22 +26,46 @@ class SyncRecommendationsPage implements ShouldQueue
 
     public int $timeout = 300;
 
-    public int $tries = 3;
+    /**
+     * Attempts are bounded by retryUntil() rather than a fixed count: the job
+     * releases itself back onto the queue while AniList is unavailable, and
+     * every one of those releases would otherwise burn an attempt and kill the
+     * whole page chain with MaxAttemptsExceededException.
+     */
+    public int $tries = 0;
+
+    /**
+     * Genuine errors (as opposed to outage releases) still fail fast.
+     */
+    public int $maxExceptions = 3;
 
     public function __construct(
         public readonly int $page,
         public readonly int $perPage = 50,
+        public readonly ?int $syncRunId = null,
     ) {}
 
-    public function handle(AniListClient $client): void
+    /**
+     * Long enough to sit out several AniList circuit-breaker windows
+     * (900s each by default) before giving up on the page.
+     */
+    public function retryUntil(): \DateTimeInterface
     {
+        return now()->addHours(6);
+    }
+
+    public function handle(AniListClient $client, SyncRunTracker $tracker): void
+    {
+        $run = $tracker->find($this->syncRunId)
+            ?? $tracker->start(SyncRun::MODE_RECOMMENDATIONS);
+
         try {
             $data = $client->query(AniListQueryBuilder::recommendationsPage(), [
                 'page' => $this->page,
                 'perPage' => $this->perPage,
             ]);
         } catch (AniListServiceUnavailableException $e) {
-            $this->pauseForOutage($e);
+            $this->pauseForOutage($tracker, $run, $e);
 
             return;
         }
@@ -86,18 +111,18 @@ class SyncRecommendationsPage implements ShouldQueue
             'edges_queued' => count($pending),
         ]);
 
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:recommendations:progress', [
-            'last_completed_page' => $this->page,
-            'last_page' => $pageInfo['lastPage'] ?? 0,
-            'total' => $pageInfo['total'] ?? 0,
-            'started_at' => Cache::get('sync:recommendations:progress')['started_at'] ?? now()->toIso8601String(),
-        ], $progressTtl);
+        $tracker->advance(
+            run: $run,
+            page: $this->page,
+            lastPage: (int) ($pageInfo['lastPage'] ?? 0),
+            totalItems: (int) ($pageInfo['total'] ?? 0),
+            processedDelta: count($mediaItems),
+        );
 
         if ($pageInfo['hasNextPage'] ?? false) {
-            self::dispatch(page: $this->page + 1, perPage: $this->perPage)->onQueue('sync');
+            self::dispatch(page: $this->page + 1, perPage: $this->perPage, syncRunId: $run->id)->onQueue('sync');
         } else {
-            Cache::put('sync:recommendations:status', 'completed', $progressTtl);
+            $tracker->complete($run);
 
             ResolveAnimeRecommendations::dispatch()
                 ->onQueue('import')
@@ -107,10 +132,9 @@ class SyncRecommendationsPage implements ShouldQueue
         }
     }
 
-    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    private function pauseForOutage(SyncRunTracker $tracker, SyncRun $run, AniListServiceUnavailableException $e): void
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:recommendations:status', 'paused', $progressTtl);
+        $tracker->pause($run, $e->getMessage());
 
         Log::warning('SyncRecommendationsPage paused: AniList unavailable', [
             'page' => $this->page,
@@ -122,8 +146,12 @@ class SyncRecommendationsPage implements ShouldQueue
 
     public function failed(\Throwable $e): void
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:recommendations:status', 'failed', $progressTtl);
+        $tracker = app(SyncRunTracker::class);
+        $run = $tracker->find($this->syncRunId);
+
+        if ($run !== null) {
+            $tracker->fail($run, $e);
+        }
 
         Log::error('SyncRecommendationsPage failed', [
             'page' => $this->page,
