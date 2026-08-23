@@ -34,6 +34,15 @@ class SyncAnimePage implements ShouldQueue
      */
     public int $maxExceptions = 3;
 
+    /**
+     * Declared with a default rather than promoted in the constructor: a
+     * promoted property has no class-level default, so a job payload
+     * serialized before this property existed unserializes with it
+     * uninitialized and every read throws. Payloads queued across a deploy
+     * have to land on null instead.
+     */
+    public ?int $syncRunId = null;
+
     public function __construct(
         public readonly int $page,
         public readonly int $perPage = 50,
@@ -42,8 +51,10 @@ class SyncAnimePage implements ShouldQueue
         public readonly ?string $anilistStatus = null,
         public readonly ?string $anilistSeason = null,
         public readonly ?int $anilistSeasonYear = null,
-        public readonly ?int $syncRunId = null,
-    ) {}
+        ?int $syncRunId = null,
+    ) {
+        $this->syncRunId = $syncRunId;
+    }
 
     /**
      * Long enough to sit out several AniList circuit-breaker windows
