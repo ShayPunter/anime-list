@@ -11,17 +11,22 @@ interface QueueCount {
     count: number
 }
 
-interface SyncProgress {
-    last_completed_page?: number
-    last_page?: number
-    total?: number
-    started_at?: string
-}
-
-interface SyncState {
+interface SyncRun {
+    id: number
+    mode: string
+    label: string | null
     status: string
-    progress: SyncProgress | null
-    last_run: number | null
+    stalled: boolean
+    current_page: number
+    last_page: number
+    total_items: number
+    processed_items: number
+    cutoff_at: number | null
+    started_at: string | null
+    finished_at: string | null
+    heartbeat_at: string | null
+    duration_seconds: number | null
+    last_error: string | null
 }
 
 interface FailedJob {
@@ -42,18 +47,26 @@ interface AnimeRef {
     synced_at?: string
 }
 
+interface ExclusionCount {
+    reason: string
+    count: number
+}
+
 interface JobMetrics {
     queued_total: number
     queued_by_queue: QueueCount[]
     failed_total: number
     failed_by_queue: QueueCount[]
     failed_last_24h: number
-    oldest_pending_age_seconds: number | null
+    queue_wait_seconds: number | null
     anime_total: number
     anime_added: { last_24h: number; last_7d: number; last_30d: number }
     anime_updated: { last_24h: number; last_7d: number; last_30d: number }
     never_synced: number
     stale_sync: number
+    refresh_excluded: number
+    refresh_excluded_by_reason: ExclusionCount[]
+    stale_after_days: number
 }
 
 const props = defineProps<{
@@ -61,12 +74,15 @@ const props = defineProps<{
     recentFailed: FailedJob[]
     recentlyAdded: AnimeRef[]
     recentlyUpdated: AnimeRef[]
-    syncStates: Record<string, SyncState>
+    syncRuns: SyncRun[]
 }>()
 
 const page = usePage()
 const flashMessage = computed(
     () => (page.props.flash as { message?: string } | undefined)?.message ?? null,
+)
+const syncError = computed(
+    () => (page.props.errors as { sync?: string } | undefined)?.sync ?? null,
 )
 
 const enqueueForm = useForm({
@@ -80,12 +96,44 @@ function submitEnqueue() {
     })
 }
 
+const dispatching = ref<string | null>(null)
+
 function dispatchIncremental() {
+    dispatching.value = 'incremental'
     router.post(
         route('admin.jobs.sync.incremental'),
         {},
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onFinish: () => { dispatching.value = null },
+        },
     )
+}
+
+function dispatchStaleRefresh() {
+    dispatching.value = 'stale'
+    router.post(
+        route('admin.jobs.sync.stale-refresh'),
+        {},
+        {
+            preserveScroll: true,
+            onFinish: () => { dispatching.value = null },
+        },
+    )
+}
+
+function clearExclusions() {
+    if (!window.confirm(
+        `Clear the refresh exclusion on all ${props.metrics.refresh_excluded} anime? They will all be swept again on the next refresh run.`,
+    )) {
+        return
+    }
+
+    dispatching.value = 'exclusions'
+    router.delete(route('admin.jobs.refresh-exclusions.clear'), {
+        preserveScroll: true,
+        onFinish: () => { dispatching.value = null },
+    })
 }
 
 function refresh() {
@@ -115,12 +163,27 @@ function forgetJob(uuid: string) {
     })
 }
 
+const syncRunsInProgress = computed(() =>
+    props.syncRuns.some((run) => run.status === 'running' || run.status === 'paused'),
+)
+
+function runTitle(run: SyncRun): string {
+    const mode = run.mode.replace(/_/g, ' ')
+    return run.label ? `${mode} · ${run.label}` : mode
+}
+
 function syncStatusColor(status: string): string {
     if (status === 'completed') return 'text-green-400'
     if (status === 'running') return 'text-yellow-400'
     if (status === 'paused') return 'text-orange-400'
     if (status === 'failed') return 'text-red-400'
+    if (status === 'superseded') return 'text-gray-500'
     return 'text-gray-500'
+}
+
+function statusLabel(run: SyncRun): string {
+    if (run.stalled) return 'stalled'
+    return run.status
 }
 
 function formatDate(iso?: string | null): string {
@@ -152,11 +215,9 @@ function formatDuration(seconds: number | null): string {
     return `${hours}h ${minutes}m`
 }
 
-function progressPercent(state: SyncState): number | null {
-    const last = state.progress?.last_completed_page ?? 0
-    const total = state.progress?.last_page ?? 0
-    if (total <= 0) return null
-    return Math.min(100, Math.round((last / total) * 100))
+function progressPercent(run: SyncRun): number | null {
+    if (run.last_page <= 0) return null
+    return Math.min(100, Math.round((run.current_page / run.last_page) * 100))
 }
 </script>
 
@@ -189,6 +250,13 @@ function progressPercent(state: SyncState): number | null {
             {{ flashMessage }}
         </div>
 
+        <div
+            v-if="syncError"
+            class="rounded-lg border border-red-700/50 bg-red-900/20 px-4 py-2 text-sm text-red-300"
+        >
+            {{ syncError }}
+        </div>
+
         <!-- Top stats grid -->
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
@@ -208,9 +276,9 @@ function progressPercent(state: SyncState): number | null {
             </div>
             <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
                 <div class="text-2xl font-bold text-primary-400">
-                    {{ formatDuration(metrics.oldest_pending_age_seconds) }}
+                    {{ formatDuration(metrics.queue_wait_seconds) }}
                 </div>
-                <div class="mt-1 text-xs text-gray-400">Oldest pending</div>
+                <div class="mt-1 text-xs text-gray-400">Est. time to clear</div>
             </div>
             <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
                 <div class="text-2xl font-bold text-primary-400">{{ metrics.never_synced.toLocaleString() }}</div>
@@ -218,7 +286,12 @@ function progressPercent(state: SyncState): number | null {
             </div>
             <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
                 <div class="text-2xl font-bold text-primary-400">{{ metrics.stale_sync.toLocaleString() }}</div>
-                <div class="mt-1 text-xs text-gray-400">Stale (&gt;30d / never)</div>
+                <div class="mt-1 text-xs text-gray-400">
+                    Stale (&gt;{{ metrics.stale_after_days }}d / never)
+                </div>
+                <div class="mt-1 text-[11px] text-gray-600">
+                    {{ metrics.refresh_excluded.toLocaleString() }} excluded as settled
+                </div>
             </div>
         </div>
 
@@ -299,41 +372,66 @@ function progressPercent(state: SyncState): number | null {
             </div>
         </div>
 
-        <!-- Sync states -->
+        <!-- Sync runs -->
         <div class="rounded-xl border border-gray-800 bg-gray-900 p-5">
-            <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">Sync runs</h2>
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">
+                Sync runs
+                <span class="ml-2 text-xs font-normal normal-case text-gray-600">
+                    latest run per mode
+                </span>
+            </h2>
+            <div v-if="syncRuns.length === 0" class="py-6 text-center text-sm text-gray-500">
+                No sync has run yet.
+            </div>
+            <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div
-                    v-for="(state, mode) in syncStates"
-                    :key="`sync-${mode}`"
+                    v-for="run in syncRuns"
+                    :key="`sync-${run.id}`"
                     class="rounded-lg border border-gray-800 bg-gray-950 p-3"
                 >
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium capitalize text-gray-200">{{ mode }}</span>
-                        <span class="text-xs font-medium capitalize" :class="syncStatusColor(state.status)">
-                            {{ state.status }}
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-sm font-medium capitalize text-gray-200">{{ runTitle(run) }}</span>
+                        <span
+                            class="shrink-0 text-xs font-medium capitalize"
+                            :class="run.stalled ? 'text-orange-400' : syncStatusColor(run.status)"
+                        >
+                            {{ statusLabel(run) }}
                         </span>
                     </div>
-                    <div v-if="state.progress" class="mt-2">
-                        <div class="text-xs text-gray-500">
-                            Page {{ state.progress.last_completed_page ?? 0 }}/{{ state.progress.last_page ?? '?' }}
-                            <span v-if="state.progress.total">
-                                · {{ state.progress.total.toLocaleString() }} items
-                            </span>
+
+                    <div class="mt-2 text-xs text-gray-500">
+                        Page {{ run.current_page }}/{{ run.last_page || '?' }}
+                        <span v-if="run.processed_items">
+                            · {{ run.processed_items.toLocaleString() }} items
+                        </span>
+                    </div>
+                    <div
+                        v-if="progressPercent(run) !== null"
+                        class="mt-1 h-1.5 w-full overflow-hidden rounded bg-gray-800"
+                    >
+                        <div
+                            class="h-full bg-primary-500 transition-all"
+                            :style="{ width: `${progressPercent(run)}%` }"
+                        />
+                    </div>
+
+                    <div class="mt-2 space-y-0.5 text-[11px] text-gray-600">
+                        <div>Started {{ formatDate(run.started_at) }}</div>
+                        <div v-if="run.finished_at">
+                            Finished {{ formatDate(run.finished_at) }} · took
+                            {{ formatDuration(run.duration_seconds) }}
                         </div>
-                        <div v-if="progressPercent(state) !== null" class="mt-1 h-1.5 w-full overflow-hidden rounded bg-gray-800">
-                            <div
-                                class="h-full bg-primary-500 transition-all"
-                                :style="{ width: `${progressPercent(state)}%` }"
-                            />
-                        </div>
-                        <div v-if="state.progress.started_at" class="mt-1 text-[11px] text-gray-600">
-                            Started {{ formatDate(state.progress.started_at) }}
+                        <div v-else>Running for {{ formatDuration(run.duration_seconds) }}</div>
+                        <div v-if="run.cutoff_at">
+                            Updated-since cutoff {{ formatTimestamp(run.cutoff_at) }}
                         </div>
                     </div>
-                    <div v-else class="mt-2 text-xs text-gray-600">No active progress</div>
-                    <div v-if="state.last_run" class="mt-1 text-[11px] text-gray-600">
-                        Last run cutoff {{ formatTimestamp(state.last_run) }}
+
+                    <div
+                        v-if="run.last_error"
+                        class="mt-2 break-words rounded bg-red-950/40 px-2 py-1 text-[11px] text-red-300"
+                    >
+                        {{ run.last_error }}
                     </div>
                 </div>
             </div>
@@ -370,16 +468,77 @@ function progressPercent(state: SyncState): number | null {
             <div class="rounded-xl border border-gray-800 bg-gray-900 p-5">
                 <h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-gray-400">Trigger incremental sync</h2>
                 <p class="mb-3 text-xs text-gray-500">
-                    Fetches anime updated on AniList since the last incremental run. Falls back to last 24h if there is no prior run.
+                    Fetches anime updated on AniList since the last completed incremental run. Falls back to the last 24h if there is no prior run.
                 </p>
                 <button
                     type="button"
-                    class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-200 transition hover:border-primary-500 hover:text-primary-400"
+                    :disabled="dispatching === 'incremental'"
+                    class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-200 transition hover:border-primary-500 hover:text-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
                     @click="dispatchIncremental"
                 >
-                    Dispatch incremental sync
+                    {{ dispatching === 'incremental' ? 'Dispatching…' : 'Dispatch incremental sync' }}
                 </button>
             </div>
+        </div>
+
+        <!-- Stale backlog -->
+        <div class="rounded-xl border border-gray-800 bg-gray-900 p-5">
+            <h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-gray-400">Stale data backlog</h2>
+            <p class="mb-4 text-xs text-gray-500">
+                Walks anime whose local copy is older than {{ metrics.stale_after_days }} days, a batch per AniList
+                request. Long-finished shows and entries that no longer exist upstream are flagged as settled once
+                refreshed, so the backlog shrinks instead of cycling — the monthly FINISHED incremental sync still
+                picks up genuine upstream edits.
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="rounded-lg border border-gray-800 bg-gray-950 p-3">
+                    <div class="text-xl font-bold text-gray-100">{{ metrics.stale_sync.toLocaleString() }}</div>
+                    <div class="text-xs text-gray-500">awaiting refresh</div>
+                </div>
+                <div class="rounded-lg border border-gray-800 bg-gray-950 p-3">
+                    <div class="text-xl font-bold text-gray-100">{{ metrics.refresh_excluded.toLocaleString() }}</div>
+                    <div class="text-xs text-gray-500">excluded as settled</div>
+                </div>
+                <div class="rounded-lg border border-gray-800 bg-gray-950 p-3">
+                    <div
+                        v-for="row in metrics.refresh_excluded_by_reason"
+                        :key="`ex-${row.reason}`"
+                        class="flex items-center justify-between text-xs"
+                    >
+                        <span class="font-mono text-gray-400">{{ row.reason }}</span>
+                        <span class="text-gray-300">{{ row.count.toLocaleString() }}</span>
+                    </div>
+                    <div
+                        v-if="metrics.refresh_excluded_by_reason.length === 0"
+                        class="text-xs text-gray-600"
+                    >
+                        Nothing excluded yet
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                    type="button"
+                    :disabled="dispatching === 'stale'"
+                    class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    @click="dispatchStaleRefresh"
+                >
+                    {{ dispatching === 'stale' ? 'Dispatching…' : 'Refresh stale anime' }}
+                </button>
+                <button
+                    type="button"
+                    :disabled="dispatching === 'exclusions' || metrics.refresh_excluded === 0"
+                    class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600 hover:text-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    @click="clearExclusions"
+                >
+                    {{ dispatching === 'exclusions' ? 'Clearing…' : 'Clear exclusions' }}
+                </button>
+            </div>
+            <p v-if="syncRunsInProgress" class="mt-2 text-[11px] text-gray-600">
+                A sync is already in progress; a refresh sweep will queue behind it on the sync worker.
+            </p>
         </div>
 
         <!-- Recent failed jobs -->

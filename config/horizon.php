@@ -226,6 +226,14 @@ return [
             'tries' => 3,
             'timeout' => 120,
         ],
+        'supervisor-recommendations' => [
+            'connection' => 'redis',
+            'queue' => ['recommendations'],
+            'balance' => 'auto',
+            'maxProcesses' => 2,
+            'tries' => 3,
+            'timeout' => 120,
+        ],
     ],
 
     'environments' => [
@@ -241,6 +249,9 @@ return [
             'supervisor-import' => [
                 'maxProcesses' => 2,
             ],
+            'supervisor-recommendations' => [
+                'maxProcesses' => 2,
+            ],
         ],
 
         'local' => [
@@ -251,6 +262,9 @@ return [
                 'maxProcesses' => 1,
             ],
             'supervisor-import' => [
+                'maxProcesses' => 1,
+            ],
+            'supervisor-recommendations' => [
                 'maxProcesses' => 1,
             ],
         ],

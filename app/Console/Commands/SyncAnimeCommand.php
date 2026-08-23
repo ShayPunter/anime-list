@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SyncAnimePage;
+use App\Models\SyncRun;
+use App\Services\SyncRunTracker;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 
 class SyncAnimeCommand extends Command
 {
@@ -20,32 +21,37 @@ class SyncAnimeCommand extends Command
 
     protected $description = 'Sync anime data from AniList API';
 
-    public function handle(): int
+    public function __construct(private readonly SyncRunTracker $tracker)
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-
-        if ($this->option('status')) {
-            $result = $this->runTargetedSync($progressTtl);
-            $mode = 'targeted';
-        } elseif ($this->option('full') || $this->option('page') || $this->option('resume')) {
-            $result = $this->runFullSync($progressTtl);
-            $mode = 'full';
-        } elseif ($this->option('finished')) {
-            $result = $this->runFinishedIncrementalSync($progressTtl);
-            $mode = 'finished_incremental';
-        } else {
-            $result = $this->runIncrementalSync($progressTtl);
-            $mode = 'incremental';
-        }
-
-        if ($result === self::SUCCESS && $this->option('watch')) {
-            $this->watchProgress($mode);
-        }
-
-        return $result;
+        parent::__construct();
     }
 
-    private function runFullSync(int $progressTtl): int
+    public function handle(): int
+    {
+        if ($this->option('status')) {
+            $run = $this->runTargetedSync();
+        } elseif ($this->option('full') || $this->option('page') || $this->option('resume')) {
+            $run = $this->runFullSync();
+        } elseif ($this->option('finished')) {
+            $run = $this->runFinishedIncrementalSync();
+        } else {
+            $run = $this->runIncrementalSync();
+        }
+
+        if ($run === null) {
+            return self::FAILURE;
+        }
+
+        if ($this->option('watch')) {
+            $this->watchProgress($run);
+        } else {
+            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
+        }
+
+        return self::SUCCESS;
+    }
+
+    private function runFullSync(): ?SyncRun
     {
         $startPage = 1;
 
@@ -54,42 +60,38 @@ class SyncAnimeCommand extends Command
             if ($startPage < 1) {
                 $this->error('Page number must be a positive integer.');
 
-                return self::FAILURE;
+                return null;
             }
         } elseif ($this->option('resume')) {
-            $progress = Cache::get('sync:full:progress');
-            if ($progress && isset($progress['last_completed_page'])) {
-                $startPage = $progress['last_completed_page'] + 1;
-                $this->info("Resuming from page {$startPage} (last completed: {$progress['last_completed_page']} of {$progress['last_page']})");
+            $previous = SyncRun::query()
+                ->where('mode', SyncRun::MODE_FULL)
+                ->orderByDesc('id')
+                ->first();
+
+            if ($previous && $previous->current_page > 0) {
+                $startPage = $previous->current_page + 1;
+                $this->info("Resuming from page {$startPage} (last completed: {$previous->current_page} of {$previous->last_page})");
             } else {
                 $this->warn('No previous sync progress found. Starting from page 1.');
             }
         }
 
-        Cache::put('sync:full:status', 'running', $progressTtl);
-        Cache::put('sync:full:progress', [
-            'last_completed_page' => $startPage - 1,
-            'last_page' => 0,
-            'total' => 0,
-            'started_at' => now()->toIso8601String(),
-        ], $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_FULL);
+        $run->forceFill(['current_page' => $startPage - 1])->save();
 
         SyncAnimePage::dispatch(
             page: $startPage,
             perPage: config('anilist.sync.per_page', 50),
-            mode: 'full',
+            mode: SyncRun::MODE_FULL,
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         $this->info("Full sync dispatched starting from page {$startPage}.");
 
-        if (! $this->option('watch')) {
-            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
-        }
-
-        return self::SUCCESS;
+        return $run;
     }
 
-    private function runTargetedSync(int $progressTtl): int
+    private function runTargetedSync(): ?SyncRun
     {
         $status = strtoupper($this->option('status'));
         $validStatuses = ['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED', 'HIATUS'];
@@ -97,106 +99,80 @@ class SyncAnimeCommand extends Command
         if (! in_array($status, $validStatuses)) {
             $this->error("Invalid status: {$status}. Valid: ".implode(', ', $validStatuses));
 
-            return self::FAILURE;
+            return null;
         }
 
         $season = $this->option('season') ? strtoupper($this->option('season')) : null;
         $seasonYear = $this->option('season-year') ? (int) $this->option('season-year') : null;
 
-        $label = "status={$status}";
-        if ($season) {
-            $label .= " season={$season}";
-        }
-        if ($seasonYear) {
-            $label .= " year={$seasonYear}";
-        }
+        // Each status/season combination is tracked as its own run — the
+        // RELEASING and NOT_YET_RELEASED sweeps overlap on the schedule and
+        // used to overwrite each other's progress and status.
+        $label = trim(implode(' ', array_filter([$status, $season, $seasonYear])));
 
         $this->info("Running targeted sync: {$label}");
 
-        Cache::put('sync:targeted:status', 'running', $progressTtl);
-        Cache::put('sync:targeted:progress', [
-            'last_completed_page' => 0,
-            'last_page' => 0,
-            'total' => 0,
-            'started_at' => now()->toIso8601String(),
-        ], $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_TARGETED, $label);
 
         SyncAnimePage::dispatch(
             page: 1,
             perPage: config('anilist.sync.per_page', 50),
-            mode: 'targeted',
+            mode: SyncRun::MODE_TARGETED,
             updatedAtGreater: null,
             anilistStatus: $status,
             anilistSeason: $season,
             anilistSeasonYear: $seasonYear,
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         $this->info('Targeted sync dispatched.');
 
-        if (! $this->option('watch')) {
-            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
-        }
-
-        return self::SUCCESS;
+        return $run;
     }
 
-    private function runIncrementalSync(int $progressTtl): int
+    private function runIncrementalSync(): SyncRun
     {
-        $lastRun = Cache::get('sync:incremental:last_run');
-        $updatedAtGreater = $lastRun ?? now()->subDay()->timestamp;
+        $cutoff = $this->tracker->nextCutoffFor(SyncRun::MODE_INCREMENTAL, fallbackSeconds: 86400);
 
-        $this->info('Running incremental sync for anime updated since '.date('Y-m-d H:i:s', $updatedAtGreater));
+        $this->info('Running incremental sync for anime updated since '.date('Y-m-d H:i:s', $cutoff));
 
-        Cache::put('sync:incremental:status', 'running', $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_INCREMENTAL, cutoffAt: $cutoff);
 
         SyncAnimePage::dispatch(
             page: 1,
             perPage: config('anilist.sync.per_page', 50),
-            mode: 'incremental',
-            updatedAtGreater: $updatedAtGreater,
+            mode: SyncRun::MODE_INCREMENTAL,
+            updatedAtGreater: $cutoff,
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         $this->info('Incremental sync dispatched.');
 
-        if (! $this->option('watch')) {
-            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
-        }
-
-        return self::SUCCESS;
+        return $run;
     }
 
-    private function runFinishedIncrementalSync(int $progressTtl): int
+    private function runFinishedIncrementalSync(): SyncRun
     {
-        $lastRun = Cache::get('sync:finished_incremental:last_run');
-        $updatedAtGreater = $lastRun ?? now()->subDays(31)->timestamp;
+        $cutoff = $this->tracker->nextCutoffFor(SyncRun::MODE_FINISHED_INCREMENTAL, fallbackSeconds: 31 * 86400);
 
-        $this->info('Running FINISHED-only incremental sync for anime updated since '.date('Y-m-d H:i:s', $updatedAtGreater));
+        $this->info('Running FINISHED-only incremental sync for anime updated since '.date('Y-m-d H:i:s', $cutoff));
 
-        Cache::put('sync:finished_incremental:status', 'running', $progressTtl);
-        Cache::put('sync:finished_incremental:progress', [
-            'last_completed_page' => 0,
-            'last_page' => 0,
-            'total' => 0,
-            'started_at' => now()->toIso8601String(),
-        ], $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_FINISHED_INCREMENTAL, cutoffAt: $cutoff);
 
         SyncAnimePage::dispatch(
             page: 1,
             perPage: config('anilist.sync.per_page', 50),
-            mode: 'finished_incremental',
-            updatedAtGreater: $updatedAtGreater,
+            mode: SyncRun::MODE_FINISHED_INCREMENTAL,
+            updatedAtGreater: $cutoff,
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         $this->info('Finished-anime incremental sync dispatched.');
 
-        if (! $this->option('watch')) {
-            $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
-        }
-
-        return self::SUCCESS;
+        return $run;
     }
 
-    private function watchProgress(string $mode): void
+    private function watchProgress(SyncRun $run): void
     {
         $this->newLine();
         $this->info('Watching sync progress... (Ctrl+C to stop)');
@@ -206,31 +182,18 @@ class SyncAnimeCommand extends Command
         $staleCount = 0;
 
         while (true) {
-            $status = Cache::get("sync:{$mode}:status", 'unknown');
-            $progress = Cache::get("sync:{$mode}:progress");
+            $run->refresh();
 
-            if (! $progress) {
-                sleep(2);
-                $staleCount++;
-                if ($staleCount > 30) {
-                    $this->warn('No progress data found after 60s. Is Horizon running?');
-
-                    break;
-                }
-
-                continue;
-            }
-
-            $currentPage = $progress['last_completed_page'] ?? 0;
-            $totalPages = $progress['last_page'] ?? 0;
-            $totalItems = $progress['total'] ?? 0;
+            $currentPage = $run->current_page;
+            $totalPages = $run->last_page;
+            $totalItems = $run->total_items;
 
             if ($currentPage !== $lastPage) {
                 $staleCount = 0;
                 $lastPage = $currentPage;
 
                 if ($totalPages > 0) {
-                    $percent = round(($currentPage / $totalPages) * 100);
+                    $percent = min(100, (int) round(($currentPage / $totalPages) * 100));
                     $bar = str_repeat('=', (int) ($percent / 2)).'>'.str_repeat(' ', 50 - (int) ($percent / 2));
                     $this->output->write("\r  [{$bar}] {$percent}% — Page {$currentPage}/{$totalPages} ({$totalItems} anime)");
                 } else {
@@ -240,26 +203,32 @@ class SyncAnimeCommand extends Command
                 $staleCount++;
             }
 
-            if ($status === 'completed') {
-                $this->newLine();
-                $this->newLine();
+            if ($run->status === SyncRun::STATUS_COMPLETED) {
+                $this->newLine(2);
                 $this->info("Sync complete! {$totalItems} anime across {$currentPage} pages.");
 
                 break;
             }
 
-            if ($status === 'failed') {
-                $this->newLine();
-                $this->newLine();
-                $this->error("Sync failed on page {$currentPage}. Check logs for details.");
+            if ($run->status === SyncRun::STATUS_FAILED) {
+                $this->newLine(2);
+                $this->error("Sync failed on page {$currentPage}: {$run->last_error}");
+
+                break;
+            }
+
+            if ($run->status === SyncRun::STATUS_SUPERSEDED) {
+                $this->newLine(2);
+                $this->warn('This run was superseded by a newer sync of the same mode.');
 
                 break;
             }
 
             if ($staleCount > 60) {
-                $this->newLine();
-                $this->newLine();
-                $this->warn('No progress update for 2 minutes. Sync may have stalled.');
+                $this->newLine(2);
+                $this->warn($run->status === SyncRun::STATUS_PAUSED
+                    ? 'Sync is paused waiting on AniList to come back.'
+                    : 'No progress update for 2 minutes. Sync may have stalled — is Horizon running?');
 
                 break;
             }

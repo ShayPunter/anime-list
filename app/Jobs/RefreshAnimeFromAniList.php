@@ -19,11 +19,31 @@ class RefreshAnimeFromAniList implements ShouldQueue
 
     public int $timeout = 120;
 
-    public int $tries = 3;
+    /**
+     * Attempts are bounded by retryUntil() rather than a fixed count: the job
+     * releases itself back onto the queue while AniList is unavailable, and
+     * every one of those releases would otherwise burn an attempt and fail the
+     * refresh with MaxAttemptsExceededException.
+     */
+    public int $tries = 0;
+
+    /**
+     * Genuine errors (as opposed to outage releases) still fail fast.
+     */
+    public int $maxExceptions = 3;
 
     public function __construct(
         public readonly int $anilistId,
     ) {}
+
+    /**
+     * Long enough to sit out a couple of AniList circuit-breaker windows
+     * (900s each by default) before giving up.
+     */
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHours(2);
+    }
 
     public function handle(AniListClient $client, AnimeDataPersistenceService $persistenceService): void
     {

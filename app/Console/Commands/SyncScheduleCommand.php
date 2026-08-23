@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SyncAiringSchedulePage;
+use App\Models\SyncRun;
+use App\Services\SyncRunTracker;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 
 class SyncScheduleCommand extends Command
 {
@@ -14,36 +15,32 @@ class SyncScheduleCommand extends Command
 
     protected $description = 'Sync airing schedules from AniList for the next N days';
 
+    public function __construct(private readonly SyncRunTracker $tracker)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
         $days = (int) $this->option('days');
         $now = now();
 
-        $airingAtGreater = $now->timestamp;
-        $airingAtLesser = $now->copy()->addDays($days)->timestamp;
-
         $this->info("Syncing airing schedules for the next {$days} days");
 
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:schedule:status', 'running', $progressTtl);
-        Cache::put('sync:schedule:progress', [
-            'last_completed_page' => 0,
-            'last_page' => 0,
-            'total' => 0,
-            'started_at' => now()->toIso8601String(),
-        ], $progressTtl);
+        $run = $this->tracker->start(SyncRun::MODE_SCHEDULE);
 
         SyncAiringSchedulePage::dispatch(
             page: 1,
-            airingAtGreater: $airingAtGreater,
-            airingAtLesser: $airingAtLesser,
+            airingAtGreater: $now->timestamp,
+            airingAtLesser: $now->copy()->addDays($days)->timestamp,
             perPage: config('anilist.sync.per_page', 50),
+            syncRunId: $run->id,
         )->onQueue('sync');
 
         $this->info('Airing schedule sync dispatched.');
 
         if ($this->option('watch')) {
-            $this->watchProgress();
+            $this->watchProgress($run);
         } else {
             $this->info('Tip: use --watch to follow progress, or monitor with: php artisan horizon');
         }
@@ -51,7 +48,7 @@ class SyncScheduleCommand extends Command
         return self::SUCCESS;
     }
 
-    private function watchProgress(): void
+    private function watchProgress(SyncRun $run): void
     {
         $this->newLine();
         $this->info('Watching sync progress... (Ctrl+C to stop)');
@@ -61,31 +58,18 @@ class SyncScheduleCommand extends Command
         $staleCount = 0;
 
         while (true) {
-            $status = Cache::get('sync:schedule:status', 'unknown');
-            $progress = Cache::get('sync:schedule:progress');
+            $run->refresh();
 
-            if (! $progress) {
-                sleep(2);
-                $staleCount++;
-                if ($staleCount > 30) {
-                    $this->warn('No progress data found after 60s. Is Horizon running?');
-
-                    break;
-                }
-
-                continue;
-            }
-
-            $currentPage = $progress['last_completed_page'] ?? 0;
-            $totalPages = $progress['last_page'] ?? 0;
-            $totalItems = $progress['total'] ?? 0;
+            $currentPage = $run->current_page;
+            $totalPages = $run->last_page;
+            $totalItems = $run->total_items;
 
             if ($currentPage !== $lastPage) {
                 $staleCount = 0;
                 $lastPage = $currentPage;
 
                 if ($totalPages > 0) {
-                    $percent = round(($currentPage / $totalPages) * 100);
+                    $percent = min(100, (int) round(($currentPage / $totalPages) * 100));
                     $bar = str_repeat('=', (int) ($percent / 2)).'>'.str_repeat(' ', 50 - (int) ($percent / 2));
                     $this->output->write("\r  [{$bar}] {$percent}% — Page {$currentPage}/{$totalPages} ({$totalItems} schedules)");
                 } else {
@@ -95,26 +79,32 @@ class SyncScheduleCommand extends Command
                 $staleCount++;
             }
 
-            if ($status === 'completed') {
-                $this->newLine();
-                $this->newLine();
+            if ($run->status === SyncRun::STATUS_COMPLETED) {
+                $this->newLine(2);
                 $this->info("Sync complete! {$totalItems} airing schedules across {$currentPage} pages.");
 
                 break;
             }
 
-            if ($status === 'failed') {
-                $this->newLine();
-                $this->newLine();
-                $this->error("Sync failed on page {$currentPage}. Check logs for details.");
+            if ($run->status === SyncRun::STATUS_FAILED) {
+                $this->newLine(2);
+                $this->error("Sync failed on page {$currentPage}: {$run->last_error}");
+
+                break;
+            }
+
+            if ($run->status === SyncRun::STATUS_SUPERSEDED) {
+                $this->newLine(2);
+                $this->warn('This run was superseded by a newer schedule sync.');
 
                 break;
             }
 
             if ($staleCount > 60) {
-                $this->newLine();
-                $this->newLine();
-                $this->warn('No progress update for 2 minutes. Sync may have stalled.');
+                $this->newLine(2);
+                $this->warn($run->status === SyncRun::STATUS_PAUSED
+                    ? 'Sync is paused waiting on AniList to come back.'
+                    : 'No progress update for 2 minutes. Sync may have stalled — is Horizon running?');
 
                 break;
             }

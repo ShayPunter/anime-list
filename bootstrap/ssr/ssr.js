@@ -1,10 +1,10 @@
-import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, unref, watch, onUnmounted, toDisplayString, createVNode, openBlock, createBlock, createCommentVNode, onMounted, withDirectives, vModelText, resolveDynamicComponent, Fragment, renderList, reactive, onScopeDispose, createSSRApp, h as h$1 } from "vue";
-import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderList, ssrRenderClass, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderVNode, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, renderToString } from "vue/server-renderer";
-import { usePage, router, useForm, Link, createInertiaApp, Head } from "@inertiajs/vue3";
+import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, unref, watch, onUnmounted, toDisplayString, onScopeDispose, createVNode, withDirectives, vModelText, openBlock, createBlock, onMounted, onBeforeUnmount, createCommentVNode, resolveDynamicComponent, Fragment, renderList, reactive, createSSRApp, h as h$1 } from "vue";
+import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderList, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderClass, ssrLooseContain, ssrRenderStyle, ssrRenderVNode, ssrLooseEqual, renderToString } from "vue/server-renderer";
+import { usePage, useForm, router, Link, createInertiaApp, Head } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
-import { useQueryClient, useMutation, useQuery, VueQueryPlugin } from "@tanstack/vue-query";
 import axios from "axios";
+import { useQueryClient, useMutation, useQuery, VueQueryPlugin } from "@tanstack/vue-query";
 import Dialog from "primevue/dialog";
 import Select from "primevue/select";
 import Slider from "primevue/slider";
@@ -12,16 +12,8 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import ProgressBar from "primevue/progressbar";
-import Bt from "node:http";
-import zs from "node:https";
-import st from "node:zlib";
-import me, { PassThrough, pipeline } from "node:stream";
-import { Buffer as Buffer$1 } from "node:buffer";
-import { promisify, deprecate, types } from "node:util";
-import { format } from "node:url";
-import { isIP } from "node:net";
-import { promises, statSync, createReadStream } from "node:fs";
-import { basename } from "node:path";
+import { platformAuthenticatorIsAvailable, browserSupportsWebAuthnAutofill, browserSupportsWebAuthn, startRegistration, startAuthentication } from "@simplewebauthn/browser";
+import { ofetch } from "ofetch";
 import ToggleSwitch from "primevue/toggleswitch";
 import Password from "primevue/password";
 import createServer from "@inertiajs/vue3/server";
@@ -29,7 +21,7 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Aura from "@primevue/themes/aura";
-const _sfc_main$T = /* @__PURE__ */ defineComponent({
+const _sfc_main$W = /* @__PURE__ */ defineComponent({
   __name: "UserAvatar",
   __ssrInlineRender: true,
   props: {
@@ -76,17 +68,17 @@ const _sfc_main$T = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$T = _sfc_main$T.setup;
-_sfc_main$T.setup = (props, ctx) => {
+const _sfc_setup$W = _sfc_main$W.setup;
+_sfc_main$W.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/UserAvatar.vue");
-  return _sfc_setup$T ? _sfc_setup$T(props, ctx) : void 0;
+  return _sfc_setup$W ? _sfc_setup$W(props, ctx) : void 0;
 };
 function useFeature(name) {
   const page = usePage();
   return computed(() => page.props.features?.[name] ?? false);
 }
-const _sfc_main$S = /* @__PURE__ */ defineComponent({
+const _sfc_main$V = /* @__PURE__ */ defineComponent({
   __name: "AppNavbar",
   __ssrInlineRender: true,
   props: {
@@ -213,7 +205,7 @@ const _sfc_main$S = /* @__PURE__ */ defineComponent({
           _push(`<!---->`);
         }
         _push(`<div class="relative"><button class="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition">`);
-        _push(ssrRenderComponent(_sfc_main$T, {
+        _push(ssrRenderComponent(_sfc_main$W, {
           name: __props.user.name,
           "avatar-url": __props.user.avatar_url,
           size: "sm"
@@ -313,13 +305,13 @@ const _sfc_main$S = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$S = _sfc_main$S.setup;
-_sfc_main$S.setup = (props, ctx) => {
+const _sfc_setup$V = _sfc_main$V.setup;
+_sfc_main$V.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppNavbar.vue");
-  return _sfc_setup$S ? _sfc_setup$S(props, ctx) : void 0;
+  return _sfc_setup$V ? _sfc_setup$V(props, ctx) : void 0;
 };
-const _sfc_main$R = /* @__PURE__ */ defineComponent({
+const _sfc_main$U = /* @__PURE__ */ defineComponent({
   __name: "AppFooter",
   __ssrInlineRender: true,
   setup(__props) {
@@ -406,6 +398,22 @@ const _sfc_main$R = /* @__PURE__ */ defineComponent({
         }),
         _: 1
       }, _parent));
+      _push(`</li><li>`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("alternatives"),
+        class: "text-gray-500 transition hover:text-gray-200"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`MAL Alternatives`);
+          } else {
+            return [
+              createTextVNode("MAL Alternatives")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
       _push(`</li>`);
       if (unref(publicApiEnabled)) {
         _push(`<li>`);
@@ -464,11 +472,11 @@ const _sfc_main$R = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$R = _sfc_main$R.setup;
-_sfc_main$R.setup = (props, ctx) => {
+const _sfc_setup$U = _sfc_main$U.setup;
+_sfc_main$U.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AppFooter.vue");
-  return _sfc_setup$R ? _sfc_setup$R(props, ctx) : void 0;
+  return _sfc_setup$U ? _sfc_setup$U(props, ctx) : void 0;
 };
 function useFlashToast() {
   const page = usePage();
@@ -494,7 +502,7 @@ function useFlashToast() {
   );
   onUnmounted(stop);
 }
-const _sfc_main$Q = /* @__PURE__ */ defineComponent({
+const _sfc_main$T = /* @__PURE__ */ defineComponent({
   __name: "AppLayout",
   __ssrInlineRender: true,
   setup(__props) {
@@ -504,26 +512,26 @@ const _sfc_main$Q = /* @__PURE__ */ defineComponent({
     useFlashToast();
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "min-h-screen bg-gray-950 text-gray-100 dark" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$S, {
+      _push(ssrRenderComponent(_sfc_main$V, {
         user: user.value,
         "is-authenticated": isAuthenticated.value
       }, null, _parent));
       _push(`<main class="container mx-auto px-4 py-6">`);
       ssrRenderSlot(_ctx.$slots, "default", {}, null, _push, _parent);
       _push(`</main>`);
-      _push(ssrRenderComponent(_sfc_main$R, null, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$U, null, null, _parent));
       _push(ssrRenderComponent(unref(Toast), { position: "top-right" }, null, _parent));
       _push(`</div>`);
     };
   }
 });
-const _sfc_setup$Q = _sfc_main$Q.setup;
-_sfc_main$Q.setup = (props, ctx) => {
+const _sfc_setup$T = _sfc_main$T.setup;
+_sfc_main$T.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/AppLayout.vue");
-  return _sfc_setup$Q ? _sfc_setup$Q(props, ctx) : void 0;
+  return _sfc_setup$T ? _sfc_setup$T(props, ctx) : void 0;
 };
-const _sfc_main$P = /* @__PURE__ */ defineComponent({
+const _sfc_main$S = /* @__PURE__ */ defineComponent({
   __name: "AdminNav",
   __ssrInlineRender: true,
   setup(__props) {
@@ -532,6 +540,9 @@ const _sfc_main$P = /* @__PURE__ */ defineComponent({
     const links = [
       { label: "Dashboard", route: "admin.dashboard" },
       { label: "Users", route: "admin.users" },
+      { label: "Roles", route: "admin.roles" },
+      { label: "Anime", route: "admin.anime.index" },
+      { label: "Jobs", route: "admin.jobs" },
       { label: "Feature Flags", route: "admin.features" }
     ];
     function isActive(routeName) {
@@ -562,140 +573,129 @@ const _sfc_main$P = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$P = _sfc_main$P.setup;
-_sfc_main$P.setup = (props, ctx) => {
+const _sfc_setup$S = _sfc_main$S.setup;
+_sfc_main$S.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AdminNav.vue");
-  return _sfc_setup$P ? _sfc_setup$P(props, ctx) : void 0;
+  return _sfc_setup$S ? _sfc_setup$S(props, ctx) : void 0;
 };
-const _sfc_main$O = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
-  __name: "DashboardPage",
+const _sfc_main$R = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "AnimeEditPage",
   __ssrInlineRender: true,
   props: {
-    stats: {},
-    recentUsers: {},
-    syncStatuses: {}
+    anime: {}
   },
   setup(__props) {
-    function formatDate(iso) {
-      return new Date(iso).toLocaleDateString("en-US", {
+    const props = __props;
+    const form = useForm({
+      synopsis: props.anime.synopsis ?? ""
+    });
+    const confirmingReset = ref(false);
+    const page = usePage();
+    const flashMessage = computed(() => page.props.flash?.message ?? null);
+    function formatDateTime(iso) {
+      if (!iso) return null;
+      return new Date(iso).toLocaleString("en-US", {
         month: "short",
         day: "numeric",
-        year: "numeric"
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
       });
     }
-    function syncStatusColor(status) {
-      if (status === "completed") return "text-green-400";
-      if (status === "running") return "text-yellow-400";
-      if (status === "failed") return "text-red-400";
-      return "text-gray-500";
-    }
+    const characterCount = computed(() => form.synopsis.length);
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
+      const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
-      _push(ssrRenderComponent(_component_Head, { title: "Admin Dashboard" }, null, _parent));
-      _push(`<div class="mx-auto max-w-6xl space-y-8">`);
-      _push(ssrRenderComponent(_sfc_main$P, null, null, _parent));
-      _push(`<h1 class="text-2xl font-bold">Dashboard</h1><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_users.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Total Users</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.new_users_this_month)}</div><div class="mt-1 text-xs text-gray-400">New This Month</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_anime.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Anime in DB</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_list_entries.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">List Entries</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_episodes_watched.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Episodes Watched</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.active_users_today)}</div><div class="mt-1 text-xs text-gray-400">Active Today</div></div></div><div class="grid gap-6 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Sync Status</h2><div class="space-y-3"><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Releasing Anime</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.releasing), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.releasing)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Incremental Sync</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.incremental), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.incremental)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Airing Schedule</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.schedule), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.schedule)}</span></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Recent Users</h2><div class="space-y-3"><!--[-->`);
-      ssrRenderList(__props.recentUsers, (user) => {
-        _push(`<div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-xs font-medium text-gray-300">${ssrInterpolate(user.name.charAt(0).toUpperCase())}</div><div><div class="text-sm font-medium text-gray-200">${ssrInterpolate(user.name)} `);
-        if (user.is_admin) {
-          _push(`<span class="ml-1 rounded bg-primary-600/20 px-1.5 py-0.5 text-[10px] font-semibold text-primary-400"> ADMIN </span>`);
+      _push(ssrRenderComponent(_component_Head, {
+        title: `Edit: ${__props.anime.title_english ?? __props.anime.title_romaji}`
+      }, null, _parent));
+      _push(`<div class="mx-auto max-w-4xl space-y-6">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<div class="flex items-start justify-between gap-4"><div class="min-w-0">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("admin.anime.index"),
+        class: "text-sm text-gray-400 transition hover:text-gray-200"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` ← All anime `);
+          } else {
+            return [
+              createTextVNode(" ← All anime ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<h1 class="mt-2 truncate text-2xl font-bold">${ssrInterpolate(__props.anime.title_english ?? __props.anime.title_romaji)}</h1>`);
+      if (__props.anime.title_english && __props.anime.title_romaji !== __props.anime.title_english) {
+        _push(`<p class="text-sm text-gray-500">${ssrInterpolate(__props.anime.title_romaji)}</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<p class="mt-1 text-xs uppercase tracking-wide text-gray-600">${ssrInterpolate([__props.anime.format, __props.anime.season, __props.anime.season_year].filter(Boolean).join(" · "))}</p></div>`);
+      if (__props.anime.cover_image_medium) {
+        _push(`<img${ssrRenderAttr("src", __props.anime.cover_image_medium)}${ssrRenderAttr("alt", __props.anime.title_romaji)} class="h-32 w-24 flex-shrink-0 rounded object-cover">`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+      if (flashMessage.value) {
+        _push(`<div class="rounded-lg border border-green-700/50 bg-green-900/20 px-4 py-2 text-sm text-green-400">${ssrInterpolate(flashMessage.value)}</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.anime.synopsis_rewritten_at) {
+        _push(`<div class="rounded-lg border border-primary-600/40 bg-primary-900/10 px-4 py-3 text-sm"><div class="flex items-center justify-between gap-4"><span class="text-primary-300"> This description was rewritten on ${ssrInterpolate(formatDateTime(__props.anime.synopsis_rewritten_at))}. AniList syncs will not overwrite it. </span>`);
+        if (confirmingReset.value) {
+          _push(`<div class="flex items-center gap-2"><button class="rounded bg-red-600 px-2.5 py-1 text-xs text-white transition hover:bg-red-700"> Confirm revert </button><button class="rounded px-2.5 py-1 text-xs text-gray-400 transition hover:text-gray-200"> Cancel </button></div>`);
         } else {
-          _push(`<!---->`);
+          _push(`<button class="flex-shrink-0 rounded bg-gray-800 px-2.5 py-1 text-xs text-gray-300 transition hover:bg-gray-700"> Revert to AniList </button>`);
         }
-        _push(`</div><div class="text-xs text-gray-500">${ssrInterpolate(user.email)}</div></div></div><div class="text-xs text-gray-500">${ssrInterpolate(formatDate(user.created_at))}</div></div>`);
-      });
-      _push(`<!--]--></div></div></div></div><!--]-->`);
+        _push(`</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<form class="space-y-4"><div><label class="mb-1 flex items-center justify-between text-sm font-medium text-gray-300"><span>Synopsis</span><span class="text-xs font-normal text-gray-500">${ssrInterpolate(characterCount.value.toLocaleString())} chars</span></label><textarea rows="16" class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 font-mono text-sm text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500" placeholder="Write a unique, SEO-friendly description...">${ssrInterpolate(unref(form).synopsis)}</textarea>`);
+      if (unref(form).errors.synopsis) {
+        _push(`<p class="mt-1 text-sm text-red-400">${ssrInterpolate(unref(form).errors.synopsis)}</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<p class="mt-1 text-xs text-gray-500"> HTML tags like &lt;br&gt;, &lt;p&gt;, &lt;i&gt;, &lt;b&gt;, &lt;em&gt;, &lt;strong&gt; will render on the public page. </p></div><div class="flex items-center justify-end gap-2">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("admin.anime.index"),
+        class: "rounded-lg px-4 py-2 text-sm text-gray-400 transition hover:text-gray-200"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Cancel `);
+          } else {
+            return [
+              createTextVNode(" Cancel ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<a${ssrRenderAttr("href", _ctx.route("anime.show", { anime: __props.anime.slug }))} target="_blank" rel="noopener" class="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-300 transition hover:bg-gray-800"> View public page </a><button type="submit"${ssrIncludeBooleanAttr(unref(form).processing) ? " disabled" : ""} class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50">${ssrInterpolate(unref(form).processing ? "Saving…" : "Save description")}</button></div></form></div><!--]-->`);
     };
   }
 });
-const _sfc_setup$O = _sfc_main$O.setup;
-_sfc_main$O.setup = (props, ctx) => {
+const _sfc_setup$R = _sfc_main$R.setup;
+_sfc_main$R.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/DashboardPage.vue");
-  return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/AnimeEditPage.vue");
+  return _sfc_setup$R ? _sfc_setup$R(props, ctx) : void 0;
 };
 const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$O
+  default: _sfc_main$R
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$N = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
-  __name: "FeatureFlagsPage",
-  __ssrInlineRender: true,
-  props: {
-    features: {}
-  },
-  setup(__props) {
-    const addingUserFor = ref(null);
-    const usernameInput = ref("");
-    const addingError = ref("");
-    const statusLabels = {
-      everyone: "Everyone",
-      nobody: "Nobody",
-      default: "Default (Off)",
-      specific: "Specific Users"
-    };
-    const statusColors = {
-      everyone: "text-green-400",
-      nobody: "text-red-400",
-      default: "text-gray-500",
-      specific: "text-yellow-400"
-    };
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Head = resolveComponent("Head");
-      _push(`<!--[-->`);
-      _push(ssrRenderComponent(_component_Head, { title: "Feature Flags" }, null, _parent));
-      _push(`<div class="mx-auto max-w-6xl">`);
-      _push(ssrRenderComponent(_sfc_main$P, null, null, _parent));
-      _push(`<h1 class="text-2xl font-bold mb-6">Feature Flags</h1>`);
-      if (__props.features.length === 0) {
-        _push(`<div class="text-center py-12 text-gray-500"> No feature flags defined. </div>`);
-      } else {
-        _push(`<div class="space-y-4"><!--[-->`);
-        ssrRenderList(__props.features, (feature) => {
-          _push(`<div class="bg-gray-900 border border-gray-800 rounded-xl p-5"><div class="flex items-center justify-between mb-3"><div><h2 class="font-semibold text-gray-100 font-mono">${ssrInterpolate(feature.name)}</h2><span class="${ssrRenderClass([statusColors[feature.status], "text-xs"])}">${ssrInterpolate(statusLabels[feature.status])}</span></div><div class="flex gap-1"><button class="${ssrRenderClass([feature.status === "everyone" ? "border-green-500 bg-green-600/20 text-green-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Everyone </button><button class="${ssrRenderClass([feature.status === "nobody" ? "border-red-500 bg-red-600/20 text-red-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Nobody </button><button class="${ssrRenderClass([feature.status === "default" ? "border-gray-500 bg-gray-600/20 text-gray-300" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Default </button></div></div><div class="border-t border-gray-800 pt-3"><div class="flex items-center gap-2 mb-2"><span class="text-xs text-gray-500">User overrides</span><button class="text-xs text-primary-400 hover:text-primary-300 transition"> + Add user </button></div>`);
-          if (addingUserFor.value === feature.name) {
-            _push(`<div class="flex items-center gap-2 mb-2"><input${ssrRenderAttr("value", usernameInput.value)} type="text" placeholder="Username" class="rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300 flex-1"><button class="rounded bg-primary-600 px-3 py-1 text-sm text-white hover:bg-primary-700 transition"> Add </button>`);
-            if (addingError.value) {
-              _push(`<span class="text-xs text-red-400">${ssrInterpolate(addingError.value)}</span>`);
-            } else {
-              _push(`<!---->`);
-            }
-            _push(`</div>`);
-          } else {
-            _push(`<!---->`);
-          }
-          if (feature.users.length > 0) {
-            _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
-            ssrRenderList(feature.users, (user) => {
-              _push(`<div class="flex items-center gap-1.5 rounded-full bg-gray-800 pl-3 pr-1.5 py-1 text-xs"><span class="text-gray-300">${ssrInterpolate(user.username)}</span><button class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"> × </button></div>`);
-            });
-            _push(`<!--]--></div>`);
-          } else {
-            _push(`<p class="text-xs text-gray-600">No user-specific overrides</p>`);
-          }
-          _push(`</div></div>`);
-        });
-        _push(`<!--]--></div>`);
-      }
-      _push(`</div><!--]-->`);
-    };
-  }
-});
-const _sfc_setup$N = _sfc_main$N.setup;
-_sfc_main$N.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/FeatureFlagsPage.vue");
-  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
-};
-const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: _sfc_main$N
-}, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$M = /* @__PURE__ */ defineComponent({
+const _sfc_main$Q = /* @__PURE__ */ defineComponent({
   __name: "PaginationBar",
   __ssrInlineRender: true,
   props: {
@@ -749,14 +749,631 @@ const _sfc_main$M = /* @__PURE__ */ defineComponent({
     };
   }
 });
+const _sfc_setup$Q = _sfc_main$Q.setup;
+_sfc_main$Q.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/PaginationBar.vue");
+  return _sfc_setup$Q ? _sfc_setup$Q(props, ctx) : void 0;
+};
+const _sfc_main$P = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "AnimeListPage",
+  __ssrInlineRender: true,
+  props: {
+    anime: {},
+    filters: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const search = ref(props.filters.search ?? "");
+    const rewrittenOnly = ref(props.filters.rewritten_only);
+    let debounceTimer = null;
+    function pushFilters() {
+      router.get(
+        route("admin.anime.index"),
+        {
+          search: search.value || void 0,
+          rewritten_only: rewrittenOnly.value ? 1 : void 0
+        },
+        { preserveState: true, preserveScroll: true }
+      );
+    }
+    watch(search, () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(pushFilters, 300);
+    });
+    watch(rewrittenOnly, () => pushFilters());
+    function formatDate(iso) {
+      if (!iso) return null;
+      return new Date(iso).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      const _component_Link = resolveComponent("Link");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Anime Descriptions" }, null, _parent));
+      _push(`<div class="mx-auto max-w-6xl space-y-6">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">Anime Descriptions</h1><p class="mt-1 text-sm text-gray-400"> Rewrite synopses for SEO. Rewritten descriptions are preserved across AniList syncs. </p></div><span class="text-xs text-gray-500">${ssrInterpolate(__props.anime.meta.total.toLocaleString())} total</span></div><div class="flex flex-col gap-3 sm:flex-row sm:items-center"><input${ssrRenderAttr("value", search.value)} type="text" placeholder="Search by title or slug..." class="flex-1 rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><label class="inline-flex items-center gap-2 text-sm text-gray-300"><input${ssrIncludeBooleanAttr(Array.isArray(rewrittenOnly.value) ? ssrLooseContain(rewrittenOnly.value, null) : rewrittenOnly.value) ? " checked" : ""} type="checkbox" class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-primary-600 focus:ring-primary-500"> Rewritten only </label></div><div class="overflow-hidden rounded-xl border border-gray-800"><table class="w-full"><thead class="border-b border-gray-800 bg-gray-900"><tr><th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Anime</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">Synopsis</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">Rewritten</th><th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th></tr></thead><tbody class="divide-y divide-gray-800"><!--[-->`);
+      ssrRenderList(__props.anime.data, (item) => {
+        _push(`<tr class="bg-gray-950 transition hover:bg-gray-900"><td class="px-4 py-3"><div class="flex items-center gap-3">`);
+        if (item.cover_image_medium) {
+          _push(`<img${ssrRenderAttr("src", item.cover_image_medium)}${ssrRenderAttr("alt", item.title)} class="h-14 w-10 flex-shrink-0 rounded object-cover">`);
+        } else {
+          _push(`<div class="h-14 w-10 flex-shrink-0 rounded bg-gray-800"></div>`);
+        }
+        _push(`<div class="min-w-0"><div class="truncate font-medium text-gray-200">${ssrInterpolate(item.title)}</div>`);
+        if (item.title_secondary) {
+          _push(`<div class="truncate text-xs text-gray-500">${ssrInterpolate(item.title_secondary)}</div>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`<div class="mt-0.5 text-[11px] uppercase tracking-wide text-gray-600">${ssrInterpolate([item.format, item.season_year].filter(Boolean).join(" · "))}</div></div></div></td><td class="hidden px-4 py-3 text-sm text-gray-400 md:table-cell">`);
+        if (item.synopsis_excerpt) {
+          _push(`<span>${ssrInterpolate(item.synopsis_excerpt)}</span>`);
+        } else {
+          _push(`<span class="italic text-gray-600">No description</span>`);
+        }
+        _push(`</td><td class="hidden px-4 py-3 text-xs lg:table-cell">`);
+        if (item.synopsis_rewritten_at) {
+          _push(`<span class="rounded bg-primary-600/20 px-2 py-0.5 text-primary-400">${ssrInterpolate(formatDate(item.synopsis_rewritten_at))}</span>`);
+        } else {
+          _push(`<span class="text-gray-600">—</span>`);
+        }
+        _push(`</td><td class="px-4 py-3 text-right">`);
+        _push(ssrRenderComponent(_component_Link, {
+          href: _ctx.route("admin.anime.edit", { anime: item.id }),
+          class: "rounded bg-primary-600/20 px-2.5 py-1 text-xs text-primary-400 transition hover:bg-primary-600/30"
+        }, {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(` Edit `);
+            } else {
+              return [
+                createTextVNode(" Edit ")
+              ];
+            }
+          }),
+          _: 2
+        }, _parent));
+        _push(`</td></tr>`);
+      });
+      _push(`<!--]-->`);
+      if (__props.anime.data.length === 0) {
+        _push(`<tr><td colspan="4" class="px-4 py-8 text-center text-sm text-gray-500"> No anime match your search. </td></tr>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</tbody></table></div>`);
+      _push(ssrRenderComponent(_sfc_main$Q, {
+        "current-page": __props.anime.meta.current_page,
+        "last-page": __props.anime.meta.last_page,
+        total: __props.anime.meta.total
+      }, null, _parent));
+      _push(`</div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$P = _sfc_main$P.setup;
+_sfc_main$P.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/AnimeListPage.vue");
+  return _sfc_setup$P ? _sfc_setup$P(props, ctx) : void 0;
+};
+const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$P
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$O = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "DashboardPage",
+  __ssrInlineRender: true,
+  props: {
+    stats: {},
+    recentUsers: {},
+    syncStatuses: {}
+  },
+  setup(__props) {
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+    function syncStatusColor(status) {
+      if (status === "completed") return "text-green-400";
+      if (status === "running") return "text-yellow-400";
+      if (status === "failed") return "text-red-400";
+      return "text-gray-500";
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Admin Dashboard" }, null, _parent));
+      _push(`<div class="mx-auto max-w-6xl space-y-8">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<h1 class="text-2xl font-bold">Dashboard</h1><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_users.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Total Users</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.new_users_this_month)}</div><div class="mt-1 text-xs text-gray-400">New This Month</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_anime.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Anime in DB</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_list_entries.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">List Entries</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.total_episodes_watched.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Episodes Watched</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.stats.active_users_today)}</div><div class="mt-1 text-xs text-gray-400">Active Today</div></div></div><div class="grid gap-6 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Sync Status</h2><div class="space-y-3"><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Releasing Anime</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.releasing), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.releasing)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Incremental Sync</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.incremental), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.incremental)}</span></div><div class="flex items-center justify-between"><span class="text-sm text-gray-400">Airing Schedule</span><span class="${ssrRenderClass([syncStatusColor(__props.syncStatuses.schedule), "text-sm font-medium capitalize"])}">${ssrInterpolate(__props.syncStatuses.schedule)}</span></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-6"><h2 class="mb-4 text-lg font-semibold">Recent Users</h2><div class="space-y-3"><!--[-->`);
+      ssrRenderList(__props.recentUsers, (user) => {
+        _push(`<div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-xs font-medium text-gray-300">${ssrInterpolate(user.name.charAt(0).toUpperCase())}</div><div><div class="text-sm font-medium text-gray-200">${ssrInterpolate(user.name)} `);
+        if (user.is_admin) {
+          _push(`<span class="ml-1 rounded bg-primary-600/20 px-1.5 py-0.5 text-[10px] font-semibold text-primary-400"> ADMIN </span>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><div class="text-xs text-gray-500">${ssrInterpolate(user.email)}</div></div></div><div class="text-xs text-gray-500">${ssrInterpolate(formatDate(user.created_at))}</div></div>`);
+      });
+      _push(`<!--]--></div></div></div></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$O = _sfc_main$O.setup;
+_sfc_main$O.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/DashboardPage.vue");
+  return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
+};
+const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$O
+}, Symbol.toStringTag, { value: "Module" }));
+function useDebounce(source, delay = 300) {
+  const debounced = ref(source.value);
+  let timeout;
+  watch(source, (val) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      debounced.value = val;
+    }, delay);
+  });
+  onScopeDispose(() => clearTimeout(timeout));
+  return debounced;
+}
+const _sfc_main$N = /* @__PURE__ */ defineComponent({
+  __name: "AdminUserSearch",
+  __ssrInlineRender: true,
+  props: {
+    placeholder: { default: "Search by username or name" },
+    excludeIds: { default: () => [] }
+  },
+  emits: ["select"],
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const props = __props;
+    const query = ref("");
+    const debouncedQuery = useDebounce(query, 200);
+    const results = ref([]);
+    const loading = ref(false);
+    const open = ref(false);
+    const activeIndex = ref(-1);
+    watch(debouncedQuery, async (value) => {
+      const term = value.trim();
+      if (term === "") {
+        results.value = [];
+        loading.value = false;
+        return;
+      }
+      loading.value = true;
+      try {
+        const { data } = await axios.get(route("admin.users.search"), {
+          params: { q: term }
+        });
+        results.value = data.data.filter((u2) => !props.excludeIds.includes(u2.id));
+        activeIndex.value = results.value.length > 0 ? 0 : -1;
+      } catch {
+        results.value = [];
+      } finally {
+        loading.value = false;
+      }
+    });
+    __expose({ clear: () => {
+      query.value = "";
+    } });
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "relative" }, _attrs))}><input${ssrRenderAttr("value", query.value)} type="text"${ssrRenderAttr("placeholder", __props.placeholder)} class="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300">`);
+      if (open.value && query.value.trim().length > 0) {
+        _push(`<div class="absolute left-0 right-0 top-full mt-1 z-20 max-h-72 overflow-y-auto rounded border border-gray-700 bg-gray-900 shadow-lg">`);
+        if (loading.value) {
+          _push(`<div class="px-3 py-2 text-xs text-gray-500"> Searching… </div>`);
+        } else if (results.value.length === 0) {
+          _push(`<div class="px-3 py-2 text-xs text-gray-500"> No users found </div>`);
+        } else {
+          _push(`<ul class="divide-y divide-gray-800"><!--[-->`);
+          ssrRenderList(results.value, (user, i2) => {
+            _push(`<li class="${ssrRenderClass([i2 === activeIndex.value ? "bg-gray-800" : "hover:bg-gray-800/60", "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer transition"])}">`);
+            _push(ssrRenderComponent(_sfc_main$W, {
+              name: user.name,
+              "avatar-url": user.avatar_url,
+              size: "sm"
+            }, null, _parent));
+            _push(`<div class="min-w-0 flex-1"><div class="text-gray-200 truncate">${ssrInterpolate(user.name)}</div><div class="text-xs text-gray-500 truncate">@${ssrInterpolate(user.username)}</div></div></li>`);
+          });
+          _push(`<!--]--></ul>`);
+        }
+        _push(`</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup$N = _sfc_main$N.setup;
+_sfc_main$N.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AdminUserSearch.vue");
+  return _sfc_setup$N ? _sfc_setup$N(props, ctx) : void 0;
+};
+const _sfc_main$M = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "FeatureFlagsPage",
+  __ssrInlineRender: true,
+  props: {
+    features: {}
+  },
+  setup(__props) {
+    async function addUser(feature, username) {
+      await axios.post(route("admin.features.activate-user", { feature }), { username });
+      router.visit(route("admin.features"), { preserveScroll: true });
+    }
+    const statusLabels = {
+      everyone: "Everyone",
+      nobody: "Nobody",
+      default: "Default (Off)",
+      specific: "Specific Users"
+    };
+    const statusColors = {
+      everyone: "text-green-400",
+      nobody: "text-red-400",
+      default: "text-gray-500",
+      specific: "text-yellow-400"
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Feature Flags" }, null, _parent));
+      _push(`<div class="mx-auto max-w-6xl">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<h1 class="text-2xl font-bold mb-6">Feature Flags</h1>`);
+      if (__props.features.length === 0) {
+        _push(`<div class="text-center py-12 text-gray-500"> No feature flags defined. </div>`);
+      } else {
+        _push(`<div class="space-y-4"><!--[-->`);
+        ssrRenderList(__props.features, (feature) => {
+          _push(`<div class="bg-gray-900 border border-gray-800 rounded-xl p-5"><div class="flex items-center justify-between mb-3"><div><h2 class="font-semibold text-gray-100 font-mono">${ssrInterpolate(feature.name)}</h2><span class="${ssrRenderClass([statusColors[feature.status], "text-xs"])}">${ssrInterpolate(statusLabels[feature.status])}</span></div><div class="flex gap-1"><button class="${ssrRenderClass([feature.status === "everyone" ? "border-green-500 bg-green-600/20 text-green-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Everyone </button><button class="${ssrRenderClass([feature.status === "nobody" ? "border-red-500 bg-red-600/20 text-red-400" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Nobody </button><button class="${ssrRenderClass([feature.status === "default" ? "border-gray-500 bg-gray-600/20 text-gray-300" : "border-gray-700 text-gray-400 hover:text-gray-200", "rounded px-3 py-1.5 text-xs transition border"])}"> Default </button></div></div><div class="border-t border-gray-800 pt-3 space-y-3"><div><div class="text-xs text-gray-500 mb-1">Add a user override</div>`);
+          _push(ssrRenderComponent(_sfc_main$N, {
+            "exclude-ids": feature.users.map((u2) => u2.user_id),
+            placeholder: "Search by username or name",
+            onSelect: (user) => addUser(feature.name, user.username)
+          }, null, _parent));
+          _push(`</div><div><div class="text-xs text-gray-500 mb-2">User overrides</div>`);
+          if (feature.users.length > 0) {
+            _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
+            ssrRenderList(feature.users, (user) => {
+              _push(`<div class="flex items-center gap-1.5 rounded-full bg-gray-800 pl-3 pr-1.5 py-1 text-xs"><span class="text-gray-300">${ssrInterpolate(user.username)}</span><button class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"${ssrRenderAttr("aria-label", `Remove ${user.username}`)}> × </button></div>`);
+            });
+            _push(`<!--]--></div>`);
+          } else {
+            _push(`<p class="text-xs text-gray-600">No user-specific overrides</p>`);
+          }
+          _push(`</div></div></div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div><!--]-->`);
+    };
+  }
+});
 const _sfc_setup$M = _sfc_main$M.setup;
 _sfc_main$M.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/PaginationBar.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/FeatureFlagsPage.vue");
   return _sfc_setup$M ? _sfc_setup$M(props, ctx) : void 0;
 };
+const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$M
+}, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$L = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+  ...{ layout: _sfc_main$T },
+  __name: "JobsPage",
+  __ssrInlineRender: true,
+  props: {
+    metrics: {},
+    recentFailed: {},
+    recentlyAdded: {},
+    recentlyUpdated: {},
+    syncRuns: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const page = usePage();
+    const flashMessage = computed(
+      () => page.props.flash?.message ?? null
+    );
+    const syncError = computed(
+      () => page.props.errors?.sync ?? null
+    );
+    const enqueueForm = useForm({
+      anilist_id: ""
+    });
+    const dispatching = ref(null);
+    const retryingUuid = ref(null);
+    const forgettingUuid = ref(null);
+    const syncRunsInProgress = computed(
+      () => props.syncRuns.some((run) => run.status === "running" || run.status === "paused")
+    );
+    function runTitle(run) {
+      const mode = run.mode.replace(/_/g, " ");
+      return run.label ? `${mode} · ${run.label}` : mode;
+    }
+    function syncStatusColor(status) {
+      if (status === "completed") return "text-green-400";
+      if (status === "running") return "text-yellow-400";
+      if (status === "paused") return "text-orange-400";
+      if (status === "failed") return "text-red-400";
+      if (status === "superseded") return "text-gray-500";
+      return "text-gray-500";
+    }
+    function statusLabel(run) {
+      if (run.stalled) return "stalled";
+      return run.status;
+    }
+    function formatDate(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+    function formatTimestamp(ts) {
+      if (!ts) return "—";
+      return new Date(ts * 1e3).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+    function formatDuration(seconds) {
+      if (seconds === null) return "—";
+      if (seconds < 60) return `${seconds}s`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor(seconds % 3600 / 60);
+      return `${hours}h ${minutes}m`;
+    }
+    function progressPercent(run) {
+      if (run.last_page <= 0) return null;
+      return Math.min(100, Math.round(run.current_page / run.last_page * 100));
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Job Observability" }, null, _parent));
+      _push(`<div class="mx-auto max-w-6xl space-y-6">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">Jobs &amp; Sync</h1><p class="mt-1 text-sm text-gray-400"> Queue depth, sync status, recent failures, and tools for refreshing anime data. </p></div><button type="button" class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs text-gray-300 transition hover:border-gray-600 hover:text-gray-100"> Refresh </button></div>`);
+      if (flashMessage.value) {
+        _push(`<div class="rounded-lg border border-green-700/50 bg-green-900/20 px-4 py-2 text-sm text-green-300">${ssrInterpolate(flashMessage.value)}</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (syncError.value) {
+        _push(`<div class="rounded-lg border border-red-700/50 bg-red-900/20 px-4 py-2 text-sm text-red-300">${ssrInterpolate(syncError.value)}</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.metrics.queued_total.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Queued jobs</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="${ssrRenderClass([__props.metrics.failed_total > 0 ? "text-red-400" : "text-primary-400", "text-2xl font-bold"])}">${ssrInterpolate(__props.metrics.failed_total.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400"> Failed total `);
+      if (__props.metrics.failed_last_24h > 0) {
+        _push(`<span class="ml-1 text-red-400"> (${ssrInterpolate(__props.metrics.failed_last_24h)} in 24h) </span>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(formatDuration(__props.metrics.queue_wait_seconds))}</div><div class="mt-1 text-xs text-gray-400">Est. time to clear</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.metrics.never_synced.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400">Never synced</div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-4"><div class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.metrics.stale_sync.toLocaleString())}</div><div class="mt-1 text-xs text-gray-400"> Stale (&gt;${ssrInterpolate(__props.metrics.stale_after_days)}d / never) </div><div class="mt-1 text-[11px] text-gray-600">${ssrInterpolate(__props.metrics.refresh_excluded.toLocaleString())} excluded as settled </div></div></div><div class="grid gap-4 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Anime added</h2><div class="grid grid-cols-3 gap-3"><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_added.last_24h.toLocaleString())}</div><div class="text-xs text-gray-500">last 24h</div></div><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_added.last_7d.toLocaleString())}</div><div class="text-xs text-gray-500">last 7d</div></div><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_added.last_30d.toLocaleString())}</div><div class="text-xs text-gray-500">last 30d</div></div></div><div class="mt-3 text-xs text-gray-500">${ssrInterpolate(__props.metrics.anime_total.toLocaleString())} total in DB </div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Anime updated</h2><div class="grid grid-cols-3 gap-3"><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_updated.last_24h.toLocaleString())}</div><div class="text-xs text-gray-500">last 24h</div></div><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_updated.last_7d.toLocaleString())}</div><div class="text-xs text-gray-500">last 7d</div></div><div><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.anime_updated.last_30d.toLocaleString())}</div><div class="text-xs text-gray-500">last 30d</div></div></div><div class="mt-3 text-xs text-gray-500">Tracked via <code class="text-gray-400">synced_at</code></div></div></div><div class="grid gap-4 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Queued by queue</h2><div class="space-y-2"><!--[-->`);
+      ssrRenderList(__props.metrics.queued_by_queue, (row) => {
+        _push(`<div class="flex items-center justify-between border-b border-gray-800/60 pb-1.5 text-sm last:border-b-0"><span class="font-mono text-gray-300">${ssrInterpolate(row.queue)}</span><span class="${ssrRenderClass(row.count > 0 ? "text-primary-300" : "text-gray-600")}">${ssrInterpolate(row.count.toLocaleString())}</span></div>`);
+      });
+      _push(`<!--]--></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Failed by queue</h2><div class="space-y-2"><!--[-->`);
+      ssrRenderList(__props.metrics.failed_by_queue, (row) => {
+        _push(`<div class="flex items-center justify-between border-b border-gray-800/60 pb-1.5 text-sm last:border-b-0"><span class="font-mono text-gray-300">${ssrInterpolate(row.queue)}</span><span class="${ssrRenderClass(row.count > 0 ? "text-red-400" : "text-gray-600")}">${ssrInterpolate(row.count.toLocaleString())}</span></div>`);
+      });
+      _push(`<!--]--></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400"> Sync runs <span class="ml-2 text-xs font-normal normal-case text-gray-600"> latest run per mode </span></h2>`);
+      if (__props.syncRuns.length === 0) {
+        _push(`<div class="py-6 text-center text-sm text-gray-500"> No sync has run yet. </div>`);
+      } else {
+        _push(`<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"><!--[-->`);
+        ssrRenderList(__props.syncRuns, (run) => {
+          _push(`<div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><div class="flex items-start justify-between gap-2"><span class="text-sm font-medium capitalize text-gray-200">${ssrInterpolate(runTitle(run))}</span><span class="${ssrRenderClass([run.stalled ? "text-orange-400" : syncStatusColor(run.status), "shrink-0 text-xs font-medium capitalize"])}">${ssrInterpolate(statusLabel(run))}</span></div><div class="mt-2 text-xs text-gray-500"> Page ${ssrInterpolate(run.current_page)}/${ssrInterpolate(run.last_page || "?")} `);
+          if (run.processed_items) {
+            _push(`<span> · ${ssrInterpolate(run.processed_items.toLocaleString())} items </span>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</div>`);
+          if (progressPercent(run) !== null) {
+            _push(`<div class="mt-1 h-1.5 w-full overflow-hidden rounded bg-gray-800"><div class="h-full bg-primary-500 transition-all" style="${ssrRenderStyle({ width: `${progressPercent(run)}%` })}"></div></div>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`<div class="mt-2 space-y-0.5 text-[11px] text-gray-600"><div>Started ${ssrInterpolate(formatDate(run.started_at))}</div>`);
+          if (run.finished_at) {
+            _push(`<div> Finished ${ssrInterpolate(formatDate(run.finished_at))} · took ${ssrInterpolate(formatDuration(run.duration_seconds))}</div>`);
+          } else {
+            _push(`<div>Running for ${ssrInterpolate(formatDuration(run.duration_seconds))}</div>`);
+          }
+          if (run.cutoff_at) {
+            _push(`<div> Updated-since cutoff ${ssrInterpolate(formatTimestamp(run.cutoff_at))}</div>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</div>`);
+          if (run.last_error) {
+            _push(`<div class="mt-2 break-words rounded bg-red-950/40 px-2 py-1 text-[11px] text-red-300">${ssrInterpolate(run.last_error)}</div>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div><div class="grid gap-4 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-gray-400">Queue an anime refresh</h2><p class="mb-3 text-xs text-gray-500"> Dispatches a job that fetches the AniList record and re-persists it. Useful for fixing stale entries. </p><form class="flex flex-col gap-2 sm:flex-row"><input${ssrRenderAttr("value", unref(enqueueForm).anilist_id)} type="number" min="1" placeholder="AniList ID (e.g. 21)" class="flex-1 rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-200 placeholder-gray-600 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><button type="submit"${ssrIncludeBooleanAttr(unref(enqueueForm).processing || !unref(enqueueForm).anilist_id) ? " disabled" : ""} class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(unref(enqueueForm).processing ? "Queueing…" : "Queue refresh")}</button></form>`);
+      if (unref(enqueueForm).errors.anilist_id) {
+        _push(`<div class="mt-2 text-xs text-red-400">${ssrInterpolate(unref(enqueueForm).errors.anilist_id)}</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-gray-400">Trigger incremental sync</h2><p class="mb-3 text-xs text-gray-500"> Fetches anime updated on AniList since the last completed incremental run. Falls back to the last 24h if there is no prior run. </p><button type="button"${ssrIncludeBooleanAttr(dispatching.value === "incremental") ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-200 transition hover:border-primary-500 hover:text-primary-400 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "incremental" ? "Dispatching…" : "Dispatch incremental sync")}</button></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-gray-400">Stale data backlog</h2><p class="mb-4 text-xs text-gray-500"> Walks anime whose local copy is older than ${ssrInterpolate(__props.metrics.stale_after_days)} days, a batch per AniList request. Long-finished shows and entries that no longer exist upstream are flagged as settled once refreshed, so the backlog shrinks instead of cycling — the monthly FINISHED incremental sync still picks up genuine upstream edits. </p><div class="grid gap-4 sm:grid-cols-3"><div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.stale_sync.toLocaleString())}</div><div class="text-xs text-gray-500">awaiting refresh</div></div><div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><div class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.metrics.refresh_excluded.toLocaleString())}</div><div class="text-xs text-gray-500">excluded as settled</div></div><div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><!--[-->`);
+      ssrRenderList(__props.metrics.refresh_excluded_by_reason, (row) => {
+        _push(`<div class="flex items-center justify-between text-xs"><span class="font-mono text-gray-400">${ssrInterpolate(row.reason)}</span><span class="text-gray-300">${ssrInterpolate(row.count.toLocaleString())}</span></div>`);
+      });
+      _push(`<!--]-->`);
+      if (__props.metrics.refresh_excluded_by_reason.length === 0) {
+        _push(`<div class="text-xs text-gray-600"> Nothing excluded yet </div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div></div><div class="mt-4 flex flex-wrap gap-2"><button type="button"${ssrIncludeBooleanAttr(dispatching.value === "stale") ? " disabled" : ""} class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "stale" ? "Dispatching…" : "Refresh stale anime")}</button><button type="button"${ssrIncludeBooleanAttr(dispatching.value === "exclusions" || __props.metrics.refresh_excluded === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600 hover:text-gray-100 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "exclusions" ? "Clearing…" : "Clear exclusions")}</button></div>`);
+      if (syncRunsInProgress.value) {
+        _push(`<p class="mt-2 text-[11px] text-gray-600"> A sync is already in progress; a refresh sweep will queue behind it on the sync worker. </p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400"> Recent failures <span class="ml-2 text-xs font-normal text-gray-600">${ssrInterpolate(__props.recentFailed.length)} shown</span></h2>`);
+      if (__props.recentFailed.length === 0) {
+        _push(`<div class="py-6 text-center text-sm text-gray-500"> No recent failures. </div>`);
+      } else {
+        _push(`<div class="space-y-2"><!--[-->`);
+        ssrRenderList(__props.recentFailed, (job) => {
+          _push(`<div class="rounded-lg border border-gray-800 bg-gray-950 p-3 text-sm"><div class="flex flex-wrap items-start justify-between gap-2"><div class="min-w-0 flex-1"><div class="flex items-center gap-2"><span class="font-mono text-xs text-gray-400">${ssrInterpolate(job.queue)}</span><span class="text-gray-200">${ssrInterpolate(job.job_class ?? "unknown")}</span></div><div class="mt-1 break-words text-xs text-red-300">${ssrInterpolate(job.exception_summary)}</div><div class="mt-1 text-[11px] text-gray-500">${ssrInterpolate(formatDate(job.failed_at))} · <span class="font-mono">${ssrInterpolate(job.uuid)}</span></div></div><div class="flex shrink-0 gap-2"><button type="button" class="rounded bg-primary-600/20 px-2.5 py-1 text-xs text-primary-300 transition hover:bg-primary-600/30 disabled:opacity-50"${ssrIncludeBooleanAttr(retryingUuid.value === job.uuid) ? " disabled" : ""}>${ssrInterpolate(retryingUuid.value === job.uuid ? "Retrying…" : "Retry")}</button><button type="button" class="rounded bg-gray-800 px-2.5 py-1 text-xs text-gray-300 transition hover:bg-gray-700 disabled:opacity-50"${ssrIncludeBooleanAttr(forgettingUuid.value === job.uuid) ? " disabled" : ""}>${ssrInterpolate(forgettingUuid.value === job.uuid ? "Removing…" : "Forget")}</button></div></div></div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div><div class="grid gap-4 lg:grid-cols-2"><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Recently added anime</h2>`);
+      if (__props.recentlyAdded.length === 0) {
+        _push(`<div class="py-4 text-center text-sm text-gray-500"> Nothing new yet. </div>`);
+      } else {
+        _push(`<ul class="space-y-2"><!--[-->`);
+        ssrRenderList(__props.recentlyAdded, (anime) => {
+          _push(`<li class="flex items-center justify-between gap-3 text-sm"><div class="flex min-w-0 items-center gap-2">`);
+          if (anime.cover_image_medium) {
+            _push(`<img${ssrRenderAttr("src", anime.cover_image_medium)}${ssrRenderAttr("alt", anime.title)} class="h-9 w-7 flex-shrink-0 rounded object-cover">`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`<div class="min-w-0"><div class="truncate text-gray-200">${ssrInterpolate(anime.title)}</div><div class="text-[11px] text-gray-500">AniList #${ssrInterpolate(anime.anilist_id)}</div></div></div><span class="shrink-0 text-xs text-gray-500">${ssrInterpolate(formatDate(anime.created_at))}</span></li>`);
+        });
+        _push(`<!--]--></ul>`);
+      }
+      _push(`</div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Recently synced anime</h2>`);
+      if (__props.recentlyUpdated.length === 0) {
+        _push(`<div class="py-4 text-center text-sm text-gray-500"> No sync activity yet. </div>`);
+      } else {
+        _push(`<ul class="space-y-2"><!--[-->`);
+        ssrRenderList(__props.recentlyUpdated, (anime) => {
+          _push(`<li class="flex items-center justify-between gap-3 text-sm"><div class="flex min-w-0 items-center gap-2">`);
+          if (anime.cover_image_medium) {
+            _push(`<img${ssrRenderAttr("src", anime.cover_image_medium)}${ssrRenderAttr("alt", anime.title)} class="h-9 w-7 flex-shrink-0 rounded object-cover">`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`<div class="min-w-0"><div class="truncate text-gray-200">${ssrInterpolate(anime.title)}</div><div class="text-[11px] text-gray-500">AniList #${ssrInterpolate(anime.anilist_id)}</div></div></div><span class="shrink-0 text-xs text-gray-500">${ssrInterpolate(formatDate(anime.synced_at))}</span></li>`);
+        });
+        _push(`<!--]--></ul>`);
+      }
+      _push(`</div></div></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$L = _sfc_main$L.setup;
+_sfc_main$L.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/JobsPage.vue");
+  return _sfc_setup$L ? _sfc_setup$L(props, ctx) : void 0;
+};
+const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$L
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$K = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "RolesPage",
+  __ssrInlineRender: true,
+  props: {
+    roles: {}
+  },
+  setup(__props) {
+    async function assignUser(roleSlug, user) {
+      await axios.post(route("admin.roles.assign", { role: roleSlug }), {
+        username: user.username
+      });
+      router.visit(route("admin.roles"), { preserveScroll: true });
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Roles" }, null, _parent));
+      _push(`<div class="mx-auto max-w-6xl">`);
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
+      _push(`<h1 class="text-2xl font-bold mb-2">Roles</h1><p class="text-sm text-gray-500 mb-6"> Assign users to roles. Features are gated by role name. </p>`);
+      if (__props.roles.length === 0) {
+        _push(`<div class="text-center py-12 text-gray-500"> No roles defined. </div>`);
+      } else {
+        _push(`<div class="space-y-4"><!--[-->`);
+        ssrRenderList(__props.roles, (role) => {
+          _push(`<div class="bg-gray-900 border border-gray-800 rounded-xl p-5"><div class="flex items-start justify-between mb-3"><div><h2 class="font-semibold text-gray-100">${ssrInterpolate(role.name)}</h2><span class="text-xs font-mono text-gray-500">${ssrInterpolate(role.slug)}</span>`);
+          if (role.description) {
+            _push(`<p class="text-xs text-gray-400 mt-1">${ssrInterpolate(role.description)}</p>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</div></div><div class="border-t border-gray-800 pt-3 space-y-3"><div><div class="text-xs text-gray-500 mb-1">Assign a user</div>`);
+          _push(ssrRenderComponent(_sfc_main$N, {
+            "exclude-ids": role.users.map((u2) => u2.id),
+            placeholder: "Search by username or name",
+            onSelect: (user) => assignUser(role.slug, user)
+          }, null, _parent));
+          _push(`</div><div><div class="text-xs text-gray-500 mb-2">Assigned users</div>`);
+          if (role.users.length > 0) {
+            _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
+            ssrRenderList(role.users, (user) => {
+              _push(`<div class="flex items-center gap-2 rounded-full bg-gray-800 pl-1.5 pr-1.5 py-1 text-xs">`);
+              _push(ssrRenderComponent(_sfc_main$W, {
+                name: user.name,
+                "avatar-url": user.avatar_url,
+                size: "sm"
+              }, null, _parent));
+              _push(`<div class="leading-tight pr-1"><div class="text-gray-200">${ssrInterpolate(user.name)}</div><div class="text-[10px] text-gray-500">@${ssrInterpolate(user.username)}</div></div><button class="text-gray-500 hover:text-red-400 transition rounded-full p-0.5"${ssrRenderAttr("aria-label", `Remove ${user.username}`)}> × </button></div>`);
+            });
+            _push(`<!--]--></div>`);
+          } else {
+            _push(`<p class="text-xs text-gray-600">No users assigned</p>`);
+          }
+          _push(`</div></div></div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$K = _sfc_main$K.setup;
+_sfc_main$K.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/RolesPage.vue");
+  return _sfc_setup$K ? _sfc_setup$K(props, ctx) : void 0;
+};
+const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$K
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$J = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "UsersPage",
   __ssrInlineRender: true,
   props: {
@@ -790,7 +1407,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "User Management" }, null, _parent));
       _push(`<div class="mx-auto max-w-6xl space-y-6">`);
-      _push(ssrRenderComponent(_sfc_main$P, null, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$S, null, null, _parent));
       _push(`<div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">Users</h1><p class="mt-1 text-sm text-gray-400">${ssrInterpolate(__props.users.meta.total)} total users</p></div>`);
       _push(ssrRenderComponent(_component_Link, {
         href: _ctx.route("admin.dashboard"),
@@ -810,7 +1427,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       _push(`</div><input${ssrRenderAttr("value", search.value)} type="text" placeholder="Search by name, email, or username..." class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-gray-200 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><div class="overflow-x-auto rounded-xl border border-gray-800"><table class="w-full"><thead class="border-b border-gray-800 bg-gray-900"><tr><th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">Email</th><th class="hidden px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-400 sm:table-cell">Anime</th><th class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">Joined</th><th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th></tr></thead><tbody class="divide-y divide-gray-800"><!--[-->`);
       ssrRenderList(__props.users.data, (user) => {
         _push(`<tr class="bg-gray-950 transition hover:bg-gray-900"><td class="px-4 py-3"><div class="flex items-center gap-3">`);
-        _push(ssrRenderComponent(_sfc_main$T, {
+        _push(ssrRenderComponent(_sfc_main$W, {
           name: user.name,
           "avatar-url": user.avatar_url,
           size: "sm"
@@ -830,7 +1447,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
         _push(`</div></td></tr>`);
       });
       _push(`<!--]--></tbody></table></div>`);
-      _push(ssrRenderComponent(_sfc_main$M, {
+      _push(ssrRenderComponent(_sfc_main$Q, {
         "current-page": __props.users.meta.current_page,
         "last-page": __props.users.meta.last_page,
         total: __props.users.meta.total
@@ -839,17 +1456,228 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$L = _sfc_main$L.setup;
-_sfc_main$L.setup = (props, ctx) => {
+const _sfc_setup$J = _sfc_main$J.setup;
+_sfc_main$J.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/UsersPage.vue");
-  return _sfc_setup$L ? _sfc_setup$L(props, ctx) : void 0;
+  return _sfc_setup$J ? _sfc_setup$J(props, ctx) : void 0;
 };
-const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$L
+  default: _sfc_main$J
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$K = /* @__PURE__ */ defineComponent({
+const _sfc_main$I = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "AlternativesPage",
+  __ssrInlineRender: true,
+  setup(__props) {
+    const platforms = [
+      {
+        name: "AniTrack",
+        tagline: "That’s us, the one you’re on right now.",
+        description: "A modern, fast anime tracker built on top of the AniList GraphQL API with a clean, distraction-free interface. Personal watchlists, progress tracking, seasonal schedules and shareable profiles, without the clutter.",
+        pros: [
+          "Snappy, modern UI with a proper dark theme",
+          "Seasonal calendar and weekly airing schedule baked in",
+          "Import from MyAnimeList and AniList so switching is painless",
+          "Free, no ads, and actively developed"
+        ],
+        cons: [
+          "Smaller community than the veteran sites",
+          "Social features are still growing"
+        ],
+        highlight: true
+      },
+      {
+        name: "MyAnimeList (MAL)",
+        tagline: "The granddaddy of anime tracking.",
+        description: "The largest and longest-running anime database on the web, with a huge community, forums and reviews. If you’ve been in the hobby for a decade, you probably already have an account.",
+        pros: [
+          "Massive, near-exhaustive database",
+          "Huge user base, with reviews and discussions on almost every title",
+          "Industry-standard scoring most sites reference"
+        ],
+        cons: [
+          "UI feels dated and slow in places",
+          "Ad-heavy unless you pay for MAL Supporter",
+          "Moderation and data updates can be slow"
+        ],
+        url: "https://myanimelist.net"
+      },
+      {
+        name: "AniList",
+        tagline: "The data-rich, developer-friendly pick.",
+        description: "A modern tracker with a powerful GraphQL API, rich statistics and good social features. Popular with people who want graphs, activity feeds and a more contemporary UI than MAL.",
+        pros: [
+          "Beautiful stats and activity pages",
+          "Excellent public GraphQL API (it powers us too)",
+          "Active, friendly community"
+        ],
+        cons: [
+          "Can feel overwhelming for brand-new users",
+          "Mobile experience lags behind the desktop one"
+        ],
+        url: "https://anilist.co"
+      },
+      {
+        name: "Kitsu",
+        tagline: "Clean, social, and beginner-friendly.",
+        description: "A polished tracker with a focus on discovery and social features. Nice-looking out of the box and easy to get started with, especially if you’re coming from MAL and want something prettier.",
+        pros: [
+          "Friendly onboarding and clean visual design",
+          "Built-in discussions and social feed",
+          "Good mobile apps"
+        ],
+        cons: [
+          "Smaller catalogue than MAL or AniList",
+          "Metadata occasionally lags behind new releases"
+        ],
+        url: "https://kitsu.app"
+      },
+      {
+        name: "Anime-Planet",
+        tagline: "The recommendation engine.",
+        description: "One of the oldest anime sites, best known for its hand-curated recommendations and tag-based discovery. Great if you want to find your next show rather than just log the last one.",
+        pros: [
+          "Excellent recommendations and “if you liked X…” lists",
+          "Detailed tag system for mood-based browsing",
+          "Covers both anime and manga equally well"
+        ],
+        cons: [
+          "UI shows its age",
+          "Tracking features are less flexible than competitors"
+        ],
+        url: "https://www.anime-planet.com"
+      },
+      {
+        name: "Shikimori",
+        tagline: "The power-user’s playground.",
+        description: "A feature-packed tracker originally from the Russian anime community, now widely used internationally. Deep filtering, clubs, reviews and a very active userbase.",
+        pros: [
+          "Extremely detailed filters and stats",
+          "Strong club/forum culture",
+          "Free and ad-light"
+        ],
+        cons: [
+          "Interface can feel dense if you’re not used to it",
+          "Some content still skews Russian-language"
+        ],
+        url: "https://shikimori.one"
+      },
+      {
+        name: "AniDB",
+        tagline: "The metadata obsessive’s choice.",
+        description: "A non-profit, community-run database obsessed with getting the metadata exactly right. Loved by automation tools (Plex, Jellyfin, Sonarr) for its precise episode and release data.",
+        pros: [
+          "Unmatched accuracy of episode and release metadata",
+          "Integrates with home-media tooling",
+          "Run by the community, not a company"
+        ],
+        cons: [
+          "UI is the definition of utilitarian",
+          "Tracking/social features are minimal"
+        ],
+        url: "https://anidb.net"
+      }
+    ];
+    const recommendations = [
+      {
+        title: "If you want the best balance of speed, design and features → AniTrack",
+        body: "A modern UI, AniList-powered data, seasonal schedules and MAL/AniList import make it the easiest place to land today, especially if you’re tired of clunky, ad-laden alternatives."
+      },
+      {
+        title: "If you care about community size above all → MyAnimeList",
+        body: "Nothing beats MAL for sheer volume of reviews and forum activity. Just be ready for the dated UI and the ads."
+      },
+      {
+        title: "If you love stats, graphs and a modern API → AniList",
+        body: "Great data visualisation and a first-class GraphQL API. A solid daily-driver for data nerds."
+      },
+      {
+        title: "If you want something friendly and sociable → Kitsu",
+        body: "Probably the easiest tracker for a total newcomer to pick up and enjoy."
+      },
+      {
+        title: "If you need recommendations more than tracking → Anime-Planet",
+        body: "Its tag-based discovery and curated lists are still hard to beat."
+      },
+      {
+        title: "If you’re a power user who wants every knob → Shikimori",
+        body: "Deep filters, clubs and reviews for people who live inside their tracker."
+      },
+      {
+        title: "If you automate your anime library → AniDB",
+        body: "The right pick when metadata accuracy matters more than UI polish."
+      }
+    ];
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "MyAnimeList Alternatives" }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<meta name="description" content="A side-by-side look at the best MyAnimeList alternatives, including AniTrack, AniList, Kitsu, Anime-Planet, Shikimori and AniDB, with honest pros, cons and recommendations."${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("alternatives"))}${_scopeId}>`);
+          } else {
+            return [
+              createVNode("meta", {
+                name: "description",
+                content: "A side-by-side look at the best MyAnimeList alternatives, including AniTrack, AniList, Kitsu, Anime-Planet, Shikimori and AniDB, with honest pros, cons and recommendations."
+              }),
+              createVNode("link", {
+                rel: "canonical",
+                href: _ctx.route("alternatives")
+              }, null, 8, ["href"])
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="mx-auto max-w-4xl space-y-10 py-4"><header class="space-y-3"><h1 class="text-3xl font-bold">MyAnimeList Alternatives</h1><p class="text-gray-400 leading-relaxed"> MyAnimeList has been the default anime tracker for well over a decade, but it’s far from the only option. Here’s an honest, up-to-date look at the main alternatives, starting, shamelessly, with us. For each one we’ve broken down what it is, what it does well, where it falls short, and at the bottom we’ve put together a short recommendation list to help you pick. </p></header><section class="space-y-6"><h2 class="text-2xl font-semibold text-gray-100">The platforms</h2><!--[-->`);
+      ssrRenderList(platforms, (platform) => {
+        _push(`<article class="${ssrRenderClass([
+          platform.highlight ? "border-primary-500/60 bg-primary-500/5" : "border-gray-800 bg-gray-900/40",
+          "rounded-lg border p-6 space-y-4"
+        ])}"><div class="flex flex-wrap items-baseline justify-between gap-2"><div class="space-y-1"><h3 class="text-xl font-semibold text-gray-100">${ssrInterpolate(platform.name)} `);
+        if (platform.highlight) {
+          _push(`<span class="ml-2 rounded-full bg-primary-500/20 px-2 py-0.5 text-xs font-medium text-primary-300 align-middle"> Our pick </span>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</h3><p class="text-sm text-gray-400">${ssrInterpolate(platform.tagline)}</p></div>`);
+        if (platform.url) {
+          _push(`<a${ssrRenderAttr("href", platform.url)} target="_blank" rel="noopener noreferrer" class="text-sm text-primary-400 hover:text-primary-300"> Visit site → </a>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><p class="text-gray-400 leading-relaxed">${ssrInterpolate(platform.description)}</p><div class="grid gap-4 sm:grid-cols-2"><div class="space-y-2"><h4 class="text-sm font-semibold uppercase tracking-wide text-emerald-400">The good</h4><ul class="list-disc space-y-1 pl-5 text-sm text-gray-300"><!--[-->`);
+        ssrRenderList(platform.pros, (pro) => {
+          _push(`<li>${ssrInterpolate(pro)}</li>`);
+        });
+        _push(`<!--]--></ul></div><div class="space-y-2"><h4 class="text-sm font-semibold uppercase tracking-wide text-rose-400">The bad</h4><ul class="list-disc space-y-1 pl-5 text-sm text-gray-300"><!--[-->`);
+        ssrRenderList(platform.cons, (con) => {
+          _push(`<li>${ssrInterpolate(con)}</li>`);
+        });
+        _push(`<!--]--></ul></div></div></article>`);
+      });
+      _push(`<!--]--></section><section class="space-y-4"><h2 class="text-2xl font-semibold text-gray-100">What we recommend</h2><p class="text-gray-400 leading-relaxed"> There’s no single right answer. It depends on what you actually want from a tracker. In rough order, here’s how we’d suggest picking: </p><ol class="list-decimal space-y-3 pl-6 text-gray-300"><!--[-->`);
+      ssrRenderList(recommendations, (rec) => {
+        _push(`<li><p class="font-semibold text-gray-100">${ssrInterpolate(rec.title)}</p><p class="text-gray-400 text-sm leading-relaxed">${ssrInterpolate(rec.body)}</p></li>`);
+      });
+      _push(`<!--]--></ol></section></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$I = _sfc_main$I.setup;
+_sfc_main$I.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AlternativesPage.vue");
+  return _sfc_setup$I ? _sfc_setup$I(props, ctx) : void 0;
+};
+const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$I
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$H = /* @__PURE__ */ defineComponent({
   __name: "ScoreBadge",
   __ssrInlineRender: true,
   props: {
@@ -881,299 +1709,11 @@ const _sfc_main$K = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$K = _sfc_main$K.setup;
-_sfc_main$K.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ScoreBadge.vue");
-  return _sfc_setup$K ? _sfc_setup$K(props, ctx) : void 0;
-};
-const _sfc_main$J = /* @__PURE__ */ defineComponent({
-  __name: "GenreBadge",
-  __ssrInlineRender: true,
-  props: {
-    name: {}
-  },
-  setup(__props) {
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      _push(ssrRenderComponent(_component_Link, mergeProps({
-        href: _ctx.route("anime.index", { "filter[genre]": __props.name }),
-        class: "inline-block rounded-full bg-gray-800 px-3 py-1 text-xs text-gray-300 transition hover:bg-primary-600/20 hover:text-primary-400"
-      }, _attrs), {
-        default: withCtx((_2, _push2, _parent2, _scopeId) => {
-          if (_push2) {
-            _push2(`${ssrInterpolate(__props.name)}`);
-          } else {
-            return [
-              createTextVNode(toDisplayString(__props.name), 1)
-            ];
-          }
-        }),
-        _: 1
-      }, _parent));
-    };
-  }
-});
-const _sfc_setup$J = _sfc_main$J.setup;
-_sfc_main$J.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/GenreBadge.vue");
-  return _sfc_setup$J ? _sfc_setup$J(props, ctx) : void 0;
-};
-const _sfc_main$I = /* @__PURE__ */ defineComponent({
-  __name: "SeasonsSection",
-  __ssrInlineRender: true,
-  props: {
-    seasons: {}
-  },
-  setup(__props) {
-    function displayTitle(entry) {
-      return entry.title_english || entry.title_romaji;
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      if (__props.seasons.length > 1) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "space-y-3" }, _attrs))}><h3 class="text-lg font-semibold text-gray-100"> Seasons <span class="text-sm font-normal text-gray-500">(${ssrInterpolate(__props.seasons.length)})</span></h3><div class="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-700"><!--[-->`);
-        ssrRenderList(__props.seasons, (season, index) => {
-          _push(ssrRenderComponent(_component_Link, {
-            key: season.id,
-            href: season.slug ? _ctx.route("anime.show", { anime: season.slug }) : "#",
-            class: ["group w-36 flex-shrink-0", { "pointer-events-none": season.is_current }]
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`<div class="${ssrRenderClass([season.is_current ? "ring-2 ring-primary-500" : "group-hover:ring-1 group-hover:ring-gray-600", "relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"])}"${_scopeId}>`);
-                if (season.cover_image_large || season.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", (season.cover_image_large || season.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", displayTitle(season))} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}><div class="flex items-center justify-between"${_scopeId}><span class="rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-semibold text-gray-200"${_scopeId}> S${ssrInterpolate(index + 1)}</span>`);
-                _push2(ssrRenderComponent(_sfc_main$K, {
-                  score: season.average_score,
-                  size: "sm"
-                }, null, _parent2, _scopeId));
-                _push2(`</div></div>`);
-                if (season.episodes) {
-                  _push2(`<div class="absolute top-1.5 right-1.5"${_scopeId}><span class="rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-medium text-gray-300"${_scopeId}>${ssrInterpolate(season.episodes)} ep </span></div>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                if (season.is_current) {
-                  _push2(`<div class="absolute top-1.5 left-1.5"${_scopeId}><span class="rounded bg-primary-600 px-1.5 py-0.5 text-[10px] font-semibold text-white"${_scopeId}> Current </span></div>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`</div><p class="${ssrRenderClass([season.is_current ? "text-primary-400" : "text-gray-300 group-hover:text-primary-400", "mt-1.5 line-clamp-2 text-xs font-medium transition"])}"${_scopeId}>${ssrInterpolate(displayTitle(season))}</p>`);
-              } else {
-                return [
-                  createVNode("div", {
-                    class: ["relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800", season.is_current ? "ring-2 ring-primary-500" : "group-hover:ring-1 group-hover:ring-gray-600"]
-                  }, [
-                    season.cover_image_large || season.cover_image_medium ? (openBlock(), createBlock("img", {
-                      key: 0,
-                      src: (season.cover_image_large || season.cover_image_medium) ?? void 0,
-                      alt: displayTitle(season),
-                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
-                      loading: "lazy"
-                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
-                    createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
-                      createVNode("div", { class: "flex items-center justify-between" }, [
-                        createVNode("span", { class: "rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-semibold text-gray-200" }, " S" + toDisplayString(index + 1), 1),
-                        createVNode(_sfc_main$K, {
-                          score: season.average_score,
-                          size: "sm"
-                        }, null, 8, ["score"])
-                      ])
-                    ]),
-                    season.episodes ? (openBlock(), createBlock("div", {
-                      key: 1,
-                      class: "absolute top-1.5 right-1.5"
-                    }, [
-                      createVNode("span", { class: "rounded bg-gray-900/80 px-1.5 py-0.5 text-[10px] font-medium text-gray-300" }, toDisplayString(season.episodes) + " ep ", 1)
-                    ])) : createCommentVNode("", true),
-                    season.is_current ? (openBlock(), createBlock("div", {
-                      key: 2,
-                      class: "absolute top-1.5 left-1.5"
-                    }, [
-                      createVNode("span", { class: "rounded bg-primary-600 px-1.5 py-0.5 text-[10px] font-semibold text-white" }, " Current ")
-                    ])) : createCommentVNode("", true)
-                  ], 2),
-                  createVNode("p", {
-                    class: ["mt-1.5 line-clamp-2 text-xs font-medium transition", season.is_current ? "text-primary-400" : "text-gray-300 group-hover:text-primary-400"]
-                  }, toDisplayString(displayTitle(season)), 3)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        });
-        _push(`<!--]--></div></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-    };
-  }
-});
-const _sfc_setup$I = _sfc_main$I.setup;
-_sfc_main$I.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SeasonsSection.vue");
-  return _sfc_setup$I ? _sfc_setup$I(props, ctx) : void 0;
-};
-const _sfc_main$H = /* @__PURE__ */ defineComponent({
-  __name: "RelatedAnimeRow",
-  __ssrInlineRender: true,
-  props: {
-    relations: {}
-  },
-  setup(__props) {
-    function relationLabel(type) {
-      return type.replace(/_/g, " ").replace(/\b\w/g, (c2) => c2.toUpperCase());
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      if (__props.relations.length) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "space-y-3" }, _attrs))}><h3 class="text-lg font-semibold text-gray-100">Relations</h3><div class="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-700"><!--[-->`);
-        ssrRenderList(__props.relations, (rel) => {
-          _push(ssrRenderComponent(_component_Link, {
-            key: rel.id,
-            href: rel.related_anime?.slug ? _ctx.route("anime.show", { anime: rel.related_anime.slug }) : "#",
-            class: "group flex-shrink-0 w-36"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`<div class="aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"${_scopeId}>`);
-                if (rel.related_anime?.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", rel.related_anime.cover_image_medium)}${ssrRenderAttr("alt", rel.related_anime?.title_english || rel.related_anime?.title_romaji)} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`</div><p class="mt-1.5 line-clamp-2 text-xs font-medium text-gray-300 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(rel.related_anime?.title_english || rel.related_anime?.title_romaji || "Unknown")}</p><p class="text-[10px] text-gray-500"${_scopeId}>${ssrInterpolate(relationLabel(rel.relation_type))}</p>`);
-              } else {
-                return [
-                  createVNode("div", { class: "aspect-[3/4] overflow-hidden rounded-lg bg-gray-800" }, [
-                    rel.related_anime?.cover_image_medium ? (openBlock(), createBlock("img", {
-                      key: 0,
-                      src: rel.related_anime.cover_image_medium,
-                      alt: rel.related_anime?.title_english || rel.related_anime?.title_romaji,
-                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
-                      loading: "lazy"
-                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
-                  ]),
-                  createVNode("p", { class: "mt-1.5 line-clamp-2 text-xs font-medium text-gray-300 group-hover:text-primary-400 transition" }, toDisplayString(rel.related_anime?.title_english || rel.related_anime?.title_romaji || "Unknown"), 1),
-                  createVNode("p", { class: "text-[10px] text-gray-500" }, toDisplayString(relationLabel(rel.relation_type)), 1)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        });
-        _push(`<!--]--></div></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-    };
-  }
-});
 const _sfc_setup$H = _sfc_main$H.setup;
 _sfc_main$H.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/RelatedAnimeRow.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ScoreBadge.vue");
   return _sfc_setup$H ? _sfc_setup$H(props, ctx) : void 0;
-};
-let refCount = 0;
-let intervalId = null;
-const now = ref(Date.now());
-function useCountdown() {
-  onMounted(() => {
-    refCount++;
-    if (refCount === 1) {
-      now.value = Date.now();
-      intervalId = setInterval(() => {
-        now.value = Date.now();
-      }, 6e4);
-    }
-  });
-  onUnmounted(() => {
-    refCount--;
-    if (refCount === 0 && intervalId !== null) {
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-  });
-  function formatCountdown(airsAt) {
-    const target = new Date(airsAt).getTime();
-    if (Number.isNaN(target)) return "--";
-    const seconds = Math.floor((target - now.value) / 1e3);
-    if (seconds <= 0) return "Aired";
-    const d2 = Math.floor(seconds / 86400);
-    const h2 = Math.floor(seconds % 86400 / 3600);
-    const m2 = Math.floor(seconds % 3600 / 60);
-    if (d2 > 0) return `${d2}d ${h2}h`;
-    if (h2 > 0) return `${h2}h ${m2}m`;
-    return `${m2}m`;
-  }
-  function formatLocalTime(iso, timezone) {
-    try {
-      return new Date(iso).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: timezone,
-        hour12: true
-      });
-    } catch {
-      return new Date(iso).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true
-      });
-    }
-  }
-  function formatLocalDate(iso, timezone) {
-    try {
-      return new Date(iso).toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        timeZone: timezone
-      });
-    } catch {
-      return new Date(iso).toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric"
-      });
-    }
-  }
-  return { now, formatCountdown, formatLocalTime, formatLocalDate };
-}
-const _sfc_main$G = /* @__PURE__ */ defineComponent({
-  __name: "AiringScheduleTable",
-  __ssrInlineRender: true,
-  props: {
-    schedules: {}
-  },
-  setup(__props) {
-    const { formatCountdown, formatLocalDate } = useCountdown();
-    return (_ctx, _push, _parent, _attrs) => {
-      if (__props.schedules.length) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "space-y-3" }, _attrs))}><h3 class="text-lg font-semibold text-gray-100">Upcoming Episodes</h3><div class="overflow-hidden rounded-lg border border-gray-800"><table class="w-full text-sm"><thead><tr class="border-b border-gray-800 bg-gray-900/50"><th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Episode</th><th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Date</th><th class="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Countdown</th></tr></thead><tbody><!--[-->`);
-        ssrRenderList(__props.schedules, (schedule) => {
-          _push(`<tr class="border-b border-gray-800/50 last:border-0"><td class="px-4 py-2.5 text-gray-200">EP ${ssrInterpolate(schedule.episode)}</td><td class="px-4 py-2.5 text-gray-400">${ssrInterpolate(unref(formatLocalDate)(schedule.airs_at))}</td><td class="px-4 py-2.5 text-right text-primary-400 font-medium">${ssrInterpolate(unref(formatCountdown)(schedule.airs_at))}</td></tr>`);
-        });
-        _push(`<!--]--></tbody></table></div></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-    };
-  }
-});
-const _sfc_setup$G = _sfc_main$G.setup;
-_sfc_main$G.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AiringScheduleTable.vue");
-  return _sfc_setup$G ? _sfc_setup$G(props, ctx) : void 0;
 };
 const LIST_STATUS_LABELS = {
   watching: "Watching",
@@ -1216,7 +1756,7 @@ function useListMutations() {
     destroyMutation
   };
 }
-const _sfc_main$F = /* @__PURE__ */ defineComponent({
+const _sfc_main$G = /* @__PURE__ */ defineComponent({
   __name: "ListEntryModal",
   __ssrInlineRender: true,
   props: {
@@ -1240,7 +1780,7 @@ const _sfc_main$F = /* @__PURE__ */ defineComponent({
     const { storeMutation, updateMutation, destroyMutation } = useListMutations();
     const saving = computed(() => storeMutation.isPending.value || updateMutation.isPending.value);
     function save() {
-      const score = displayScore.value > 0 ? Math.round(displayScore.value * 10) : null;
+      const score = displayScore.value > 0 ? displayScore.value : null;
       const payload = {
         status: status.value,
         score,
@@ -1364,12 +1904,12 @@ const _sfc_main$F = /* @__PURE__ */ defineComponent({
               "option-value": "value",
               class: "w-full"
             }, null, _parent2, _scopeId));
-            _push2(`</div><div${_scopeId}><label class="block text-sm text-gray-400 mb-1"${_scopeId}> Score: ${ssrInterpolate(displayScore.value > 0 ? displayScore.value.toFixed(1) : "-")}</label>`);
+            _push2(`</div><div${_scopeId}><label class="block text-sm text-gray-400 mb-1"${_scopeId}> Score: ${ssrInterpolate(displayScore.value > 0 ? displayScore.value : "-")}</label>`);
             _push2(ssrRenderComponent(unref(Slider), {
               "model-value": displayScore.value,
               min: 0,
               max: 10,
-              step: 0.5,
+              step: 1,
               class: "w-full",
               "onUpdate:modelValue": (v2) => displayScore.value = Array.isArray(v2) ? v2[0] : v2
             }, null, _parent2, _scopeId));
@@ -1417,12 +1957,12 @@ const _sfc_main$F = /* @__PURE__ */ defineComponent({
                   }, null, 8, ["modelValue", "onUpdate:modelValue", "options"])
                 ]),
                 createVNode("div", null, [
-                  createVNode("label", { class: "block text-sm text-gray-400 mb-1" }, " Score: " + toDisplayString(displayScore.value > 0 ? displayScore.value.toFixed(1) : "-"), 1),
+                  createVNode("label", { class: "block text-sm text-gray-400 mb-1" }, " Score: " + toDisplayString(displayScore.value > 0 ? displayScore.value : "-"), 1),
                   createVNode(unref(Slider), {
                     "model-value": displayScore.value,
                     min: 0,
                     max: 10,
-                    step: 0.5,
+                    step: 1,
                     class: "w-full",
                     "onUpdate:modelValue": (v2) => displayScore.value = Array.isArray(v2) ? v2[0] : v2
                   }, null, 8, ["model-value", "onUpdate:modelValue"])
@@ -1490,13 +2030,13 @@ const _sfc_main$F = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$F = _sfc_main$F.setup;
-_sfc_main$F.setup = (props, ctx) => {
+const _sfc_setup$G = _sfc_main$G.setup;
+_sfc_main$G.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListEntryModal.vue");
-  return _sfc_setup$F ? _sfc_setup$F(props, ctx) : void 0;
+  return _sfc_setup$G ? _sfc_setup$G(props, ctx) : void 0;
 };
-const _sfc_main$E = /* @__PURE__ */ defineComponent({
+const _sfc_main$F = /* @__PURE__ */ defineComponent({
   __name: "AddToListButton",
   __ssrInlineRender: true,
   props: {
@@ -1534,14 +2074,14 @@ const _sfc_main$E = /* @__PURE__ */ defineComponent({
       if (!currentEntry.value) {
         _push(ssrRenderComponent(unref(Button), {
           label: "Add to List",
-          class: "w-full",
+          size: "small",
           onClick: ($event) => showModal.value = true
         }, null, _parent));
       } else {
-        _push(`<button class="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition flex items-center justify-between"><span>${ssrInterpolate(unref(LIST_STATUS_LABELS)[currentEntry.value.status])}</span><svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`);
+        _push(`<button class="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 transition hover:bg-gray-700"><span>${ssrInterpolate(unref(LIST_STATUS_LABELS)[currentEntry.value.status])}</span><svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`);
       }
       if (showModal.value) {
-        _push(ssrRenderComponent(_sfc_main$F, {
+        _push(ssrRenderComponent(_sfc_main$G, {
           anime: __props.anime,
           entry: currentEntry.value,
           onClose: ($event) => showModal.value = false,
@@ -1555,20 +2095,97 @@ const _sfc_main$E = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$E = _sfc_main$E.setup;
-_sfc_main$E.setup = (props, ctx) => {
+const _sfc_setup$F = _sfc_main$F.setup;
+_sfc_main$F.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AddToListButton.vue");
-  return _sfc_setup$E ? _sfc_setup$E(props, ctx) : void 0;
+  return _sfc_setup$F ? _sfc_setup$F(props, ctx) : void 0;
 };
-const _sfc_main$D = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+let refCount = 0;
+let intervalId = null;
+const now = ref(Date.now());
+function useCountdown() {
+  onMounted(() => {
+    refCount++;
+    if (refCount === 1) {
+      now.value = Date.now();
+      intervalId = setInterval(() => {
+        now.value = Date.now();
+      }, 6e4);
+    }
+  });
+  onUnmounted(() => {
+    refCount--;
+    if (refCount === 0 && intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  });
+  function formatCountdown(airsAt) {
+    const target = new Date(airsAt).getTime();
+    if (Number.isNaN(target)) return "--";
+    const seconds = Math.floor((target - now.value) / 1e3);
+    if (seconds <= 0) return "Aired";
+    const d2 = Math.floor(seconds / 86400);
+    const h2 = Math.floor(seconds % 86400 / 3600);
+    const m2 = Math.floor(seconds % 3600 / 60);
+    if (d2 > 0) return `${d2}d ${h2}h`;
+    if (h2 > 0) return `${h2}h ${m2}m`;
+    return `${m2}m`;
+  }
+  function formatLocalTime(iso, timezone) {
+    try {
+      return new Date(iso).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: timezone,
+        hour12: true
+      });
+    } catch {
+      return new Date(iso).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+  }
+  function formatLocalDate(iso, timezone) {
+    try {
+      return new Date(iso).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: timezone
+      });
+    } catch {
+      return new Date(iso).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+      });
+    }
+  }
+  return { now, formatCountdown, formatLocalTime, formatLocalDate };
+}
+const STATUS_DOT_CLASS = {
+  watching: "bg-blue-400",
+  completed: "bg-green-400",
+  plan_to_watch: "bg-gray-500",
+  on_hold: "bg-yellow-400",
+  dropped: "bg-red-400"
+};
+function statusDotClass(status) {
+  return STATUS_DOT_CLASS[status] ?? "bg-gray-500";
+}
+const _sfc_main$E = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "AnimeDetailPage",
   __ssrInlineRender: true,
   props: {
     anime: {},
     list_entry: {},
     seasons: {},
+    recommendations: {},
     og: {}
   },
   setup(__props) {
@@ -1577,12 +2194,13 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
     const isAuthenticated = computed(() => !!page.props.auth.user);
     const studioPagesEnabled = useFeature("studio-pages");
     const voiceActorPagesEnabled = useFeature("voice-actor-pages");
+    const { formatCountdown, formatLocalDate } = useCountdown();
     function displayTitle(anime) {
       return anime.title_english || anime.title_romaji;
     }
-    function formatLabel(format2) {
-      if (!format2) return "Unknown";
-      return format2.replace(/_/g, " ");
+    function formatLabel(format) {
+      if (!format) return "Unknown";
+      return format.replace(/_/g, " ");
     }
     function statusLabel(status) {
       if (!status) return "Unknown";
@@ -1607,8 +2225,11 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
       if (!dateStr) return "?";
       return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     }
-    const mainStudios = props.anime.studios?.filter((s2) => s2.is_main) ?? [];
-    const otherStudios = props.anime.studios?.filter((s2) => !s2.is_main) ?? [];
+    function relationLabel(type) {
+      return type.replace(/_/g, " ").replace(/\b\w/g, (c2) => c2.toUpperCase());
+    }
+    const mainStudios = computed(() => props.anime.studios?.filter((s2) => s2.is_main) ?? []);
+    const otherStudios = computed(() => props.anime.studios?.filter((s2) => !s2.is_main) ?? []);
     function studioRoute(studio) {
       if (!studio.slug) return null;
       const routeName = studio.is_animation_studio ? "studios.show" : "producers.show";
@@ -1632,6 +2253,24 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
     const characters = computed(() => props.anime.characters ?? []);
     const mainCharacters = computed(() => characters.value.filter((c2) => c2.role === "MAIN"));
     const supportingCharacters = computed(() => characters.value.filter((c2) => c2.role !== "MAIN"));
+    const displayCharacters = computed(() => [...mainCharacters.value, ...supportingCharacters.value]);
+    const schedules = computed(() => props.anime.airing_schedules ?? []);
+    const relations = computed(() => (props.anime.relations ?? []).filter((r2) => r2.related_anime));
+    const hasTrailer = computed(() => !!props.anime.trailer_url && !!embedUrl(props.anime.trailer_url));
+    const hasSeasons = computed(() => props.seasons.length > 1);
+    const episodesList = computed(() => props.anime.episodes_list ?? []);
+    const episodesTabEnabled = useFeature("episodes-tab");
+    const episodeFilter = ref("all");
+    const EPISODE_FILTERS = ["all", "aired", "upcoming"];
+    const filteredEpisodes = computed(() => {
+      if (episodeFilter.value === "all") return episodesList.value;
+      return episodesList.value.filter((ep) => ep.status === episodeFilter.value);
+    });
+    const episodeCounts = computed(() => ({
+      all: episodesList.value.length,
+      aired: episodesList.value.filter((ep) => ep.status === "aired").length,
+      upcoming: episodesList.value.filter((ep) => ep.status === "upcoming").length
+    }));
     function embedUrl(url) {
       try {
         const parsed = new URL(url);
@@ -1647,6 +2286,46 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
       } catch {
         return null;
       }
+    }
+    const availableTabs = computed(() => {
+      const tabs = [];
+      if (hasTrailer.value) tabs.push({ key: "trailer", label: "Trailer" });
+      if (hasSeasons.value) tabs.push({ key: "franchise", label: "Franchise" });
+      if (episodesTabEnabled.value && episodesList.value.length) tabs.push({ key: "episodes", label: "Episodes" });
+      if (schedules.value.length) tabs.push({ key: "schedule", label: "Schedule" });
+      if (characters.value.length) tabs.push({ key: "characters", label: "Characters" });
+      return tabs;
+    });
+    const activeTab = ref(null);
+    const currentTab = computed(() => {
+      if (activeTab.value && availableTabs.value.some((t3) => t3.key === activeTab.value)) {
+        return activeTab.value;
+      }
+      return availableTabs.value[0]?.key ?? null;
+    });
+    const STATUS_OPTIONS = ["watching", "completed", "on_hold", "dropped", "plan_to_watch"];
+    const statusMenuOpen = ref(false);
+    const statusMenuRef = ref(null);
+    const editModalOpen = ref(false);
+    const { updateMutation } = useListMutations();
+    function reloadEntry() {
+      router.reload({ only: ["list_entry"] });
+    }
+    const canIncrement = computed(() => {
+      if (!props.list_entry) return false;
+      const total = props.anime.episodes;
+      return total == null || props.list_entry.progress < total;
+    });
+    function handleDocClick(e2) {
+      if (statusMenuOpen.value && statusMenuRef.value && !statusMenuRef.value.contains(e2.target)) {
+        statusMenuOpen.value = false;
+      }
+    }
+    onMounted(() => document.addEventListener("mousedown", handleDocClick));
+    onBeforeUnmount(() => document.removeEventListener("mousedown", handleDocClick));
+    function displayScore() {
+      if (props.anime.average_score == null) return "—";
+      return props.anime.average_score.toFixed(1);
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
@@ -1722,232 +2401,578 @@ const _sfc_main$D = /* @__PURE__ */ defineComponent({
         }),
         _: 1
       }, _parent));
-      _push(`<div>`);
+      _push(`<div class="-mx-4 -mt-6"><div class="relative h-64 overflow-hidden bg-gray-900 md:h-80 lg:h-[340px]">`);
       if (__props.anime.banner_image) {
-        _push(`<div class="-mx-4 -mt-6 mb-6 h-48 overflow-hidden md:h-64"><img${ssrRenderAttr("src", __props.anime.banner_image)}${ssrRenderAttr("alt", displayTitle(__props.anime))} class="h-full w-full object-cover"></div>`);
+        _push(`<img${ssrRenderAttr("src", __props.anime.banner_image)}${ssrRenderAttr("alt", displayTitle(__props.anime))} class="h-full w-full object-cover" loading="eager">`);
       } else {
-        _push(`<!---->`);
+        _push(`<div class="h-full w-full" style="${ssrRenderStyle(__props.anime.cover_image_color ? `background: radial-gradient(circle at 30% 50%, ${__props.anime.cover_image_color}33, transparent 60%), linear-gradient(135deg, ${__props.anime.cover_image_color}55, #111827);` : "background: linear-gradient(135deg, #1f2937, #030712);")}"></div>`);
       }
-      _push(`<div class="flex flex-col gap-6 md:flex-row"><div class="w-full shrink-0 md:w-56"><div class="${ssrRenderClass([{ "-mt-20 relative z-10": __props.anime.banner_image }, "overflow-hidden rounded-lg bg-gray-800"])}">`);
+      _push(`<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-gray-950"></div><button type="button" class="absolute left-4 top-4 flex items-center gap-1.5 rounded-lg bg-black/50 px-3 py-1.5 text-xs text-gray-100 backdrop-blur-md transition hover:bg-black/70 md:left-6 md:top-6"><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path fill-rule="evenodd" d="M12.707 4.293a1 1 0 010 1.414L8.414 10l4.293 4.293a1 1 0 01-1.414 1.414l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Back </button></div><div class="container relative mx-auto -mt-40 px-4 md:-mt-44"><div class="flex flex-col items-start gap-5 md:flex-row md:items-end md:gap-8"><div class="w-36 shrink-0 overflow-hidden rounded-xl bg-gray-800 shadow-2xl ring-1 ring-gray-800 md:w-48 lg:w-56">`);
       if (__props.anime.cover_image_large || __props.anime.cover_image_medium) {
-        _push(`<img${ssrRenderAttr("src", __props.anime.cover_image_large || __props.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(__props.anime))} class="w-full" loading="lazy">`);
+        _push(`<img${ssrRenderAttr("src", __props.anime.cover_image_large || __props.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(__props.anime))} class="w-full" loading="eager">`);
       } else {
         _push(`<!---->`);
       }
-      _push(`</div>`);
-      if (isAuthenticated.value) {
-        _push(`<div class="mt-4">`);
-        _push(ssrRenderComponent(_sfc_main$E, {
-          anime: __props.anime,
-          "initial-entry": __props.list_entry
-        }, null, _parent));
-        _push(`</div>`);
+      _push(`</div><div class="min-w-0 flex-1 pb-2"><div class="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-300 drop-shadow">${ssrInterpolate(formatLabel(__props.anime.format))} `);
+      if (__props.anime.season && __props.anime.season_year) {
+        _push(`<span> · ${ssrInterpolate(seasonLabel(__props.anime.season, __props.anime.season_year))}</span>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="mt-4 space-y-3 text-sm"><div class="rounded-lg border border-gray-800 p-3 space-y-2"><div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Format</span><span class="text-gray-200 text-right">${ssrInterpolate(formatLabel(__props.anime.format))}</span></div><div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Episodes</span><span class="text-gray-200 text-right">${ssrInterpolate(__props.anime.episodes ?? "?")}</span></div>`);
-      if (__props.anime.duration) {
-        _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Duration</span><span class="text-gray-200 text-right">${ssrInterpolate(__props.anime.duration)} min</span></div>`);
+      if (mainStudios.value.length) {
+        _push(`<span> · ${ssrInterpolate(mainStudios.value.map((s2) => s2.name).join(" × "))}</span>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Status</span><span class="text-gray-200 text-right">${ssrInterpolate(statusLabel(__props.anime.status))}</span></div><div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Season</span><span class="text-gray-200 text-right">${ssrInterpolate(seasonLabel(__props.anime.season, __props.anime.season_year))}</span></div>`);
-      if (__props.anime.aired_from) {
-        _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Aired</span><span class="text-gray-200 text-right">${ssrInterpolate(formatDate(__props.anime.aired_from))} – ${ssrInterpolate(formatDate(__props.anime.aired_to))}</span></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      if (__props.anime.source) {
-        _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Source</span><span class="text-gray-200 text-right">${ssrInterpolate(sourceLabel(__props.anime.source))}</span></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`</div><div class="rounded-lg border border-gray-800 p-3 space-y-2"><div class="flex items-center justify-between gap-3"><span class="text-gray-500 shrink-0">Score</span>`);
-      _push(ssrRenderComponent(_sfc_main$K, {
-        score: __props.anime.average_score
-      }, null, _parent));
-      _push(`</div>`);
-      if (__props.anime.mean_score) {
-        _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Mean</span><span class="text-gray-200 text-right">${ssrInterpolate(__props.anime.mean_score.toFixed(1))}</span></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Popularity</span><span class="text-gray-200 text-right">#${ssrInterpolate(__props.anime.popularity?.toLocaleString() ?? "?")}</span></div>`);
-      if (__props.anime.favourites) {
-        _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Favourites</span><span class="text-gray-200 text-right">${ssrInterpolate(__props.anime.favourites.toLocaleString())}</span></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`</div>`);
-      if (unref(mainStudios).length || unref(otherStudios).length) {
-        _push(`<div class="rounded-lg border border-gray-800 p-3 space-y-2"><!--[-->`);
-        ssrRenderList(unref(mainStudios), (studio) => {
-          _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Studio</span>`);
-          if (unref(studioPagesEnabled) && studioRoute(studio)) {
-            _push(ssrRenderComponent(_component_Link, {
-              href: studioRoute(studio),
-              class: "font-medium text-primary-400 hover:text-primary-300 text-right transition"
-            }, {
-              default: withCtx((_2, _push2, _parent2, _scopeId) => {
-                if (_push2) {
-                  _push2(`${ssrInterpolate(studio.name)}`);
-                } else {
-                  return [
-                    createTextVNode(toDisplayString(studio.name), 1)
-                  ];
-                }
-              }),
-              _: 2
-            }, _parent));
-          } else {
-            _push(`<span class="font-medium text-gray-200 text-right">${ssrInterpolate(studio.name)}</span>`);
-          }
-          _push(`</div>`);
-        });
-        _push(`<!--]--><!--[-->`);
-        ssrRenderList(unref(otherStudios), (studio) => {
-          _push(`<div class="flex items-start justify-between gap-3"><span class="text-gray-500 shrink-0">Producer</span>`);
-          if (unref(studioPagesEnabled) && studioRoute(studio)) {
-            _push(ssrRenderComponent(_component_Link, {
-              href: studioRoute(studio),
-              class: "text-primary-400 hover:text-primary-300 text-right transition"
-            }, {
-              default: withCtx((_2, _push2, _parent2, _scopeId) => {
-                if (_push2) {
-                  _push2(`${ssrInterpolate(studio.name)}`);
-                } else {
-                  return [
-                    createTextVNode(toDisplayString(studio.name), 1)
-                  ];
-                }
-              }),
-              _: 2
-            }, _parent));
-          } else {
-            _push(`<span class="text-gray-300 text-right">${ssrInterpolate(studio.name)}</span>`);
-          }
-          _push(`</div>`);
-        });
-        _push(`<!--]--></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      if (__props.anime.external_ids?.length) {
-        _push(`<div class="rounded-lg border border-gray-800 p-3 space-y-1.5"><h4 class="text-xs font-medium uppercase tracking-wider text-gray-400">External Links</h4><!--[-->`);
-        ssrRenderList(__props.anime.external_ids, (link) => {
-          _push(`<a${ssrRenderAttr("href", link.url ?? "#")} target="_blank" rel="noopener noreferrer" class="block text-xs text-primary-400 hover:text-primary-300 transition">${ssrInterpolate(link.platform)}</a>`);
-        });
-        _push(`<!--]--></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`</div></div><div class="min-w-0 flex-1 space-y-6"><div><h1 class="text-2xl font-bold text-gray-100 md:text-3xl">${ssrInterpolate(displayTitle(__props.anime))}</h1>`);
+      _push(`</div><h1 class="text-3xl font-bold tracking-tight text-gray-100 drop-shadow-lg sm:text-4xl md:text-5xl">${ssrInterpolate(displayTitle(__props.anime))}</h1>`);
       if (__props.anime.title_english && __props.anime.title_romaji !== __props.anime.title_english) {
-        _push(`<p class="mt-1 text-gray-400">${ssrInterpolate(__props.anime.title_romaji)}</p>`);
+        _push(`<p class="mt-2 text-sm text-gray-300 drop-shadow">${ssrInterpolate(__props.anime.title_romaji)}</p>`);
       } else {
         _push(`<!---->`);
       }
       if (__props.anime.title_native) {
-        _push(`<p class="text-sm text-gray-500">${ssrInterpolate(__props.anime.title_native)}</p>`);
+        _push(`<p class="text-xs text-gray-400 drop-shadow">${ssrInterpolate(__props.anime.title_native)}</p>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`</div>`);
       if (__props.anime.genres?.length) {
-        _push(`<div class="flex flex-wrap gap-2"><!--[-->`);
-        ssrRenderList(__props.anime.genres, (genre) => {
-          _push(ssrRenderComponent(_sfc_main$J, {
-            key: genre.id,
-            name: genre.name
-          }, null, _parent));
+        _push(`<div class="mt-4 flex flex-wrap gap-1.5"><!--[-->`);
+        ssrRenderList(__props.anime.genres, (g2) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: g2.id,
+            href: _ctx.route("anime.index", { "filter[genre]": g2.name }),
+            class: "rounded-full border border-gray-700/80 bg-gray-900/60 px-3 py-1 text-xs text-gray-200 backdrop-blur-md transition hover:border-primary-400 hover:text-primary-300"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(g2.name)}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(g2.name), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
         });
         _push(`<!--]--></div>`);
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$I, { seasons: __props.seasons }, null, _parent));
+      _push(`</div></div><div class="mt-8 flex flex-wrap items-center gap-3 rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-3 backdrop-blur-sm md:px-5">`);
+      if (isAuthenticated.value && __props.list_entry) {
+        _push(`<!--[--><div class="relative"><button type="button" class="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 transition hover:bg-gray-700"><span class="${ssrRenderClass([unref(statusDotClass)(__props.list_entry.status), "h-1.5 w-1.5 rounded-full"])}"></span> ${ssrInterpolate(unref(LIST_STATUS_LABELS)[__props.list_entry.status])} <svg viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3 text-gray-400"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></button>`);
+        if (statusMenuOpen.value) {
+          _push(`<div class="absolute left-0 top-full z-50 mt-1 min-w-[170px] rounded-lg border border-gray-700 bg-gray-900 p-1 shadow-lg"><!--[-->`);
+          ssrRenderList(STATUS_OPTIONS, (s2) => {
+            _push(`<button type="button" class="${ssrRenderClass([__props.list_entry.status === s2 ? "bg-gray-800" : "", "flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-xs text-gray-200 transition hover:bg-gray-800"])}"><span class="${ssrRenderClass([unref(statusDotClass)(s2), "h-1.5 w-1.5 rounded-full"])}"></span> ${ssrInterpolate(unref(LIST_STATUS_LABELS)[s2])} `);
+            if (__props.list_entry.status === s2) {
+              _push(`<svg viewBox="0 0 20 20" fill="currentColor" class="ml-auto h-3 w-3 text-gray-400"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</button>`);
+          });
+          _push(`<!--]--></div>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><div class="hidden h-6 w-px bg-gray-800 sm:block"></div><div class="text-sm"><span class="font-mono font-medium text-gray-100">${ssrInterpolate(__props.list_entry.progress)} / ${ssrInterpolate(__props.anime.episodes ?? "?")}</span><span class="ml-2 text-gray-500">episodes</span></div>`);
+        if (__props.list_entry.display_score != null) {
+          _push(`<!--[--><div class="hidden h-6 w-px bg-gray-800 sm:block"></div><div class="text-sm"><span class="font-mono text-gray-100">★ ${ssrInterpolate(__props.list_entry.display_score)}</span><span class="ml-2 text-gray-500">your score</span></div><!--]-->`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`<div class="flex-1"></div><button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"${ssrIncludeBooleanAttr(!canIncrement.value || unref(updateMutation).isPending.value) ? " disabled" : ""}><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path></svg> +1 episode </button><button type="button" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 transition hover:bg-gray-700"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 3l3 3-9 9H5v-3l9-9zM13 4l3 3"></path></svg> Edit </button><!--]-->`);
+      } else if (isAuthenticated.value) {
+        _push(`<!--[--><div class="text-sm text-gray-400">Not in your list</div><div class="flex-1"></div>`);
+        _push(ssrRenderComponent(_sfc_main$F, {
+          anime: __props.anime,
+          "initial-entry": null
+        }, null, _parent));
+        _push(`<!--]-->`);
+      } else {
+        _push(`<div class="text-sm text-gray-400">`);
+        _push(ssrRenderComponent(_component_Link, {
+          href: _ctx.route("login"),
+          class: "text-primary-400 transition hover:text-primary-300"
+        }, {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`Sign in`);
+            } else {
+              return [
+                createTextVNode("Sign in")
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+        _push(` to track this anime </div>`);
+      }
+      _push(`</div>`);
+      if (editModalOpen.value && __props.list_entry) {
+        _push(ssrRenderComponent(_sfc_main$G, {
+          anime: __props.anime,
+          entry: __props.list_entry,
+          onClose: ($event) => editModalOpen.value = false,
+          onSaved: () => {
+            editModalOpen.value = false;
+            reloadEntry();
+          },
+          onDeleted: () => {
+            editModalOpen.value = false;
+            reloadEntry();
+          }
+        }, null, _parent));
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div><div class="container mx-auto mt-10 px-4 pb-16"><div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"><div class="min-w-0 space-y-8">`);
       if (__props.anime.synopsis) {
-        _push(`<div class="prose prose-invert max-w-none"><div>${__props.anime.synopsis ?? ""}</div></div>`);
+        _push(`<section><div class="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">Synopsis</div><div class="prose prose-invert prose-p:text-gray-200 prose-p:leading-relaxed max-w-none text-[15px]"><div>${__props.anime.synopsis ?? ""}</div></div></section>`);
       } else {
         _push(`<!---->`);
       }
-      if (__props.anime.trailer_url && embedUrl(__props.anime.trailer_url)) {
-        _push(`<div><h3 class="mb-3 text-lg font-semibold text-gray-100">Trailer</h3><div class="aspect-video overflow-hidden rounded-lg"><iframe${ssrRenderAttr("src", embedUrl(__props.anime.trailer_url))} class="h-full w-full" allowfullscreen loading="lazy"></iframe></div></div>`);
-      } else {
-        _push(`<!---->`);
-      }
-      if (characters.value.length) {
-        _push(`<div><h3 class="mb-3 text-lg font-semibold text-gray-100">Characters &amp; Voice Actors</h3><div class="grid grid-cols-1 gap-2 sm:grid-cols-2"><!--[-->`);
-        ssrRenderList([...mainCharacters.value, ...supportingCharacters.value].slice(0, 20), (char) => {
-          _push(`<div class="rounded-lg border border-gray-800 bg-gray-900/40 overflow-hidden"><div class="flex items-stretch justify-between gap-2"><div class="flex min-w-0 flex-1 items-center gap-2 p-2"><div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">`);
-          if (char.image_medium) {
-            _push(`<img${ssrRenderAttr("src", char.image_medium)}${ssrRenderAttr("alt", char.name_full)} class="h-full w-full object-cover" loading="lazy">`);
-          } else {
-            _push(`<!---->`);
-          }
-          _push(`</div><div class="min-w-0"><p class="truncate text-sm font-medium text-gray-200">${ssrInterpolate(char.name_full)}</p>`);
-          if (char.role) {
-            _push(`<p class="text-xs text-gray-500">${ssrInterpolate(char.role === "MAIN" ? "Main" : char.role === "SUPPORTING" ? "Supporting" : "Background")}</p>`);
-          } else {
-            _push(`<!---->`);
-          }
-          _push(`</div></div>`);
-          if (char.voice_actors?.length) {
-            _push(`<div class="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2"><!--[-->`);
-            ssrRenderList(sortedVoiceActors(char.voice_actors), (va) => {
-              _push(`<div class="flex items-center justify-end gap-2"><span class="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-400">${ssrInterpolate(languageLabel(va.language))}</span><div class="min-w-0 text-right">`);
-              ssrRenderVNode(_push, createVNode(resolveDynamicComponent(unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? "Link" : "span"), mergeProps({ ref_for: true }, unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? { href: voiceActorRoute(va) } : {}, {
-                class: ["block truncate text-sm", unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? "text-primary-400 hover:text-primary-300 transition" : "text-gray-300"]
-              }), {
-                default: withCtx((_2, _push2, _parent2, _scopeId) => {
-                  if (_push2) {
-                    _push2(`${ssrInterpolate(va.name_full)}`);
+      if (availableTabs.value.length) {
+        _push(`<section><div class="flex items-center gap-1 overflow-x-auto border-b border-gray-800 [-ms-overflow-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden"><!--[-->`);
+        ssrRenderList(availableTabs.value, (t3) => {
+          _push(`<button type="button" class="${ssrRenderClass([currentTab.value === t3.key ? "border-primary-400 font-medium text-primary-400" : "border-transparent text-gray-400 hover:text-gray-200", "-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm transition"])}">${ssrInterpolate(t3.label)}</button>`);
+        });
+        _push(`<!--]--></div><div class="pt-5">`);
+        if (currentTab.value === "trailer" && __props.anime.trailer_url && embedUrl(__props.anime.trailer_url)) {
+          _push(`<div><div class="aspect-video overflow-hidden rounded-xl border border-gray-800 bg-gray-900"><iframe${ssrRenderAttr("src", embedUrl(__props.anime.trailer_url))} class="h-full w-full" allowfullscreen loading="lazy"></iframe></div></div>`);
+        } else if (currentTab.value === "franchise") {
+          _push(`<div><div class="mb-4 flex items-baseline justify-between"><div><div class="font-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">Franchise timeline</div><div class="mt-1 text-sm text-gray-400">${ssrInterpolate(__props.seasons.length)} entries</div></div></div><div class="relative pl-7"><div class="absolute bottom-2 left-[11px] top-2 w-px bg-gray-800"></div><!--[-->`);
+          ssrRenderList(__props.seasons, (s2, i2) => {
+            _push(`<div class="relative pb-3 last:pb-0"><div class="${ssrRenderClass([s2.is_current ? "border-primary-400 bg-primary-400 shadow-[0_0_0_4px_rgba(129,140,248,0.15)]" : "border-gray-700 bg-gray-900", "absolute -left-[22px] top-5 flex h-4 w-4 items-center justify-center rounded-full border-2"])}"></div>`);
+            ssrRenderVNode(_push, createVNode(resolveDynamicComponent(s2.slug && !s2.is_current ? "Link" : "div"), mergeProps({ ref_for: true }, s2.slug && !s2.is_current ? { href: _ctx.route("anime.show", { anime: s2.slug }) } : {}, {
+              class: ["flex items-center gap-4 rounded-xl border bg-gray-900/50 p-3 transition", s2.is_current ? "border-primary-400/60" : "border-gray-800 hover:border-gray-700"]
+            }), {
+              default: withCtx((_2, _push2, _parent2, _scopeId) => {
+                if (_push2) {
+                  _push2(`<div class="h-[78px] w-[56px] shrink-0 overflow-hidden rounded-md bg-gray-800"${_scopeId}>`);
+                  if (s2.cover_image_large || s2.cover_image_medium) {
+                    _push2(`<img${ssrRenderAttr("src", (s2.cover_image_large || s2.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", s2.title_english || s2.title_romaji)} class="h-full w-full object-cover" loading="lazy"${_scopeId}>`);
                   } else {
-                    return [
-                      createTextVNode(toDisplayString(va.name_full), 1)
-                    ];
+                    _push2(`<!---->`);
                   }
-                }),
-                _: 2
-              }), _parent);
-              _push(`</div><div class="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800">`);
-              if (va.image_medium) {
-                _push(`<img${ssrRenderAttr("src", va.image_medium)}${ssrRenderAttr("alt", va.name_full)} class="h-full w-full object-cover" loading="lazy">`);
+                  _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><div class="mb-1 flex flex-wrap items-center gap-2"${_scopeId}><span class="font-mono text-[10px] uppercase tracking-[0.08em] text-gray-500"${_scopeId}> Season ${ssrInterpolate(i2 + 1)}</span>`);
+                  if (s2.is_current) {
+                    _push2(`<span class="rounded-full bg-primary-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-300"${_scopeId}> Currently watching </span>`);
+                  } else {
+                    _push2(`<!---->`);
+                  }
+                  _push2(`</div><div class="truncate text-sm font-medium text-gray-100"${_scopeId}>${ssrInterpolate(s2.title_english || s2.title_romaji)}</div><div class="mt-1 font-mono text-xs text-gray-500"${_scopeId}>${ssrInterpolate(formatLabel(s2.format))} · ${ssrInterpolate(s2.episodes ?? "?")} ep </div></div>`);
+                  _push2(ssrRenderComponent(_sfc_main$H, {
+                    score: s2.average_score,
+                    size: "sm"
+                  }, null, _parent2, _scopeId));
+                } else {
+                  return [
+                    createVNode("div", { class: "h-[78px] w-[56px] shrink-0 overflow-hidden rounded-md bg-gray-800" }, [
+                      s2.cover_image_large || s2.cover_image_medium ? (openBlock(), createBlock("img", {
+                        key: 0,
+                        src: (s2.cover_image_large || s2.cover_image_medium) ?? void 0,
+                        alt: s2.title_english || s2.title_romaji,
+                        class: "h-full w-full object-cover",
+                        loading: "lazy"
+                      }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+                    ]),
+                    createVNode("div", { class: "min-w-0 flex-1" }, [
+                      createVNode("div", { class: "mb-1 flex flex-wrap items-center gap-2" }, [
+                        createVNode("span", { class: "font-mono text-[10px] uppercase tracking-[0.08em] text-gray-500" }, " Season " + toDisplayString(i2 + 1), 1),
+                        s2.is_current ? (openBlock(), createBlock("span", {
+                          key: 0,
+                          class: "rounded-full bg-primary-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-300"
+                        }, " Currently watching ")) : createCommentVNode("", true)
+                      ]),
+                      createVNode("div", { class: "truncate text-sm font-medium text-gray-100" }, toDisplayString(s2.title_english || s2.title_romaji), 1),
+                      createVNode("div", { class: "mt-1 font-mono text-xs text-gray-500" }, toDisplayString(formatLabel(s2.format)) + " · " + toDisplayString(s2.episodes ?? "?") + " ep ", 1)
+                    ]),
+                    createVNode(_sfc_main$H, {
+                      score: s2.average_score,
+                      size: "sm"
+                    }, null, 8, ["score"])
+                  ];
+                }
+              }),
+              _: 2
+            }), _parent);
+            _push(`</div>`);
+          });
+          _push(`<!--]--></div></div>`);
+        } else if (currentTab.value === "episodes") {
+          _push(`<div><div class="mb-3 flex flex-wrap items-center gap-1.5"><!--[-->`);
+          ssrRenderList(EPISODE_FILTERS, (f2) => {
+            _push(`<button type="button" class="${ssrRenderClass([episodeFilter.value === f2 ? "border-primary-400 bg-primary-400/10 text-primary-300" : "border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200", "rounded-full border px-3 py-1 text-xs transition"])}"><span class="capitalize">${ssrInterpolate(f2)}</span><span class="ml-1.5 font-mono text-[11px] text-gray-500">${ssrInterpolate(episodeCounts.value[f2])}</span></button>`);
+          });
+          _push(`<!--]--></div>`);
+          if (!filteredEpisodes.value.length) {
+            _push(`<div class="rounded-xl border border-dashed border-gray-700 bg-gray-900/30 px-6 py-10 text-center text-sm text-gray-500"> No episodes match this filter. </div>`);
+          } else {
+            _push(`<div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/50"><div class="hidden grid-cols-[3rem_minmax(0,1fr)_10rem_5rem_4rem] gap-3 border-b border-gray-800 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500 md:grid"><div>EP</div><div>Title</div><div>Air date</div><div>Runtime</div><div class="text-right">Score</div></div><!--[-->`);
+            ssrRenderList(filteredEpisodes.value, (ep, i2) => {
+              _push(`<div class="${ssrRenderClass([i2 > 0 ? "border-t border-gray-800" : "", "grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 md:grid-cols-[3rem_minmax(0,1fr)_10rem_5rem_4rem]"])}"><div class="font-mono text-xs font-semibold text-primary-400">${ssrInterpolate(String(ep.number).padStart(2, "0"))}</div><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="truncate text-sm font-medium text-gray-100">${ssrInterpolate(ep.title || `Episode ${ep.number}`)}</span>`);
+              if (ep.status === "upcoming") {
+                _push(`<span class="rounded-full bg-primary-400/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-primary-300"> Upcoming </span>`);
+              } else if (ep.status === "unknown") {
+                _push(`<span class="rounded-full border border-dashed border-gray-700 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-gray-500"> TBA </span>`);
               } else {
                 _push(`<!---->`);
+              }
+              _push(`</div><div class="mt-1 flex items-center gap-2 text-[11px] text-gray-500 md:hidden">`);
+              if (ep.air_date) {
+                _push(`<span class="font-mono">${ssrInterpolate(unref(formatLocalDate)(ep.air_date))}</span>`);
+              } else {
+                _push(`<!---->`);
+              }
+              if (ep.air_date && ep.status === "upcoming") {
+                _push(`<span class="font-mono text-primary-400"> · ${ssrInterpolate(unref(formatCountdown)(ep.air_date))}</span>`);
+              } else {
+                _push(`<!---->`);
+              }
+              if (ep.runtime_minutes) {
+                _push(`<span class="font-mono">· ${ssrInterpolate(ep.runtime_minutes)}m</span>`);
+              } else {
+                _push(`<!---->`);
+              }
+              _push(`</div></div><div class="hidden font-mono text-xs text-gray-400 md:block">`);
+              if (ep.air_date) {
+                _push(`<!--[--><div>${ssrInterpolate(unref(formatLocalDate)(ep.air_date))}</div>`);
+                if (ep.status === "upcoming") {
+                  _push(`<div class="text-primary-400">${ssrInterpolate(unref(formatCountdown)(ep.air_date))}</div>`);
+                } else {
+                  _push(`<!---->`);
+                }
+                _push(`<!--]-->`);
+              } else {
+                _push(`<span class="text-gray-600">—</span>`);
+              }
+              _push(`</div><div class="hidden font-mono text-xs text-gray-400 md:block">`);
+              if (ep.runtime_minutes) {
+                _push(`<!--[-->${ssrInterpolate(ep.runtime_minutes)} min<!--]-->`);
+              } else {
+                _push(`<span class="text-gray-600">—</span>`);
+              }
+              _push(`</div><div class="text-right">`);
+              if (ep.score != null) {
+                _push(ssrRenderComponent(_sfc_main$H, {
+                  score: ep.score / 10,
+                  size: "sm"
+                }, null, _parent));
+              } else {
+                _push(`<span class="font-mono text-xs text-gray-600">—</span>`);
               }
               _push(`</div></div>`);
             });
             _push(`<!--]--></div>`);
-          } else {
-            _push(`<!---->`);
           }
-          _push(`</div></div>`);
+          _push(`</div>`);
+        } else if (currentTab.value === "schedule") {
+          _push(`<div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/50"><!--[-->`);
+          ssrRenderList(schedules.value, (s2, i2) => {
+            _push(`<div class="${ssrRenderClass([i2 > 0 ? "border-t border-gray-800" : "", "flex items-center gap-4 px-4 py-3"])}"><div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gray-800 font-mono text-xs font-semibold text-gray-300">${ssrInterpolate(String(s2.episode).padStart(2, "0"))}</div><div class="flex-1"><div class="text-sm font-medium text-gray-100">Episode ${ssrInterpolate(s2.episode)}</div><div class="mt-0.5 font-mono text-[11px] text-gray-500">${ssrInterpolate(unref(formatLocalDate)(s2.airs_at))}</div></div><div class="font-mono text-xs font-medium text-primary-400">${ssrInterpolate(unref(formatCountdown)(s2.airs_at))}</div></div>`);
+          });
+          _push(`<!--]--></div>`);
+        } else if (currentTab.value === "characters") {
+          _push(`<div class="grid grid-cols-1 gap-2 sm:grid-cols-2"><!--[-->`);
+          ssrRenderList(displayCharacters.value.slice(0, 20), (char) => {
+            _push(`<div class="overflow-hidden rounded-lg border border-gray-800 bg-gray-900/50"><div class="flex items-stretch justify-between gap-2"><div class="flex min-w-0 flex-1 items-center gap-2 p-2"><div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-gray-800">`);
+            if (char.image_medium) {
+              _push(`<img${ssrRenderAttr("src", char.image_medium)}${ssrRenderAttr("alt", char.name_full)} class="h-full w-full object-cover" loading="lazy">`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</div><div class="min-w-0"><p class="truncate text-sm font-medium text-gray-100">${ssrInterpolate(char.name_full)}</p>`);
+            if (char.role) {
+              _push(`<p class="font-mono text-[10px] uppercase tracking-wider text-gray-500">${ssrInterpolate(char.role === "MAIN" ? "Main" : char.role === "SUPPORTING" ? "Supporting" : "Background")}</p>`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</div></div>`);
+            if (char.voice_actors?.length) {
+              _push(`<div class="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2"><!--[-->`);
+              ssrRenderList(sortedVoiceActors(char.voice_actors), (va) => {
+                _push(`<div class="flex items-center justify-end gap-2"><span class="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase text-gray-400">${ssrInterpolate(languageLabel(va.language))}</span><div class="min-w-0 text-right">`);
+                ssrRenderVNode(_push, createVNode(resolveDynamicComponent(unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? "Link" : "span"), mergeProps({ ref_for: true }, unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? { href: voiceActorRoute(va) } : {}, {
+                  class: ["block truncate text-sm", unref(voiceActorPagesEnabled) && voiceActorRoute(va) ? "text-primary-400 hover:text-primary-300 transition" : "text-gray-300"]
+                }), {
+                  default: withCtx((_2, _push2, _parent2, _scopeId) => {
+                    if (_push2) {
+                      _push2(`${ssrInterpolate(va.name_full)}`);
+                    } else {
+                      return [
+                        createTextVNode(toDisplayString(va.name_full), 1)
+                      ];
+                    }
+                  }),
+                  _: 2
+                }), _parent);
+                _push(`</div><div class="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800">`);
+                if (va.image_medium) {
+                  _push(`<img${ssrRenderAttr("src", va.image_medium)}${ssrRenderAttr("alt", va.name_full)} class="h-full w-full object-cover" loading="lazy">`);
+                } else {
+                  _push(`<!---->`);
+                }
+                _push(`</div></div>`);
+              });
+              _push(`<!--]--></div>`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</div></div>`);
+          });
+          _push(`<!--]--></div>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div></section>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div><aside class="space-y-4"><div class="rounded-xl border border-gray-800 bg-gray-900/50 p-5"><div class="grid grid-cols-2 gap-x-4 gap-y-4"><div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Score</div><div class="text-sm font-medium text-gray-100">★ ${ssrInterpolate(displayScore())}</div></div>`);
+      if (__props.anime.popularity) {
+        _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Popularity</div><div class="text-sm font-medium text-gray-100">#${ssrInterpolate(__props.anime.popularity.toLocaleString())}</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Format</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(formatLabel(__props.anime.format))}</div></div><div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Episodes</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(__props.anime.episodes ?? "?")}</div></div>`);
+      if (__props.anime.duration) {
+        _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Duration</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(__props.anime.duration)} min</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.anime.season && __props.anime.season_year) {
+        _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Season</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(seasonLabel(__props.anime.season, __props.anime.season_year))}</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.anime.aired_from) {
+        _push(`<div class="col-span-2"><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Aired</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(formatDate(__props.anime.aired_from))} `);
+        if (__props.anime.aired_to) {
+          _push(`<span> – ${ssrInterpolate(formatDate(__props.anime.aired_to))}</span>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.anime.source) {
+        _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Source</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(sourceLabel(__props.anime.source))}</div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<div><div class="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Status</div><div class="text-sm font-medium text-gray-100">${ssrInterpolate(statusLabel(__props.anime.status))}</div></div></div>`);
+      if (mainStudios.value.length) {
+        _push(`<div class="mt-5 border-t border-gray-800 pt-4"><div class="mb-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500"> Studio${ssrInterpolate(mainStudios.value.length > 1 ? "s" : "")}</div><div class="flex flex-wrap gap-1.5"><!--[-->`);
+        ssrRenderList(mainStudios.value, (s2) => {
+          ssrRenderVNode(_push, createVNode(resolveDynamicComponent(unref(studioPagesEnabled) && studioRoute(s2) ? "Link" : "span"), mergeProps({
+            key: s2.id
+          }, { ref_for: true }, unref(studioPagesEnabled) && studioRoute(s2) ? { href: studioRoute(s2) } : {}, {
+            class: ["rounded-full border border-gray-700 bg-gray-800 px-2.5 py-1 text-xs font-medium transition", unref(studioPagesEnabled) && studioRoute(s2) ? "text-gray-100 hover:border-primary-400 hover:text-primary-300" : "text-gray-200"]
+          }), {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(s2.name)}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(s2.name), 1)
+                ];
+              }
+            }),
+            _: 2
+          }), _parent);
         });
         _push(`<!--]--></div></div>`);
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$H, {
-        relations: __props.anime.relations ?? []
-      }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$G, {
-        schedules: __props.anime.airing_schedules ?? []
-      }, null, _parent));
-      _push(`</div></div></div><!--]-->`);
+      if (otherStudios.value.length) {
+        _push(`<div class="mt-4"><div class="mb-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gray-500">Producers</div><div class="flex flex-wrap gap-1.5"><!--[-->`);
+        ssrRenderList(otherStudios.value, (s2) => {
+          ssrRenderVNode(_push, createVNode(resolveDynamicComponent(unref(studioPagesEnabled) && studioRoute(s2) ? "Link" : "span"), mergeProps({
+            key: s2.id
+          }, { ref_for: true }, unref(studioPagesEnabled) && studioRoute(s2) ? { href: studioRoute(s2) } : {}, {
+            class: ["rounded-full border border-gray-700 px-2.5 py-1 text-xs transition", unref(studioPagesEnabled) && studioRoute(s2) ? "text-gray-300 hover:border-primary-400 hover:text-primary-300" : "text-gray-300"]
+          }), {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(s2.name)}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(s2.name), 1)
+                ];
+              }
+            }),
+            _: 2
+          }), _parent);
+        });
+        _push(`<!--]--></div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+      if (__props.anime.external_ids?.length) {
+        _push(`<div class="rounded-xl border border-gray-800 bg-gray-900/50 p-5"><div class="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">External links</div><div class="flex flex-wrap gap-1.5"><!--[-->`);
+        ssrRenderList(__props.anime.external_ids, (link) => {
+          _push(`<a${ssrRenderAttr("href", link.url ?? "#")} target="_blank" rel="noopener noreferrer" class="rounded-full border border-gray-700 px-2.5 py-1 text-xs text-gray-300 transition hover:border-primary-400 hover:text-primary-300">${ssrInterpolate(link.platform)}</a>`);
+        });
+        _push(`<!--]--></div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (relations.value.length) {
+        _push(`<div class="rounded-xl border border-gray-800 bg-gray-900/50 p-5"><div class="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">Related</div><!--[-->`);
+        ssrRenderList(relations.value.slice(0, 4), (rel) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: rel.id,
+            href: rel.related_anime?.slug ? _ctx.route("anime.show", { anime: rel.related_anime.slug }) : "#",
+            class: "group flex items-center gap-3 border-t border-gray-800 py-2.5 first:border-t-0"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<div class="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800"${_scopeId}>`);
+                if (rel.related_anime?.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", rel.related_anime.cover_image_medium)}${ssrRenderAttr("alt", rel.related_anime?.title_english || rel.related_anime?.title_romaji)} class="h-full w-full object-cover" loading="lazy"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><div class="truncate text-sm font-medium text-gray-200 transition group-hover:text-primary-300"${_scopeId}>${ssrInterpolate(rel.related_anime?.title_english || rel.related_anime?.title_romaji)}</div><div class="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-gray-500"${_scopeId}>${ssrInterpolate(relationLabel(rel.relation_type))}</div></div>`);
+              } else {
+                return [
+                  createVNode("div", { class: "h-14 w-10 shrink-0 overflow-hidden rounded-md bg-gray-800" }, [
+                    rel.related_anime?.cover_image_medium ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: rel.related_anime.cover_image_medium,
+                      alt: rel.related_anime?.title_english || rel.related_anime?.title_romaji,
+                      class: "h-full w-full object-cover",
+                      loading: "lazy"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+                  ]),
+                  createVNode("div", { class: "min-w-0 flex-1" }, [
+                    createVNode("div", { class: "truncate text-sm font-medium text-gray-200 transition group-hover:text-primary-300" }, toDisplayString(rel.related_anime?.title_english || rel.related_anime?.title_romaji), 1),
+                    createVNode("div", { class: "mt-0.5 font-mono text-[10px] uppercase tracking-wider text-gray-500" }, toDisplayString(relationLabel(rel.relation_type)), 1)
+                  ])
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        });
+        _push(`<!--]--></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</aside></div>`);
+      if (__props.recommendations.length) {
+        _push(`<div class="mt-14 border-t border-gray-800 pt-10"><div class="mb-5"><div class="font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500">If you like this, try</div><h2 class="mt-1 text-xl font-semibold text-gray-100">You might also enjoy</h2></div><div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"><!--[-->`);
+        ssrRenderList(__props.recommendations, (rec) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: rec.id ?? rec.anilist_id,
+            href: rec.slug ? _ctx.route("anime.show", { anime: rec.slug }) : "#",
+            class: "group"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<div class="aspect-[3/4] overflow-hidden rounded-lg bg-gray-800 transition group-hover:ring-1 group-hover:ring-gray-600"${_scopeId}>`);
+                if (rec.cover_image_large || rec.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", (rec.cover_image_large || rec.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", rec.title_english || rec.title_romaji)} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`</div><div class="mt-2 line-clamp-2 text-xs font-medium text-gray-200 transition group-hover:text-primary-300"${_scopeId}>${ssrInterpolate(rec.title_english || rec.title_romaji)}</div><div class="mt-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-gray-500"${_scopeId}>`);
+                if (rec.average_score != null) {
+                  _push2(`<span${_scopeId}>★ ${ssrInterpolate(rec.average_score.toFixed(1))}</span>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                if (rec.average_score != null && rec.format) {
+                  _push2(`<span${_scopeId}>·</span>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                if (rec.format) {
+                  _push2(`<span${_scopeId}>${ssrInterpolate(rec.format.replace(/_/g, " "))}</span>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`</div>`);
+              } else {
+                return [
+                  createVNode("div", { class: "aspect-[3/4] overflow-hidden rounded-lg bg-gray-800 transition group-hover:ring-1 group-hover:ring-gray-600" }, [
+                    rec.cover_image_large || rec.cover_image_medium ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: (rec.cover_image_large || rec.cover_image_medium) ?? void 0,
+                      alt: rec.title_english || rec.title_romaji,
+                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
+                      loading: "lazy"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+                  ]),
+                  createVNode("div", { class: "mt-2 line-clamp-2 text-xs font-medium text-gray-200 transition group-hover:text-primary-300" }, toDisplayString(rec.title_english || rec.title_romaji), 1),
+                  createVNode("div", { class: "mt-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-gray-500" }, [
+                    rec.average_score != null ? (openBlock(), createBlock("span", { key: 0 }, "★ " + toDisplayString(rec.average_score.toFixed(1)), 1)) : createCommentVNode("", true),
+                    rec.average_score != null && rec.format ? (openBlock(), createBlock("span", { key: 1 }, "·")) : createCommentVNode("", true),
+                    rec.format ? (openBlock(), createBlock("span", { key: 2 }, toDisplayString(rec.format.replace(/_/g, " ")), 1)) : createCommentVNode("", true)
+                  ])
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        });
+        _push(`<!--]--></div></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$E = _sfc_main$E.setup;
+_sfc_main$E.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeDetailPage.vue");
+  return _sfc_setup$E ? _sfc_setup$E(props, ctx) : void 0;
+};
+const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$E
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$D = /* @__PURE__ */ defineComponent({
+  __name: "GenreBadge",
+  __ssrInlineRender: true,
+  props: {
+    name: {}
+  },
+  setup(__props) {
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(ssrRenderComponent(_component_Link, mergeProps({
+        href: _ctx.route("anime.index", { "filter[genre]": __props.name }),
+        class: "inline-block rounded-full bg-gray-800 px-3 py-1 text-xs text-gray-300 transition hover:bg-primary-600/20 hover:text-primary-400"
+      }, _attrs), {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`${ssrInterpolate(__props.name)}`);
+          } else {
+            return [
+              createTextVNode(toDisplayString(__props.name), 1)
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
     };
   }
 });
 const _sfc_setup$D = _sfc_main$D.setup;
 _sfc_main$D.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeDetailPage.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/GenreBadge.vue");
   return _sfc_setup$D ? _sfc_setup$D(props, ctx) : void 0;
 };
-const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: _sfc_main$D
-}, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$C = /* @__PURE__ */ defineComponent({
   __name: "AnimeCard",
   __ssrInlineRender: true,
@@ -1958,9 +2983,9 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const mode = computed(() => props.viewMode ?? "grid");
-    function formatLabel(format2) {
-      if (!format2) return "";
-      return format2.replace(/_/g, " ");
+    function formatLabel(format) {
+      if (!format) return "";
+      return format.replace(/_/g, " ");
     }
     function episodeText(anime) {
       if (!anime.episodes) return "";
@@ -1994,7 +3019,7 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
                 _push2(`<div class="flex h-full items-center justify-center text-gray-600"${_scopeId}><span class="text-4xl"${_scopeId}>?</span></div>`);
               }
               _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}>`);
-              _push2(ssrRenderComponent(_sfc_main$K, {
+              _push2(ssrRenderComponent(_sfc_main$H, {
                 score: __props.anime.average_score,
                 size: "sm"
               }, null, _parent2, _scopeId));
@@ -2039,13 +3064,13 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
               } else {
                 _push2(`<!---->`);
               }
-              _push2(ssrRenderComponent(_sfc_main$K, {
+              _push2(ssrRenderComponent(_sfc_main$H, {
                 score: __props.anime.average_score,
                 size: "sm"
               }, null, _parent2, _scopeId));
               _push2(`</div><div class="flex flex-wrap gap-1"${_scopeId}><!--[-->`);
               ssrRenderList(__props.anime.genres.slice(0, 3), (genre) => {
-                _push2(ssrRenderComponent(_sfc_main$J, {
+                _push2(ssrRenderComponent(_sfc_main$D, {
                   key: genre.id,
                   name: genre.name
                 }, null, _parent2, _scopeId));
@@ -2072,7 +3097,7 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
                     createVNode("span", { class: "text-4xl" }, "?")
                   ])),
                   createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
-                    createVNode(_sfc_main$K, {
+                    createVNode(_sfc_main$H, {
                       score: __props.anime.average_score,
                       size: "sm"
                     }, null, 8, ["score"])
@@ -2110,14 +3135,14 @@ const _sfc_main$C = /* @__PURE__ */ defineComponent({
                   createVNode("div", { class: "flex items-center gap-2 text-xs text-gray-500" }, [
                     __props.anime.format ? (openBlock(), createBlock("span", { key: 0 }, toDisplayString(formatLabel(__props.anime.format)), 1)) : createCommentVNode("", true),
                     __props.anime.episodes ? (openBlock(), createBlock("span", { key: 1 }, toDisplayString(episodeText(__props.anime)), 1)) : createCommentVNode("", true),
-                    createVNode(_sfc_main$K, {
+                    createVNode(_sfc_main$H, {
                       score: __props.anime.average_score,
                       size: "sm"
                     }, null, 8, ["score"])
                   ]),
                   createVNode("div", { class: "flex flex-wrap gap-1" }, [
                     (openBlock(true), createBlock(Fragment, null, renderList(__props.anime.genres.slice(0, 3), (genre) => {
-                      return openBlock(), createBlock(_sfc_main$J, {
+                      return openBlock(), createBlock(_sfc_main$D, {
                         key: genre.id,
                         name: genre.name
                       }, null, 8, ["name"]);
@@ -2350,7 +3375,7 @@ function useBrowseFilters() {
   };
 }
 const _sfc_main$z = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+  ...{ layout: _sfc_main$T },
   __name: "AnimeIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -2445,7 +3470,7 @@ const _sfc_main$z = /* @__PURE__ */ defineComponent({
         _push(`<div class="py-16 text-center"><p class="text-gray-500">No anime found matching your filters.</p><button class="mt-2 text-sm text-primary-400 hover:text-primary-300"> Clear all filters </button></div>`);
       }
       _push(`</div><div class="mt-8">`);
-      _push(ssrRenderComponent(_sfc_main$M, {
+      _push(ssrRenderComponent(_sfc_main$Q, {
         "current-page": __props.anime.meta.current_page,
         "last-page": __props.anime.meta.last_page,
         total: __props.anime.meta.total
@@ -2460,12 +3485,12 @@ _sfc_main$z.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/AnimeIndexPage.vue");
   return _sfc_setup$z ? _sfc_setup$z(props, ctx) : void 0;
 };
-const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$z
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$y = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+  ...{ layout: _sfc_main$T },
   __name: "DevelopersPage",
   __ssrInlineRender: true,
   props: {
@@ -2816,166 +3841,10 @@ _sfc_main$y.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/DevelopersPage.vue");
   return _sfc_setup$y ? _sfc_setup$y(props, ctx) : void 0;
 };
-const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$y
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$x = /* @__PURE__ */ defineComponent({
-  ...{ layout: false },
-  __name: "ErrorPage",
-  __ssrInlineRender: true,
-  props: {
-    status: {}
-  },
-  setup(__props) {
-    const titles = {
-      403: "Forbidden",
-      404: "Not Found",
-      419: "Session Expired",
-      500: "Server Error",
-      503: "Service Unavailable"
-    };
-    const descriptions = {
-      403: "You don't have permission to access this page.",
-      404: "The page you're looking for doesn't exist.",
-      419: "Your session has expired. Please refresh the page and try again.",
-      500: "Something went wrong on our end. Please try again later.",
-      503: "We're currently undergoing maintenance. Please check back soon."
-    };
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Head = resolveComponent("Head");
-      _push(`<!--[-->`);
-      _push(ssrRenderComponent(_component_Head, {
-        title: `${__props.status} - ${titles[__props.status] ?? "Error"}`
-      }, null, _parent));
-      _push(`<div class="flex min-h-screen items-center justify-center bg-gray-950 text-center dark"><div><h1 class="text-6xl font-bold text-gray-700">${ssrInterpolate(__props.status)}</h1><p class="text-xl font-medium text-gray-400 mt-2">${ssrInterpolate(titles[__props.status] ?? "Error")}</p><p class="text-gray-500 mt-4">${ssrInterpolate(descriptions[__props.status] ?? "An unexpected error occurred.")}</p><a href="/" class="text-primary-400 hover:text-primary-300 mt-6 inline-block transition"> Go Home </a></div></div><!--]-->`);
-    };
-  }
-});
-const _sfc_setup$x = _sfc_main$x.setup;
-_sfc_main$x.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ErrorPage.vue");
-  return _sfc_setup$x ? _sfc_setup$x(props, ctx) : void 0;
-};
-const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: _sfc_main$x
-}, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$w = /* @__PURE__ */ defineComponent({
-  __name: "AnimeHeroSection",
-  __ssrInlineRender: true,
-  props: {
-    anime: {},
-    title: {},
-    seeAllRoute: {}
-  },
-  setup(__props) {
-    function displayTitle(anime) {
-      return anime.title_english || anime.title_romaji;
-    }
-    function animeUrl(anime) {
-      if (anime.slug) {
-        return route("anime.show", { anime: anime.slug });
-      }
-      if (anime.anilist_id) {
-        return route("anime.show.anilist", { anilistId: anime.anilist_id });
-      }
-      return "#";
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      if (__props.anime.length) {
-        _push(`<section${ssrRenderAttrs(_attrs)}><div class="mb-4 flex items-center justify-between"><h2 class="text-xl font-bold text-gray-100">${ssrInterpolate(__props.title)}</h2>`);
-        if (__props.seeAllRoute) {
-          _push(ssrRenderComponent(_component_Link, {
-            href: __props.seeAllRoute,
-            class: "text-sm text-primary-400 transition hover:text-primary-300"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(` See All → `);
-              } else {
-                return [
-                  createTextVNode(" See All → ")
-                ];
-              }
-            }),
-            _: 1
-          }, _parent));
-        } else {
-          _push(`<!---->`);
-        }
-        _push(`</div><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"><!--[-->`);
-        ssrRenderList(__props.anime, (item) => {
-          _push(ssrRenderComponent(_component_Link, {
-            key: item.id ?? item.anilist_id,
-            href: animeUrl(item),
-            class: "group"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`<div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"${_scopeId}>`);
-                if (item.cover_image_large || item.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", (item.cover_image_large || item.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", displayTitle(item))} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}>`);
-                _push2(ssrRenderComponent(_sfc_main$K, {
-                  score: item.average_score,
-                  size: "sm"
-                }, null, _parent2, _scopeId));
-                _push2(`</div></div><h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(item))}</h3>`);
-              } else {
-                return [
-                  createVNode("div", { class: "relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800" }, [
-                    item.cover_image_large || item.cover_image_medium ? (openBlock(), createBlock("img", {
-                      key: 0,
-                      src: (item.cover_image_large || item.cover_image_medium) ?? void 0,
-                      alt: displayTitle(item),
-                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
-                      loading: "lazy"
-                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
-                    createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
-                      createVNode(_sfc_main$K, {
-                        score: item.average_score,
-                        size: "sm"
-                      }, null, 8, ["score"])
-                    ])
-                  ]),
-                  createVNode("h3", { class: "mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 group-hover:text-primary-400 transition" }, toDisplayString(displayTitle(item)), 1)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        });
-        _push(`<!--]--></div></section>`);
-      } else {
-        _push(`<!---->`);
-      }
-    };
-  }
-});
-const _sfc_setup$w = _sfc_main$w.setup;
-_sfc_main$w.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AnimeHeroSection.vue");
-  return _sfc_setup$w ? _sfc_setup$w(props, ctx) : void 0;
-};
-function useDebounce(source, delay = 300) {
-  const debounced = ref(source.value);
-  let timeout;
-  watch(source, (val) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      debounced.value = val;
-    }, delay);
-  });
-  onScopeDispose(() => clearTimeout(timeout));
-  return debounced;
-}
 function useAnimeSearch() {
   const query = ref("");
   const debouncedQuery = useDebounce(query, 300);
@@ -3003,7 +3872,7 @@ function useAnimeSearch() {
     isError
   };
 }
-const _sfc_main$v = /* @__PURE__ */ defineComponent({
+const _sfc_main$x = /* @__PURE__ */ defineComponent({
   __name: "SearchBar",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3120,251 +3989,96 @@ const _sfc_main$v = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$v = _sfc_main$v.setup;
-_sfc_main$v.setup = (props, ctx) => {
+const _sfc_setup$x = _sfc_main$x.setup;
+_sfc_main$x.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SearchBar.vue");
-  return _sfc_setup$v ? _sfc_setup$v(props, ctx) : void 0;
+  return _sfc_setup$x ? _sfc_setup$x(props, ctx) : void 0;
 };
-const _sfc_main$u = /* @__PURE__ */ defineComponent({
-  __name: "DashboardStatsBar",
-  __ssrInlineRender: true,
-  props: {
-    totalAnime: {},
-    episodesWatched: {},
-    avgScore: {},
-    watchingCount: {}
-  },
-  setup(__props) {
-    return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "grid grid-cols-2 gap-3 sm:grid-cols-4" }, _attrs))}><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4 text-center"><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(__props.totalAnime)}</p><p class="mt-1 text-xs text-gray-500">Total Anime</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4 text-center"><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(__props.episodesWatched)}</p><p class="mt-1 text-xs text-gray-500">Episodes Watched</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4 text-center"><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(__props.avgScore !== null ? __props.avgScore.toFixed(1) : "-")}</p><p class="mt-1 text-xs text-gray-500">Avg Score</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4 text-center"><p class="text-2xl font-bold text-primary-400">${ssrInterpolate(__props.watchingCount)}</p><p class="mt-1 text-xs text-gray-500">Watching</p></div></div>`);
-    };
-  }
-});
-const _sfc_setup$u = _sfc_main$u.setup;
-_sfc_main$u.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/DashboardStatsBar.vue");
-  return _sfc_setup$u ? _sfc_setup$u(props, ctx) : void 0;
-};
-const _sfc_main$t = /* @__PURE__ */ defineComponent({
-  __name: "ContinueWatchingRow",
-  __ssrInlineRender: true,
-  props: {
-    entries: {}
-  },
-  setup(__props) {
-    function displayTitle(entry) {
-      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
-    }
-    function progressPercent(entry) {
-      const total = entry.anime?.episodes;
-      if (!total || total === 0) return 0;
-      return Math.min(100, Math.round(entry.progress / total * 100));
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      if (__props.entries.length) {
-        _push(`<section${ssrRenderAttrs(_attrs)}><div class="mb-3 flex items-center justify-between"><h2 class="text-xl font-bold text-gray-100">Continue Watching</h2>`);
-        _push(ssrRenderComponent(_component_Link, {
-          href: _ctx.route("list"),
-          class: "text-sm text-primary-400 hover:text-primary-300 transition"
-        }, {
-          default: withCtx((_2, _push2, _parent2, _scopeId) => {
-            if (_push2) {
-              _push2(` My List → `);
-            } else {
-              return [
-                createTextVNode(" My List → ")
-              ];
-            }
-          }),
-          _: 1
-        }, _parent));
-        _push(`</div><div class="flex gap-3 overflow-x-auto pb-2"><!--[-->`);
-        ssrRenderList(__props.entries, (entry) => {
-          _push(ssrRenderComponent(_component_Link, {
-            key: entry.id,
-            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
-            class: "group w-32 shrink-0"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`<div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"${_scopeId}>`);
-                if (entry.anime?.cover_image_large || entry.anime?.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", (entry.anime.cover_image_large || entry.anime.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", displayTitle(entry))} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`<div class="absolute bottom-0 left-0 right-0"${_scopeId}><div class="h-1 bg-gray-700"${_scopeId}><div class="h-1 bg-primary-500 transition-all" style="${ssrRenderStyle({ width: `${progressPercent(entry)}%` })}"${_scopeId}></div></div></div><div class="absolute top-1.5 right-1.5"${_scopeId}><span class="rounded bg-gray-900/80 px-1 py-0.5 text-[9px] font-medium text-gray-300"${_scopeId}>${ssrInterpolate(entry.progress)}/${ssrInterpolate(entry.anime?.episodes ?? "?")}</span></div></div><p class="mt-1.5 line-clamp-2 text-xs font-medium text-gray-300 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(entry))}</p>`);
-              } else {
-                return [
-                  createVNode("div", { class: "relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800" }, [
-                    entry.anime?.cover_image_large || entry.anime?.cover_image_medium ? (openBlock(), createBlock("img", {
-                      key: 0,
-                      src: (entry.anime.cover_image_large || entry.anime.cover_image_medium) ?? void 0,
-                      alt: displayTitle(entry),
-                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
-                      loading: "lazy"
-                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
-                    createVNode("div", { class: "absolute bottom-0 left-0 right-0" }, [
-                      createVNode("div", { class: "h-1 bg-gray-700" }, [
-                        createVNode("div", {
-                          class: "h-1 bg-primary-500 transition-all",
-                          style: { width: `${progressPercent(entry)}%` }
-                        }, null, 4)
-                      ])
-                    ]),
-                    createVNode("div", { class: "absolute top-1.5 right-1.5" }, [
-                      createVNode("span", { class: "rounded bg-gray-900/80 px-1 py-0.5 text-[9px] font-medium text-gray-300" }, toDisplayString(entry.progress) + "/" + toDisplayString(entry.anime?.episodes ?? "?"), 1)
-                    ])
-                  ]),
-                  createVNode("p", { class: "mt-1.5 line-clamp-2 text-xs font-medium text-gray-300 group-hover:text-primary-400 transition" }, toDisplayString(displayTitle(entry)), 1)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        });
-        _push(`<!--]--></div></section>`);
-      } else {
-        _push(`<!---->`);
+function useDiscoverMood(selectedMood, selectedLength) {
+  const enabled = computed(() => selectedMood.value !== null);
+  const { data, isFetching, isError } = useQuery({
+    queryKey: ["discover-mood", selectedMood, selectedLength],
+    queryFn: async ({ signal }) => {
+      const slug = selectedMood.value;
+      if (!slug) {
+        return { slug: "", length: null, data: [] };
       }
-    };
-  }
-});
-const _sfc_setup$t = _sfc_main$t.setup;
-_sfc_main$t.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ContinueWatchingRow.vue");
-  return _sfc_setup$t ? _sfc_setup$t(props, ctx) : void 0;
-};
-const _sfc_main$s = /* @__PURE__ */ defineComponent({
-  __name: "AiringTodaySection",
+      const { data: data2 } = await axios.get(
+        `/api/discover/mood/${encodeURIComponent(slug)}`,
+        {
+          params: selectedLength.value ? { length: selectedLength.value } : void 0,
+          signal
+        }
+      );
+      return data2;
+    },
+    enabled,
+    staleTime: 5 * 60 * 1e3
+  });
+  const results = computed(() => data.value?.data ?? []);
+  return {
+    results,
+    isLoading: isFetching,
+    isError
+  };
+}
+const _sfc_main$w = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
+  __name: "DiscoverPage",
   __ssrInlineRender: true,
   props: {
-    slots: {}
+    moods: {},
+    trending: {},
+    recentlyUpdated: {},
+    hiddenGems: {},
+    lengths: {},
+    moreLikeIt: {},
+    pickedForYou: {}
   },
   setup(__props) {
-    const props = __props;
-    const page = usePage();
-    const timezone = computed(() => page.props.auth?.user?.timezone);
-    const { formatCountdown, formatLocalTime } = useCountdown();
-    const validSlots = computed(() => props.slots.filter((s2) => s2.anime !== null));
-    function displayTitle(slot) {
-      return slot.anime.title_english || slot.anime.title_romaji || "Unknown";
+    const selectedMood = ref(null);
+    const selectedLength = ref(null);
+    const { results: moodResults, isLoading: moodLoading } = useDiscoverMood(
+      selectedMood,
+      selectedLength
+    );
+    const activeMood = computed(() => selectedMood.value);
+    function displayTitle(anime) {
+      return anime.title_english || anime.title_romaji;
     }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      if (validSlots.value.length) {
-        _push(`<section${ssrRenderAttrs(_attrs)}><div class="mb-3 flex items-center justify-between"><h2 class="text-xl font-bold text-gray-100">Airing Today from Your List</h2>`);
-        _push(ssrRenderComponent(_component_Link, {
-          href: _ctx.route("schedule"),
-          class: "text-sm text-primary-400 hover:text-primary-300 transition"
-        }, {
-          default: withCtx((_2, _push2, _parent2, _scopeId) => {
-            if (_push2) {
-              _push2(` Full Schedule → `);
-            } else {
-              return [
-                createTextVNode(" Full Schedule → ")
-              ];
-            }
-          }),
-          _: 1
-        }, _parent));
-        _push(`</div><div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"><!--[-->`);
-        ssrRenderList(validSlots.value, (slot) => {
-          _push(ssrRenderComponent(_component_Link, {
-            key: slot.id,
-            href: slot.anime.slug ? _ctx.route("anime.show", { anime: slot.anime.slug }) : "#",
-            class: "group flex items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/50 p-3 transition hover:border-gray-700"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`<div class="h-16 w-11 shrink-0 overflow-hidden rounded-md bg-gray-800"${_scopeId}>`);
-                if (slot.anime.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", slot.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(slot))} class="h-full w-full object-cover" loading="lazy"${_scopeId}>`);
-                } else {
-                  _push2(`<!---->`);
-                }
-                _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><p class="line-clamp-1 text-sm font-medium text-gray-200 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(slot))}</p><p class="mt-0.5 text-xs text-gray-500"${_scopeId}> Episode ${ssrInterpolate(slot.episode)} · ${ssrInterpolate(unref(formatLocalTime)(slot.airs_at, timezone.value))}</p><p class="text-xs font-semibold text-primary-400"${_scopeId}>${ssrInterpolate(unref(formatCountdown)(slot.airs_at))}</p></div>`);
-                _push2(ssrRenderComponent(_sfc_main$K, {
-                  score: slot.anime.average_score,
-                  size: "sm"
-                }, null, _parent2, _scopeId));
-              } else {
-                return [
-                  createVNode("div", { class: "h-16 w-11 shrink-0 overflow-hidden rounded-md bg-gray-800" }, [
-                    slot.anime.cover_image_medium ? (openBlock(), createBlock("img", {
-                      key: 0,
-                      src: slot.anime.cover_image_medium,
-                      alt: displayTitle(slot),
-                      class: "h-full w-full object-cover",
-                      loading: "lazy"
-                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
-                  ]),
-                  createVNode("div", { class: "min-w-0 flex-1" }, [
-                    createVNode("p", { class: "line-clamp-1 text-sm font-medium text-gray-200 group-hover:text-primary-400 transition" }, toDisplayString(displayTitle(slot)), 1),
-                    createVNode("p", { class: "mt-0.5 text-xs text-gray-500" }, " Episode " + toDisplayString(slot.episode) + " · " + toDisplayString(unref(formatLocalTime)(slot.airs_at, timezone.value)), 1),
-                    createVNode("p", { class: "text-xs font-semibold text-primary-400" }, toDisplayString(unref(formatCountdown)(slot.airs_at)), 1)
-                  ]),
-                  createVNode(_sfc_main$K, {
-                    score: slot.anime.average_score,
-                    size: "sm"
-                  }, null, 8, ["score"])
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        });
-        _push(`<!--]--></div></section>`);
-      } else {
-        _push(`<!---->`);
+    function animeUrl(anime) {
+      if (anime.slug) {
+        return route("anime.show", { anime: anime.slug });
       }
-    };
-  }
-});
-const _sfc_setup$s = _sfc_main$s.setup;
-_sfc_main$s.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AiringTodaySection.vue");
-  return _sfc_setup$s ? _sfc_setup$s(props, ctx) : void 0;
-};
-const _sfc_main$r = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
-  __name: "HomePage",
-  __ssrInlineRender: true,
-  props: {
-    seasonalShowcase: {},
-    airingNow: {},
-    topRated: {},
-    currentSeason: {},
-    currentYear: {},
-    isAuthenticated: { type: Boolean },
-    stats: {},
-    airingToday: {},
-    continueWatching: {}
-  },
-  setup(__props) {
-    function seasonLabel(season) {
-      return season.charAt(0) + season.slice(1).toLowerCase();
+      if (anime.anilist_id) {
+        return route("anime.show.anilist", { anilistId: anime.anilist_id });
+      }
+      return "#";
+    }
+    function airedAgo(iso) {
+      const diffMs = Date.now() - new Date(iso).getTime();
+      if (diffMs < 0) return "just now";
+      const minutes = Math.floor(diffMs / 6e4);
+      if (minutes < 60) return minutes <= 1 ? "just now" : `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return days === 1 ? "1d ago" : `${days}d ago`;
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
+      const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
-      _push(ssrRenderComponent(_component_Head, {
-        title: __props.isAuthenticated ? "Dashboard" : "Home"
-      }, {
+      _push(ssrRenderComponent(_component_Head, { title: "Discover" }, {
         default: withCtx((_2, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<meta name="description" content="Track your anime with AniTrack. Browse seasonal anime, discover top rated shows, and manage your watchlist."${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("home"))}${_scopeId}><meta property="og:title" content="AniTrack — Discover and track your favorite anime"${_scopeId}><meta property="og:description" content="Track your anime watching progress, discover new shows, and share your list with friends."${_scopeId}><meta property="og:type" content="website"${_scopeId}><meta name="twitter:card" content="summary"${_scopeId}>`);
+            _push2(`<meta name="description" content="AniTrack — discover, track and manage your anime. Find what to watch next by mood, see what&#39;s trending this week, and uncover hidden gems."${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("home"))}${_scopeId}><meta property="og:title" content="AniTrack — Discover, track and manage your anime"${_scopeId}><meta property="og:description" content="Discover, track and manage your anime — all in one place."${_scopeId}><meta property="og:type" content="website"${_scopeId}>`);
           } else {
             return [
               createVNode("meta", {
                 name: "description",
-                content: "Track your anime with AniTrack. Browse seasonal anime, discover top rated shows, and manage your watchlist."
+                content: "AniTrack — discover, track and manage your anime. Find what to watch next by mood, see what's trending this week, and uncover hidden gems."
               }),
               createVNode("link", {
                 rel: "canonical",
@@ -3372,72 +4086,219 @@ const _sfc_main$r = /* @__PURE__ */ defineComponent({
               }, null, 8, ["href"]),
               createVNode("meta", {
                 property: "og:title",
-                content: "AniTrack — Discover and track your favorite anime"
+                content: "AniTrack — Discover, track and manage your anime"
               }),
               createVNode("meta", {
                 property: "og:description",
-                content: "Track your anime watching progress, discover new shows, and share your list with friends."
+                content: "Discover, track and manage your anime — all in one place."
               }),
               createVNode("meta", {
                 property: "og:type",
                 content: "website"
-              }),
-              createVNode("meta", {
-                name: "twitter:card",
-                content: "summary"
               })
             ];
           }
         }),
         _: 1
       }, _parent));
-      _push(`<div class="space-y-10">`);
-      if (!__props.isAuthenticated) {
-        _push(`<section class="py-8 text-center"><h1 class="mb-2 text-4xl font-bold text-gray-100">Welcome to AniTrack</h1><p class="mb-6 text-gray-400">Discover and track your favorite anime.</p></section>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`<div class="mx-auto max-w-lg">`);
-      _push(ssrRenderComponent(_sfc_main$v, null, null, _parent));
-      _push(`</div>`);
-      if (__props.isAuthenticated && __props.stats) {
-        _push(`<!--[-->`);
-        _push(ssrRenderComponent(_sfc_main$u, {
-          "total-anime": __props.stats.totalAnime,
-          "episodes-watched": __props.stats.episodesWatched,
-          "avg-score": __props.stats.avgScore,
-          "watching-count": __props.stats.watchingCount
-        }, null, _parent));
-        if (__props.airingToday && __props.airingToday.length) {
-          _push(ssrRenderComponent(_sfc_main$s, { slots: __props.airingToday }, null, _parent));
+      _push(`<div class="space-y-20"><section class="pt-6 pb-2 text-center"><h1 class="text-4xl font-bold tracking-tight text-gray-100 sm:text-5xl"> AniTrack </h1><p class="mx-auto mt-3 max-w-xl text-base text-gray-400 sm:text-lg"> Discover, track and manage your anime. </p><div class="mx-auto mt-8 max-w-xl">`);
+      _push(ssrRenderComponent(_sfc_main$x, null, null, _parent));
+      _push(`</div></section><section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">I&#39;m in the mood for…</h2><p class="mt-1 text-sm text-gray-400">Pick a vibe and we&#39;ll find a match.</p></header><div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"><!--[-->`);
+      ssrRenderList(__props.moods, (mood) => {
+        _push(`<button type="button" class="${ssrRenderClass([[
+          activeMood.value === mood.slug ? "border-primary-400 ring-2 ring-primary-400/40" : "border-gray-800 hover:border-gray-700"
+        ], "relative overflow-hidden rounded-xl border p-4 text-left transition"])}"><div class="${ssrRenderClass([mood.gradient ?? "from-gray-700/30 to-gray-900/30", "absolute inset-0 bg-gradient-to-br opacity-60"])}"></div><div class="relative"><div class="text-2xl">${ssrInterpolate(mood.emoji)}</div><div class="mt-2 font-semibold text-gray-100">${ssrInterpolate(mood.label)}</div>`);
+        if (mood.description) {
+          _push(`<div class="mt-1 text-xs text-gray-300/80">${ssrInterpolate(mood.description)}</div>`);
         } else {
           _push(`<!---->`);
         }
-        if (__props.continueWatching && __props.continueWatching.length) {
-          _push(ssrRenderComponent(_sfc_main$t, { entries: __props.continueWatching }, null, _parent));
+        _push(`</div></button>`);
+      });
+      _push(`<!--]--></div><div class="mt-6 flex flex-wrap items-center gap-2"><span class="text-sm text-gray-500">Length:</span><!--[-->`);
+      ssrRenderList(__props.lengths, (opt) => {
+        _push(`<button type="button" class="${ssrRenderClass([[
+          selectedLength.value === opt.value ? "border-primary-400 bg-primary-500/10 text-primary-300" : "border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200"
+        ], "rounded-full border px-3 py-1 text-xs transition"])}">${ssrInterpolate(opt.label)}</button>`);
+      });
+      _push(`<!--]--></div>`);
+      if (activeMood.value) {
+        _push(`<div class="mt-8">`);
+        if (unref(moodLoading)) {
+          _push(`<div class="py-12 text-center text-gray-500"> Finding matches… </div>`);
+        } else if (unref(moodResults).length) {
+          _push(`<div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+          ssrRenderList(unref(moodResults), (anime) => {
+            _push(`<div class="w-40 shrink-0 sm:w-44">`);
+            _push(ssrRenderComponent(_sfc_main$C, {
+              anime,
+              "view-mode": "grid"
+            }, null, _parent));
+            _push(`</div>`);
+          });
+          _push(`<!--]--></div>`);
         } else {
-          _push(`<!---->`);
+          _push(`<div class="py-12 text-center text-gray-500"> No matches for that combination. Try a different length. </div>`);
         }
-        _push(`<!--]-->`);
+        _push(`</div>`);
       } else {
         _push(`<!---->`);
       }
-      _push(ssrRenderComponent(_sfc_main$w, {
-        anime: __props.seasonalShowcase,
-        title: `${seasonLabel(__props.currentSeason)} ${__props.currentYear} Anime`,
-        "see-all-route": _ctx.route("seasonal", { year: __props.currentYear, season: __props.currentSeason.toLowerCase() })
-      }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$w, {
-        anime: __props.airingNow,
-        title: "Currently Airing",
-        "see-all-route": _ctx.route("anime.index", { "filter[status]": "RELEASING", sort: "-popularity" })
-      }, null, _parent));
-      if (__props.topRated.length) {
-        _push(ssrRenderComponent(_sfc_main$w, {
-          anime: __props.topRated,
-          title: "Top Rated",
-          "see-all-route": _ctx.route("top.rated")
-        }, null, _parent));
+      _push(`</section>`);
+      if (__props.trending.length) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">Trending this week</h2><p class="mt-1 text-sm text-gray-400">The top 10 right now.</p></header><div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+        ssrRenderList(__props.trending, (anime, index) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: anime.id ?? anime.anilist_id,
+            href: animeUrl(anime),
+            class: "group relative w-40 shrink-0 sm:w-44"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"${_scopeId}>`);
+                if (anime.cover_image_large || anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", (anime.cover_image_large || anime.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", displayTitle(anime))} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`<div class="absolute -bottom-2 -left-2 text-6xl font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:text-7xl" style="${ssrRenderStyle({ "-webkit-text-stroke": "2px rgb(17 24 39)" })}"${_scopeId}>${ssrInterpolate(index + 1)}</div><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-right"${_scopeId}>`);
+                _push2(ssrRenderComponent(_sfc_main$H, {
+                  score: anime.average_score,
+                  size: "sm"
+                }, null, _parent2, _scopeId));
+                _push2(`</div></div><h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400"${_scopeId}>${ssrInterpolate(displayTitle(anime))}</h3>`);
+              } else {
+                return [
+                  createVNode("div", { class: "relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800" }, [
+                    anime.cover_image_large || anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: (anime.cover_image_large || anime.cover_image_medium) ?? void 0,
+                      alt: displayTitle(anime),
+                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
+                      loading: "lazy"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
+                    createVNode("div", {
+                      class: "absolute -bottom-2 -left-2 text-6xl font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:text-7xl",
+                      style: { "-webkit-text-stroke": "2px rgb(17 24 39)" }
+                    }, toDisplayString(index + 1), 1),
+                    createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-right" }, [
+                      createVNode(_sfc_main$H, {
+                        score: anime.average_score,
+                        size: "sm"
+                      }, null, 8, ["score"])
+                    ])
+                  ]),
+                  createVNode("h3", { class: "mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400" }, toDisplayString(displayTitle(anime)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        });
+        _push(`<!--]--></div></section>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.recentlyUpdated.length) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">Recently updated</h2><p class="mt-1 text-sm text-gray-400">Fresh episodes just dropped.</p></header><div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+        ssrRenderList(__props.recentlyUpdated, (item) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: item.anime.id ?? item.anime.anilist_id,
+            href: animeUrl(item.anime),
+            class: "group relative w-40 shrink-0 sm:w-44"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800"${_scopeId}>`);
+                if (item.anime.cover_image_large || item.anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", (item.anime.cover_image_large || item.anime.cover_image_medium) ?? void 0)}${ssrRenderAttr("alt", displayTitle(item.anime))} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`<div class="absolute left-2 top-2 rounded-md bg-primary-500/90 px-2 py-0.5 text-xs font-semibold text-white shadow"${_scopeId}> Ep ${ssrInterpolate(item.latest_episode)}</div><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2"${_scopeId}><div class="text-xs font-medium text-gray-300"${_scopeId}>${ssrInterpolate(airedAgo(item.aired_at))}</div></div></div><h3 class="mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400"${_scopeId}>${ssrInterpolate(displayTitle(item.anime))}</h3>`);
+              } else {
+                return [
+                  createVNode("div", { class: "relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-800" }, [
+                    item.anime.cover_image_large || item.anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: (item.anime.cover_image_large || item.anime.cover_image_medium) ?? void 0,
+                      alt: displayTitle(item.anime),
+                      class: "h-full w-full object-cover transition-transform group-hover:scale-105",
+                      loading: "lazy"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
+                    createVNode("div", { class: "absolute left-2 top-2 rounded-md bg-primary-500/90 px-2 py-0.5 text-xs font-semibold text-white shadow" }, " Ep " + toDisplayString(item.latest_episode), 1),
+                    createVNode("div", { class: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2" }, [
+                      createVNode("div", { class: "text-xs font-medium text-gray-300" }, toDisplayString(airedAgo(item.aired_at)), 1)
+                    ])
+                  ]),
+                  createVNode("h3", { class: "mt-1.5 line-clamp-2 text-sm font-medium text-gray-200 transition group-hover:text-primary-400" }, toDisplayString(displayTitle(item.anime)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        });
+        _push(`<!--]--></div></section>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.moreLikeIt) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">More like it</h2><p class="mt-1 text-sm text-gray-400"> Because you liked `);
+        _push(ssrRenderComponent(_component_Link, {
+          href: animeUrl(__props.moreLikeIt.anchor),
+          class: "font-medium text-primary-400 hover:text-primary-300"
+        }, {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(displayTitle(__props.moreLikeIt.anchor))}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(displayTitle(__props.moreLikeIt.anchor)), 1)
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+        _push(`</p></header><div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+        ssrRenderList(__props.moreLikeIt.similar, (anime) => {
+          _push(`<div class="w-40 shrink-0 sm:w-44">`);
+          _push(ssrRenderComponent(_sfc_main$C, {
+            anime,
+            "view-mode": "grid"
+          }, null, _parent));
+          _push(`</div>`);
+        });
+        _push(`<!--]--></div></section>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.pickedForYou && __props.pickedForYou.items.length) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">Picked for you</h2><p class="mt-1 text-sm text-gray-400">Tuned to the titles you&#39;ve rated.</p></header><div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+        ssrRenderList(__props.pickedForYou.items, (anime) => {
+          _push(`<div class="w-40 shrink-0 sm:w-44">`);
+          _push(ssrRenderComponent(_sfc_main$C, {
+            anime,
+            "view-mode": "grid"
+          }, null, _parent));
+          _push(`</div>`);
+        });
+        _push(`<!--]--></div></section>`);
+      } else if (__props.pickedForYou) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">Picked for you</h2></header><div class="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-8 text-center"><p class="text-gray-300">Rate a few titles you&#39;ve enjoyed and we&#39;ll tune recommendations to your taste.</p></div></section>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (__props.hiddenGems.length) {
+        _push(`<section><header class="mb-6 border-b border-gray-800 pb-4"><h2 class="text-2xl font-bold text-gray-100">Hidden gems</h2><p class="mt-1 text-sm text-gray-400">Highly rated, rarely watched.</p></header><div class="flex gap-4 overflow-x-auto pb-4"><!--[-->`);
+        ssrRenderList(__props.hiddenGems, (anime) => {
+          _push(`<div class="w-40 shrink-0 sm:w-44">`);
+          _push(ssrRenderComponent(_sfc_main$C, {
+            anime,
+            "view-mode": "grid"
+          }, null, _parent));
+          _push(`</div>`);
+        });
+        _push(`<!--]--></div></section>`);
       } else {
         _push(`<!---->`);
       }
@@ -3445,17 +4306,59 @@ const _sfc_main$r = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$r = _sfc_main$r.setup;
-_sfc_main$r.setup = (props, ctx) => {
+const _sfc_setup$w = _sfc_main$w.setup;
+_sfc_main$w.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/HomePage.vue");
-  return _sfc_setup$r ? _sfc_setup$r(props, ctx) : void 0;
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/DiscoverPage.vue");
+  return _sfc_setup$w ? _sfc_setup$w(props, ctx) : void 0;
 };
-const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$r
+  default: _sfc_main$w
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$q = /* @__PURE__ */ defineComponent({
+const _sfc_main$v = /* @__PURE__ */ defineComponent({
+  ...{ layout: false },
+  __name: "ErrorPage",
+  __ssrInlineRender: true,
+  props: {
+    status: {}
+  },
+  setup(__props) {
+    const titles = {
+      403: "Forbidden",
+      404: "Not Found",
+      419: "Session Expired",
+      500: "Server Error",
+      503: "Service Unavailable"
+    };
+    const descriptions = {
+      403: "You don't have permission to access this page.",
+      404: "The page you're looking for doesn't exist.",
+      419: "Your session has expired. Please refresh the page and try again.",
+      500: "Something went wrong on our end. Please try again later.",
+      503: "We're currently undergoing maintenance. Please check back soon."
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, {
+        title: `${__props.status} - ${titles[__props.status] ?? "Error"}`
+      }, null, _parent));
+      _push(`<div class="flex min-h-screen items-center justify-center bg-gray-950 text-center dark"><div><h1 class="text-6xl font-bold text-gray-700">${ssrInterpolate(__props.status)}</h1><p class="text-xl font-medium text-gray-400 mt-2">${ssrInterpolate(titles[__props.status] ?? "Error")}</p><p class="text-gray-500 mt-4">${ssrInterpolate(descriptions[__props.status] ?? "An unexpected error occurred.")}</p><a href="/" class="text-primary-400 hover:text-primary-300 mt-6 inline-block transition"> Go Home </a></div></div><!--]-->`);
+    };
+  }
+});
+const _sfc_setup$v = _sfc_main$v.setup;
+_sfc_main$v.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ErrorPage.vue");
+  return _sfc_setup$v ? _sfc_setup$v(props, ctx) : void 0;
+};
+const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$v
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$u = /* @__PURE__ */ defineComponent({
   __name: "ImportWizard",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3552,7 +4455,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
       } else if (step.value === "preview") {
         _push(`<div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4"><h2 class="text-lg font-semibold">Preview — ${ssrInterpolate(total.value)} entries found</h2><div class="max-h-64 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="text-left text-gray-400 border-b border-gray-800"><th class="py-2 pr-4">Title</th><th class="py-2 pr-4">Status</th><th class="py-2 pr-4">Score</th><th class="py-2">Progress</th></tr></thead><tbody><!--[-->`);
         ssrRenderList(preview.value, (entry, i2) => {
-          _push(`<tr class="border-b border-gray-800/50"><td class="py-1.5 pr-4 text-gray-300">${ssrInterpolate(entry.title)}</td><td class="py-1.5 pr-4 text-gray-400">${ssrInterpolate(entry.status)}</td><td class="py-1.5 pr-4 text-gray-400">${ssrInterpolate(entry.score > 0 ? entry.score / 10 : "-")}</td><td class="py-1.5 text-gray-400">${ssrInterpolate(entry.progress)}</td></tr>`);
+          _push(`<tr class="border-b border-gray-800/50"><td class="py-1.5 pr-4 text-gray-300">${ssrInterpolate(entry.title)}</td><td class="py-1.5 pr-4 text-gray-400">${ssrInterpolate(entry.status)}</td><td class="py-1.5 pr-4 text-gray-400">${ssrInterpolate(entry.score > 0 ? entry.score : "-")}</td><td class="py-1.5 text-gray-400">${ssrInterpolate(entry.progress)}</td></tr>`);
         });
         _push(`<!--]--></tbody></table></div>`);
         if (total.value > 20) {
@@ -3629,14 +4532,14 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$q = _sfc_main$q.setup;
-_sfc_main$q.setup = (props, ctx) => {
+const _sfc_setup$u = _sfc_main$u.setup;
+_sfc_main$u.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ImportWizard.vue");
-  return _sfc_setup$q ? _sfc_setup$q(props, ctx) : void 0;
+  return _sfc_setup$u ? _sfc_setup$u(props, ctx) : void 0;
 };
-const _sfc_main$p = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$t = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "ImportPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -3645,421 +4548,21 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
       _push(`<!--[-->`);
       _push(ssrRenderComponent(_component_Head, { title: "Import from MAL" }, null, _parent));
       _push(`<div><h1 class="text-2xl font-bold mb-6">Import from MAL</h1>`);
-      _push(ssrRenderComponent(_sfc_main$q, null, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$u, null, null, _parent));
       _push(`</div><!--]-->`);
     };
   }
 });
-const _sfc_setup$p = _sfc_main$p.setup;
-_sfc_main$p.setup = (props, ctx) => {
+const _sfc_setup$t = _sfc_main$t.setup;
+_sfc_main$t.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ImportPage.vue");
-  return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
+  return _sfc_setup$t ? _sfc_setup$t(props, ctx) : void 0;
 };
-const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$p
+  default: _sfc_main$t
 }, Symbol.toStringTag, { value: "Module" }));
-function bufferToBase64URLString(buffer) {
-  const bytes = new Uint8Array(buffer);
-  let str = "";
-  for (const charCode of bytes) {
-    str += String.fromCharCode(charCode);
-  }
-  const base64String = btoa(str);
-  return base64String.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-}
-function base64URLStringToBuffer(base64URLString) {
-  const base64 = base64URLString.replace(/-/g, "+").replace(/_/g, "/");
-  const padLength = (4 - base64.length % 4) % 4;
-  const padded = base64.padEnd(base64.length + padLength, "=");
-  const binary = atob(padded);
-  const buffer = new ArrayBuffer(binary.length);
-  const bytes = new Uint8Array(buffer);
-  for (let i2 = 0; i2 < binary.length; i2++) {
-    bytes[i2] = binary.charCodeAt(i2);
-  }
-  return buffer;
-}
-function browserSupportsWebAuthn() {
-  return _browserSupportsWebAuthnInternals.stubThis(globalThis?.PublicKeyCredential !== void 0 && typeof globalThis.PublicKeyCredential === "function");
-}
-const _browserSupportsWebAuthnInternals = {
-  stubThis: (value) => value
-};
-function toPublicKeyCredentialDescriptor(descriptor) {
-  const { id } = descriptor;
-  return {
-    ...descriptor,
-    id: base64URLStringToBuffer(id),
-    /**
-     * `descriptor.transports` is an array of our `AuthenticatorTransportFuture` that includes newer
-     * transports that TypeScript's DOM lib is ignorant of. Convince TS that our list of transports
-     * are fine to pass to WebAuthn since browsers will recognize the new value.
-     */
-    transports: descriptor.transports
-  };
-}
-function isValidDomain(hostname) {
-  return (
-    // Consider localhost valid as well since it's okay wrt Secure Contexts
-    hostname === "localhost" || // Support punycode (ACE) or ascii labels and domains
-    /^((xn--[a-z0-9-]+|[a-z0-9]+(-[a-z0-9]+)*)\.)+([a-z]{2,}|xn--[a-z0-9-]+)$/i.test(hostname)
-  );
-}
-class WebAuthnError extends Error {
-  constructor({ message, code, cause, name }) {
-    super(message, { cause });
-    Object.defineProperty(this, "code", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    this.name = name ?? cause.name;
-    this.code = code;
-  }
-}
-function identifyRegistrationError({ error, options }) {
-  const { publicKey } = options;
-  if (!publicKey) {
-    throw Error("options was missing required publicKey property");
-  }
-  if (error.name === "AbortError") {
-    if (options.signal instanceof AbortSignal) {
-      return new WebAuthnError({
-        message: "Registration ceremony was sent an abort signal",
-        code: "ERROR_CEREMONY_ABORTED",
-        cause: error
-      });
-    }
-  } else if (error.name === "ConstraintError") {
-    if (publicKey.authenticatorSelection?.requireResidentKey === true) {
-      return new WebAuthnError({
-        message: "Discoverable credentials were required but no available authenticator supported it",
-        code: "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT",
-        cause: error
-      });
-    } else if (
-      // @ts-ignore: `mediation` doesn't yet exist on CredentialCreationOptions but it's possible as of Sept 2024
-      options.mediation === "conditional" && publicKey.authenticatorSelection?.userVerification === "required"
-    ) {
-      return new WebAuthnError({
-        message: "User verification was required during automatic registration but it could not be performed",
-        code: "ERROR_AUTO_REGISTER_USER_VERIFICATION_FAILURE",
-        cause: error
-      });
-    } else if (publicKey.authenticatorSelection?.userVerification === "required") {
-      return new WebAuthnError({
-        message: "User verification was required but no available authenticator supported it",
-        code: "ERROR_AUTHENTICATOR_MISSING_USER_VERIFICATION_SUPPORT",
-        cause: error
-      });
-    }
-  } else if (error.name === "InvalidStateError") {
-    return new WebAuthnError({
-      message: "The authenticator was previously registered",
-      code: "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED",
-      cause: error
-    });
-  } else if (error.name === "NotAllowedError") {
-    return new WebAuthnError({
-      message: error.message,
-      code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
-      cause: error
-    });
-  } else if (error.name === "NotSupportedError") {
-    const validPubKeyCredParams = publicKey.pubKeyCredParams.filter((param) => param.type === "public-key");
-    if (validPubKeyCredParams.length === 0) {
-      return new WebAuthnError({
-        message: 'No entry in pubKeyCredParams was of type "public-key"',
-        code: "ERROR_MALFORMED_PUBKEYCREDPARAMS",
-        cause: error
-      });
-    }
-    return new WebAuthnError({
-      message: "No available authenticator supported any of the specified pubKeyCredParams algorithms",
-      code: "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG",
-      cause: error
-    });
-  } else if (error.name === "SecurityError") {
-    const effectiveDomain = globalThis.location.hostname;
-    if (!isValidDomain(effectiveDomain)) {
-      return new WebAuthnError({
-        message: `${globalThis.location.hostname} is an invalid domain`,
-        code: "ERROR_INVALID_DOMAIN",
-        cause: error
-      });
-    } else if (publicKey.rp.id !== effectiveDomain) {
-      return new WebAuthnError({
-        message: `The RP ID "${publicKey.rp.id}" is invalid for this domain`,
-        code: "ERROR_INVALID_RP_ID",
-        cause: error
-      });
-    }
-  } else if (error.name === "TypeError") {
-    if (publicKey.user.id.byteLength < 1 || publicKey.user.id.byteLength > 64) {
-      return new WebAuthnError({
-        message: "User ID was not between 1 and 64 characters",
-        code: "ERROR_INVALID_USER_ID_LENGTH",
-        cause: error
-      });
-    }
-  } else if (error.name === "UnknownError") {
-    return new WebAuthnError({
-      message: "The authenticator was unable to process the specified options, or could not create a new credential",
-      code: "ERROR_AUTHENTICATOR_GENERAL_ERROR",
-      cause: error
-    });
-  }
-  return error;
-}
-class BaseWebAuthnAbortService {
-  constructor() {
-    Object.defineProperty(this, "controller", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-  }
-  createNewAbortSignal() {
-    if (this.controller) {
-      const abortError = new Error("Cancelling existing WebAuthn API call for new one");
-      abortError.name = "AbortError";
-      this.controller.abort(abortError);
-    }
-    const newController = new AbortController();
-    this.controller = newController;
-    return newController.signal;
-  }
-  cancelCeremony() {
-    if (this.controller) {
-      const abortError = new Error("Manually cancelling existing WebAuthn API call");
-      abortError.name = "AbortError";
-      this.controller.abort(abortError);
-      this.controller = void 0;
-    }
-  }
-}
-const WebAuthnAbortService = new BaseWebAuthnAbortService();
-const attachments = ["cross-platform", "platform"];
-function toAuthenticatorAttachment(attachment) {
-  if (!attachment) {
-    return;
-  }
-  if (attachments.indexOf(attachment) < 0) {
-    return;
-  }
-  return attachment;
-}
-async function startRegistration(options) {
-  if (!options.optionsJSON && options.challenge) {
-    console.warn("startRegistration() was not called correctly. It will try to continue with the provided options, but this call should be refactored to use the expected call structure instead. See https://simplewebauthn.dev/docs/packages/browser#typeerror-cannot-read-properties-of-undefined-reading-challenge for more information.");
-    options = { optionsJSON: options };
-  }
-  const { optionsJSON, useAutoRegister = false } = options;
-  if (!browserSupportsWebAuthn()) {
-    throw new Error("WebAuthn is not supported in this browser");
-  }
-  const publicKey = {
-    ...optionsJSON,
-    challenge: base64URLStringToBuffer(optionsJSON.challenge),
-    user: {
-      ...optionsJSON.user,
-      id: base64URLStringToBuffer(optionsJSON.user.id)
-    },
-    excludeCredentials: optionsJSON.excludeCredentials?.map(toPublicKeyCredentialDescriptor)
-  };
-  const createOptions = {};
-  if (useAutoRegister) {
-    createOptions.mediation = "conditional";
-  }
-  createOptions.publicKey = publicKey;
-  createOptions.signal = WebAuthnAbortService.createNewAbortSignal();
-  let credential;
-  try {
-    credential = await navigator.credentials.create(createOptions);
-  } catch (err) {
-    throw identifyRegistrationError({ error: err, options: createOptions });
-  }
-  if (!credential) {
-    throw new Error("Registration was not completed");
-  }
-  const { id, rawId, response, type } = credential;
-  let transports = void 0;
-  if (typeof response.getTransports === "function") {
-    transports = response.getTransports();
-  }
-  let responsePublicKeyAlgorithm = void 0;
-  if (typeof response.getPublicKeyAlgorithm === "function") {
-    try {
-      responsePublicKeyAlgorithm = response.getPublicKeyAlgorithm();
-    } catch (error) {
-      warnOnBrokenImplementation("getPublicKeyAlgorithm()", error);
-    }
-  }
-  let responsePublicKey = void 0;
-  if (typeof response.getPublicKey === "function") {
-    try {
-      const _publicKey = response.getPublicKey();
-      if (_publicKey !== null) {
-        responsePublicKey = bufferToBase64URLString(_publicKey);
-      }
-    } catch (error) {
-      warnOnBrokenImplementation("getPublicKey()", error);
-    }
-  }
-  let responseAuthenticatorData;
-  if (typeof response.getAuthenticatorData === "function") {
-    try {
-      responseAuthenticatorData = bufferToBase64URLString(response.getAuthenticatorData());
-    } catch (error) {
-      warnOnBrokenImplementation("getAuthenticatorData()", error);
-    }
-  }
-  return {
-    id,
-    rawId: bufferToBase64URLString(rawId),
-    response: {
-      attestationObject: bufferToBase64URLString(response.attestationObject),
-      clientDataJSON: bufferToBase64URLString(response.clientDataJSON),
-      transports,
-      publicKeyAlgorithm: responsePublicKeyAlgorithm,
-      publicKey: responsePublicKey,
-      authenticatorData: responseAuthenticatorData
-    },
-    type,
-    clientExtensionResults: credential.getClientExtensionResults(),
-    authenticatorAttachment: toAuthenticatorAttachment(credential.authenticatorAttachment)
-  };
-}
-function warnOnBrokenImplementation(methodName, cause) {
-  console.warn(`The browser extension that intercepted this WebAuthn API call incorrectly implemented ${methodName}. You should report this error to them.
-`, cause);
-}
-function browserSupportsWebAuthnAutofill() {
-  if (!browserSupportsWebAuthn()) {
-    return _browserSupportsWebAuthnAutofillInternals.stubThis(new Promise((resolve) => resolve(false)));
-  }
-  const globalPublicKeyCredential = globalThis.PublicKeyCredential;
-  if (globalPublicKeyCredential?.isConditionalMediationAvailable === void 0) {
-    return _browserSupportsWebAuthnAutofillInternals.stubThis(new Promise((resolve) => resolve(false)));
-  }
-  return _browserSupportsWebAuthnAutofillInternals.stubThis(globalPublicKeyCredential.isConditionalMediationAvailable());
-}
-const _browserSupportsWebAuthnAutofillInternals = {
-  stubThis: (value) => value
-};
-function identifyAuthenticationError({ error, options }) {
-  const { publicKey } = options;
-  if (!publicKey) {
-    throw Error("options was missing required publicKey property");
-  }
-  if (error.name === "AbortError") {
-    if (options.signal instanceof AbortSignal) {
-      return new WebAuthnError({
-        message: "Authentication ceremony was sent an abort signal",
-        code: "ERROR_CEREMONY_ABORTED",
-        cause: error
-      });
-    }
-  } else if (error.name === "NotAllowedError") {
-    return new WebAuthnError({
-      message: error.message,
-      code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
-      cause: error
-    });
-  } else if (error.name === "SecurityError") {
-    const effectiveDomain = globalThis.location.hostname;
-    if (!isValidDomain(effectiveDomain)) {
-      return new WebAuthnError({
-        message: `${globalThis.location.hostname} is an invalid domain`,
-        code: "ERROR_INVALID_DOMAIN",
-        cause: error
-      });
-    } else if (publicKey.rpId !== effectiveDomain) {
-      return new WebAuthnError({
-        message: `The RP ID "${publicKey.rpId}" is invalid for this domain`,
-        code: "ERROR_INVALID_RP_ID",
-        cause: error
-      });
-    }
-  } else if (error.name === "UnknownError") {
-    return new WebAuthnError({
-      message: "The authenticator was unable to process the specified options, or could not create a new assertion signature",
-      code: "ERROR_AUTHENTICATOR_GENERAL_ERROR",
-      cause: error
-    });
-  }
-  return error;
-}
-async function startAuthentication(options) {
-  if (!options.optionsJSON && options.challenge) {
-    console.warn("startAuthentication() was not called correctly. It will try to continue with the provided options, but this call should be refactored to use the expected call structure instead. See https://simplewebauthn.dev/docs/packages/browser#typeerror-cannot-read-properties-of-undefined-reading-challenge for more information.");
-    options = { optionsJSON: options };
-  }
-  const { optionsJSON, useBrowserAutofill = false, verifyBrowserAutofillInput = true } = options;
-  if (!browserSupportsWebAuthn()) {
-    throw new Error("WebAuthn is not supported in this browser");
-  }
-  let allowCredentials;
-  if (optionsJSON.allowCredentials?.length !== 0) {
-    allowCredentials = optionsJSON.allowCredentials?.map(toPublicKeyCredentialDescriptor);
-  }
-  const publicKey = {
-    ...optionsJSON,
-    challenge: base64URLStringToBuffer(optionsJSON.challenge),
-    allowCredentials
-  };
-  const getOptions = {};
-  if (useBrowserAutofill) {
-    if (!await browserSupportsWebAuthnAutofill()) {
-      throw Error("Browser does not support WebAuthn autofill");
-    }
-    const eligibleInputs = document.querySelectorAll("input[autocomplete$='webauthn']");
-    if (eligibleInputs.length < 1 && verifyBrowserAutofillInput) {
-      throw Error('No <input> with "webauthn" as the only or last value in its `autocomplete` attribute was detected');
-    }
-    getOptions.mediation = "conditional";
-    publicKey.allowCredentials = [];
-  }
-  getOptions.publicKey = publicKey;
-  getOptions.signal = WebAuthnAbortService.createNewAbortSignal();
-  let credential;
-  try {
-    credential = await navigator.credentials.get(getOptions);
-  } catch (err) {
-    throw identifyAuthenticationError({ error: err, options: getOptions });
-  }
-  if (!credential) {
-    throw new Error("Authentication was not completed");
-  }
-  const { id, rawId, response, type } = credential;
-  let userHandle = void 0;
-  if (response.userHandle) {
-    userHandle = bufferToBase64URLString(response.userHandle);
-  }
-  return {
-    id,
-    rawId: bufferToBase64URLString(rawId),
-    response: {
-      authenticatorData: bufferToBase64URLString(response.authenticatorData),
-      clientDataJSON: bufferToBase64URLString(response.clientDataJSON),
-      signature: bufferToBase64URLString(response.signature),
-      userHandle
-    },
-    type,
-    clientExtensionResults: credential.getClientExtensionResults(),
-    authenticatorAttachment: toAuthenticatorAttachment(credential.authenticatorAttachment)
-  };
-}
-function platformAuthenticatorIsAvailable() {
-  if (!browserSupportsWebAuthn()) {
-    return new Promise((resolve) => resolve(false));
-  }
-  return PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-}
 function isSupported() {
   return browserSupportsWebAuthn();
 }
@@ -4148,4127 +4651,6 @@ const defaultConfig = {
   },
   credentials: "same-origin"
 };
-var t$1 = Object.defineProperty;
-var o$2 = (e2, l2) => t$1(e2, "name", { value: l2, configurable: true });
-var n$3 = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
-function f$1(e2) {
-  return e2 && e2.__esModule && Object.prototype.hasOwnProperty.call(e2, "default") ? e2.default : e2;
-}
-o$2(f$1, "getDefaultExportFromCjs");
-var Os = Object.defineProperty;
-var fi = (i2) => {
-  throw TypeError(i2);
-};
-var n$2 = (i2, o2) => Os(i2, "name", { value: o2, configurable: true });
-var ci = (i2, o2, a2) => o2.has(i2) || fi("Cannot " + a2);
-var O$1 = (i2, o2, a2) => (ci(i2, o2, "read from private field"), a2 ? a2.call(i2) : o2.get(i2)), be = (i2, o2, a2) => o2.has(i2) ? fi("Cannot add the same private member more than once") : o2 instanceof WeakSet ? o2.add(i2) : o2.set(i2, a2), X = (i2, o2, a2, f2) => (ci(i2, o2, "write to private field"), o2.set(i2, a2), a2);
-var ve, zt, bt, Cr, ze, It, Ft, mt, ee, yt, He, Ve, gt;
-function Us(i2) {
-  if (!/^data:/i.test(i2)) throw new TypeError('`uri` does not appear to be a Data URI (must begin with "data:")');
-  i2 = i2.replace(/\r?\n/g, "");
-  const o2 = i2.indexOf(",");
-  if (o2 === -1 || o2 <= 4) throw new TypeError("malformed data: URI");
-  const a2 = i2.substring(5, o2).split(";");
-  let f2 = "", l2 = false;
-  const p2 = a2[0] || "text/plain";
-  let h2 = p2;
-  for (let A2 = 1; A2 < a2.length; A2++) a2[A2] === "base64" ? l2 = true : a2[A2] && (h2 += `;${a2[A2]}`, a2[A2].indexOf("charset=") === 0 && (f2 = a2[A2].substring(8)));
-  !a2[0] && !f2.length && (h2 += ";charset=US-ASCII", f2 = "US-ASCII");
-  const S2 = l2 ? "base64" : "ascii", v2 = unescape(i2.substring(o2 + 1)), w2 = Buffer.from(v2, S2);
-  return w2.type = p2, w2.typeFull = h2, w2.charset = f2, w2;
-}
-n$2(Us, "dataUriToBuffer");
-var pi = {}, kt = { exports: {} };
-var xs = kt.exports, bi;
-function Ns() {
-  return bi || (bi = 1, (function(i2, o2) {
-    (function(a2, f2) {
-      f2(o2);
-    })(xs, function(a2) {
-      function f2() {
-      }
-      n$2(f2, "noop");
-      function l2(e2) {
-        return typeof e2 == "object" && e2 !== null || typeof e2 == "function";
-      }
-      n$2(l2, "typeIsObject");
-      const p2 = f2;
-      function h2(e2, t3) {
-        try {
-          Object.defineProperty(e2, "name", { value: t3, configurable: true });
-        } catch {
-        }
-      }
-      n$2(h2, "setFunctionName");
-      const S2 = Promise, v2 = Promise.prototype.then, w2 = Promise.reject.bind(S2);
-      function A2(e2) {
-        return new S2(e2);
-      }
-      n$2(A2, "newPromise");
-      function T2(e2) {
-        return A2((t3) => t3(e2));
-      }
-      n$2(T2, "promiseResolvedWith");
-      function b2(e2) {
-        return w2(e2);
-      }
-      n$2(b2, "promiseRejectedWith");
-      function q(e2, t3, r2) {
-        return v2.call(e2, t3, r2);
-      }
-      n$2(q, "PerformPromiseThen");
-      function g2(e2, t3, r2) {
-        q(q(e2, t3, r2), void 0, p2);
-      }
-      n$2(g2, "uponPromise");
-      function V(e2, t3) {
-        g2(e2, t3);
-      }
-      n$2(V, "uponFulfillment");
-      function I2(e2, t3) {
-        g2(e2, void 0, t3);
-      }
-      n$2(I2, "uponRejection");
-      function F(e2, t3, r2) {
-        return q(e2, t3, r2);
-      }
-      n$2(F, "transformPromiseWith");
-      function Q(e2) {
-        q(e2, void 0, p2);
-      }
-      n$2(Q, "setPromiseIsHandledToTrue");
-      let ge = n$2((e2) => {
-        if (typeof queueMicrotask == "function") ge = queueMicrotask;
-        else {
-          const t3 = T2(void 0);
-          ge = n$2((r2) => q(t3, r2), "_queueMicrotask");
-        }
-        return ge(e2);
-      }, "_queueMicrotask");
-      function z(e2, t3, r2) {
-        if (typeof e2 != "function") throw new TypeError("Argument is not a function");
-        return Function.prototype.apply.call(e2, t3, r2);
-      }
-      n$2(z, "reflectCall");
-      function j2(e2, t3, r2) {
-        try {
-          return T2(z(e2, t3, r2));
-        } catch (s2) {
-          return b2(s2);
-        }
-      }
-      n$2(j2, "promiseCall");
-      const U2 = 16384, bn = class bn {
-        constructor() {
-          this._cursor = 0, this._size = 0, this._front = { _elements: [], _next: void 0 }, this._back = this._front, this._cursor = 0, this._size = 0;
-        }
-        get length() {
-          return this._size;
-        }
-        push(t3) {
-          const r2 = this._back;
-          let s2 = r2;
-          r2._elements.length === U2 - 1 && (s2 = { _elements: [], _next: void 0 }), r2._elements.push(t3), s2 !== r2 && (this._back = s2, r2._next = s2), ++this._size;
-        }
-        shift() {
-          const t3 = this._front;
-          let r2 = t3;
-          const s2 = this._cursor;
-          let u2 = s2 + 1;
-          const c2 = t3._elements, d2 = c2[s2];
-          return u2 === U2 && (r2 = t3._next, u2 = 0), --this._size, this._cursor = u2, t3 !== r2 && (this._front = r2), c2[s2] = void 0, d2;
-        }
-        forEach(t3) {
-          let r2 = this._cursor, s2 = this._front, u2 = s2._elements;
-          for (; (r2 !== u2.length || s2._next !== void 0) && !(r2 === u2.length && (s2 = s2._next, u2 = s2._elements, r2 = 0, u2.length === 0)); ) t3(u2[r2]), ++r2;
-        }
-        peek() {
-          const t3 = this._front, r2 = this._cursor;
-          return t3._elements[r2];
-        }
-      };
-      n$2(bn, "SimpleQueue");
-      let D2 = bn;
-      const jt = /* @__PURE__ */ Symbol("[[AbortSteps]]"), Qn = /* @__PURE__ */ Symbol("[[ErrorSteps]]"), Ar = /* @__PURE__ */ Symbol("[[CancelSteps]]"), Br = /* @__PURE__ */ Symbol("[[PullSteps]]"), kr = /* @__PURE__ */ Symbol("[[ReleaseSteps]]");
-      function Yn(e2, t3) {
-        e2._ownerReadableStream = t3, t3._reader = e2, t3._state === "readable" ? qr(e2) : t3._state === "closed" ? xi(e2) : Gn(e2, t3._storedError);
-      }
-      n$2(Yn, "ReadableStreamReaderGenericInitialize");
-      function Wr(e2, t3) {
-        const r2 = e2._ownerReadableStream;
-        return ie(r2, t3);
-      }
-      n$2(Wr, "ReadableStreamReaderGenericCancel");
-      function _e(e2) {
-        const t3 = e2._ownerReadableStream;
-        t3._state === "readable" ? Or(e2, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")) : Ni(e2, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")), t3._readableStreamController[kr](), t3._reader = void 0, e2._ownerReadableStream = void 0;
-      }
-      n$2(_e, "ReadableStreamReaderGenericRelease");
-      function Lt(e2) {
-        return new TypeError("Cannot " + e2 + " a stream using a released reader");
-      }
-      n$2(Lt, "readerLockException");
-      function qr(e2) {
-        e2._closedPromise = A2((t3, r2) => {
-          e2._closedPromise_resolve = t3, e2._closedPromise_reject = r2;
-        });
-      }
-      n$2(qr, "defaultReaderClosedPromiseInitialize");
-      function Gn(e2, t3) {
-        qr(e2), Or(e2, t3);
-      }
-      n$2(Gn, "defaultReaderClosedPromiseInitializeAsRejected");
-      function xi(e2) {
-        qr(e2), Zn(e2);
-      }
-      n$2(xi, "defaultReaderClosedPromiseInitializeAsResolved");
-      function Or(e2, t3) {
-        e2._closedPromise_reject !== void 0 && (Q(e2._closedPromise), e2._closedPromise_reject(t3), e2._closedPromise_resolve = void 0, e2._closedPromise_reject = void 0);
-      }
-      n$2(Or, "defaultReaderClosedPromiseReject");
-      function Ni(e2, t3) {
-        Gn(e2, t3);
-      }
-      n$2(Ni, "defaultReaderClosedPromiseResetToRejected");
-      function Zn(e2) {
-        e2._closedPromise_resolve !== void 0 && (e2._closedPromise_resolve(void 0), e2._closedPromise_resolve = void 0, e2._closedPromise_reject = void 0);
-      }
-      n$2(Zn, "defaultReaderClosedPromiseResolve");
-      const Kn = Number.isFinite || function(e2) {
-        return typeof e2 == "number" && isFinite(e2);
-      }, Hi = Math.trunc || function(e2) {
-        return e2 < 0 ? Math.ceil(e2) : Math.floor(e2);
-      };
-      function Vi(e2) {
-        return typeof e2 == "object" || typeof e2 == "function";
-      }
-      n$2(Vi, "isDictionary");
-      function ue(e2, t3) {
-        if (e2 !== void 0 && !Vi(e2)) throw new TypeError(`${t3} is not an object.`);
-      }
-      n$2(ue, "assertDictionary");
-      function Z(e2, t3) {
-        if (typeof e2 != "function") throw new TypeError(`${t3} is not a function.`);
-      }
-      n$2(Z, "assertFunction");
-      function Qi(e2) {
-        return typeof e2 == "object" && e2 !== null || typeof e2 == "function";
-      }
-      n$2(Qi, "isObject");
-      function Jn(e2, t3) {
-        if (!Qi(e2)) throw new TypeError(`${t3} is not an object.`);
-      }
-      n$2(Jn, "assertObject");
-      function Se(e2, t3, r2) {
-        if (e2 === void 0) throw new TypeError(`Parameter ${t3} is required in '${r2}'.`);
-      }
-      n$2(Se, "assertRequiredArgument");
-      function zr(e2, t3, r2) {
-        if (e2 === void 0) throw new TypeError(`${t3} is required in '${r2}'.`);
-      }
-      n$2(zr, "assertRequiredField");
-      function Ir(e2) {
-        return Number(e2);
-      }
-      n$2(Ir, "convertUnrestrictedDouble");
-      function Xn(e2) {
-        return e2 === 0 ? 0 : e2;
-      }
-      n$2(Xn, "censorNegativeZero");
-      function Yi(e2) {
-        return Xn(Hi(e2));
-      }
-      n$2(Yi, "integerPart");
-      function Fr(e2, t3) {
-        const s2 = Number.MAX_SAFE_INTEGER;
-        let u2 = Number(e2);
-        if (u2 = Xn(u2), !Kn(u2)) throw new TypeError(`${t3} is not a finite number`);
-        if (u2 = Yi(u2), u2 < 0 || u2 > s2) throw new TypeError(`${t3} is outside the accepted range of 0 to ${s2}, inclusive`);
-        return !Kn(u2) || u2 === 0 ? 0 : u2;
-      }
-      n$2(Fr, "convertUnsignedLongLongWithEnforceRange");
-      function jr(e2, t3) {
-        if (!We(e2)) throw new TypeError(`${t3} is not a ReadableStream.`);
-      }
-      n$2(jr, "assertReadableStream");
-      function Qe(e2) {
-        return new fe(e2);
-      }
-      n$2(Qe, "AcquireReadableStreamDefaultReader");
-      function eo(e2, t3) {
-        e2._reader._readRequests.push(t3);
-      }
-      n$2(eo, "ReadableStreamAddReadRequest");
-      function Lr(e2, t3, r2) {
-        const u2 = e2._reader._readRequests.shift();
-        r2 ? u2._closeSteps() : u2._chunkSteps(t3);
-      }
-      n$2(Lr, "ReadableStreamFulfillReadRequest");
-      function $t(e2) {
-        return e2._reader._readRequests.length;
-      }
-      n$2($t, "ReadableStreamGetNumReadRequests");
-      function to(e2) {
-        const t3 = e2._reader;
-        return !(t3 === void 0 || !Ee(t3));
-      }
-      n$2(to, "ReadableStreamHasDefaultReader");
-      const mn = class mn {
-        constructor(t3) {
-          if (Se(t3, 1, "ReadableStreamDefaultReader"), jr(t3, "First parameter"), qe(t3)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-          Yn(this, t3), this._readRequests = new D2();
-        }
-        get closed() {
-          return Ee(this) ? this._closedPromise : b2(Dt("closed"));
-        }
-        cancel(t3 = void 0) {
-          return Ee(this) ? this._ownerReadableStream === void 0 ? b2(Lt("cancel")) : Wr(this, t3) : b2(Dt("cancel"));
-        }
-        read() {
-          if (!Ee(this)) return b2(Dt("read"));
-          if (this._ownerReadableStream === void 0) return b2(Lt("read from"));
-          let t3, r2;
-          const s2 = A2((c2, d2) => {
-            t3 = c2, r2 = d2;
-          });
-          return _t(this, { _chunkSteps: n$2((c2) => t3({ value: c2, done: false }), "_chunkSteps"), _closeSteps: n$2(() => t3({ value: void 0, done: true }), "_closeSteps"), _errorSteps: n$2((c2) => r2(c2), "_errorSteps") }), s2;
-        }
-        releaseLock() {
-          if (!Ee(this)) throw Dt("releaseLock");
-          this._ownerReadableStream !== void 0 && Gi(this);
-        }
-      };
-      n$2(mn, "ReadableStreamDefaultReader");
-      let fe = mn;
-      Object.defineProperties(fe.prototype, { cancel: { enumerable: true }, read: { enumerable: true }, releaseLock: { enumerable: true }, closed: { enumerable: true } }), h2(fe.prototype.cancel, "cancel"), h2(fe.prototype.read, "read"), h2(fe.prototype.releaseLock, "releaseLock"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(fe.prototype, Symbol.toStringTag, { value: "ReadableStreamDefaultReader", configurable: true });
-      function Ee(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_readRequests") ? false : e2 instanceof fe;
-      }
-      n$2(Ee, "IsReadableStreamDefaultReader");
-      function _t(e2, t3) {
-        const r2 = e2._ownerReadableStream;
-        r2._disturbed = true, r2._state === "closed" ? t3._closeSteps() : r2._state === "errored" ? t3._errorSteps(r2._storedError) : r2._readableStreamController[Br](t3);
-      }
-      n$2(_t, "ReadableStreamDefaultReaderRead");
-      function Gi(e2) {
-        _e(e2);
-        const t3 = new TypeError("Reader was released");
-        ro(e2, t3);
-      }
-      n$2(Gi, "ReadableStreamDefaultReaderRelease");
-      function ro(e2, t3) {
-        const r2 = e2._readRequests;
-        e2._readRequests = new D2(), r2.forEach((s2) => {
-          s2._errorSteps(t3);
-        });
-      }
-      n$2(ro, "ReadableStreamDefaultReaderErrorReadRequests");
-      function Dt(e2) {
-        return new TypeError(`ReadableStreamDefaultReader.prototype.${e2} can only be used on a ReadableStreamDefaultReader`);
-      }
-      n$2(Dt, "defaultReaderBrandCheckException");
-      const Zi = Object.getPrototypeOf(Object.getPrototypeOf(async function* () {
-      }).prototype), yn = class yn {
-        constructor(t3, r2) {
-          this._ongoingPromise = void 0, this._isFinished = false, this._reader = t3, this._preventCancel = r2;
-        }
-        next() {
-          const t3 = n$2(() => this._nextSteps(), "nextSteps");
-          return this._ongoingPromise = this._ongoingPromise ? F(this._ongoingPromise, t3, t3) : t3(), this._ongoingPromise;
-        }
-        return(t3) {
-          const r2 = n$2(() => this._returnSteps(t3), "returnSteps");
-          return this._ongoingPromise ? F(this._ongoingPromise, r2, r2) : r2();
-        }
-        _nextSteps() {
-          if (this._isFinished) return Promise.resolve({ value: void 0, done: true });
-          const t3 = this._reader;
-          let r2, s2;
-          const u2 = A2((d2, m2) => {
-            r2 = d2, s2 = m2;
-          });
-          return _t(t3, { _chunkSteps: n$2((d2) => {
-            this._ongoingPromise = void 0, ge(() => r2({ value: d2, done: false }));
-          }, "_chunkSteps"), _closeSteps: n$2(() => {
-            this._ongoingPromise = void 0, this._isFinished = true, _e(t3), r2({ value: void 0, done: true });
-          }, "_closeSteps"), _errorSteps: n$2((d2) => {
-            this._ongoingPromise = void 0, this._isFinished = true, _e(t3), s2(d2);
-          }, "_errorSteps") }), u2;
-        }
-        _returnSteps(t3) {
-          if (this._isFinished) return Promise.resolve({ value: t3, done: true });
-          this._isFinished = true;
-          const r2 = this._reader;
-          if (!this._preventCancel) {
-            const s2 = Wr(r2, t3);
-            return _e(r2), F(s2, () => ({ value: t3, done: true }));
-          }
-          return _e(r2), T2({ value: t3, done: true });
-        }
-      };
-      n$2(yn, "ReadableStreamAsyncIteratorImpl");
-      let Mt = yn;
-      const no = { next() {
-        return oo(this) ? this._asyncIteratorImpl.next() : b2(io("next"));
-      }, return(e2) {
-        return oo(this) ? this._asyncIteratorImpl.return(e2) : b2(io("return"));
-      } };
-      Object.setPrototypeOf(no, Zi);
-      function Ki(e2, t3) {
-        const r2 = Qe(e2), s2 = new Mt(r2, t3), u2 = Object.create(no);
-        return u2._asyncIteratorImpl = s2, u2;
-      }
-      n$2(Ki, "AcquireReadableStreamAsyncIterator");
-      function oo(e2) {
-        if (!l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_asyncIteratorImpl")) return false;
-        try {
-          return e2._asyncIteratorImpl instanceof Mt;
-        } catch {
-          return false;
-        }
-      }
-      n$2(oo, "IsReadableStreamAsyncIterator");
-      function io(e2) {
-        return new TypeError(`ReadableStreamAsyncIterator.${e2} can only be used on a ReadableSteamAsyncIterator`);
-      }
-      n$2(io, "streamAsyncIteratorBrandCheckException");
-      const ao = Number.isNaN || function(e2) {
-        return e2 !== e2;
-      };
-      var $r, Dr, Mr;
-      function St(e2) {
-        return e2.slice();
-      }
-      n$2(St, "CreateArrayFromList");
-      function so(e2, t3, r2, s2, u2) {
-        new Uint8Array(e2).set(new Uint8Array(r2, s2, u2), t3);
-      }
-      n$2(so, "CopyDataBlockBytes");
-      let we = n$2((e2) => (typeof e2.transfer == "function" ? we = n$2((t3) => t3.transfer(), "TransferArrayBuffer") : typeof structuredClone == "function" ? we = n$2((t3) => structuredClone(t3, { transfer: [t3] }), "TransferArrayBuffer") : we = n$2((t3) => t3, "TransferArrayBuffer"), we(e2)), "TransferArrayBuffer"), Ae = n$2((e2) => (typeof e2.detached == "boolean" ? Ae = n$2((t3) => t3.detached, "IsDetachedBuffer") : Ae = n$2((t3) => t3.byteLength === 0, "IsDetachedBuffer"), Ae(e2)), "IsDetachedBuffer");
-      function lo(e2, t3, r2) {
-        if (e2.slice) return e2.slice(t3, r2);
-        const s2 = r2 - t3, u2 = new ArrayBuffer(s2);
-        return so(u2, 0, e2, t3, s2), u2;
-      }
-      n$2(lo, "ArrayBufferSlice");
-      function Ut(e2, t3) {
-        const r2 = e2[t3];
-        if (r2 != null) {
-          if (typeof r2 != "function") throw new TypeError(`${String(t3)} is not a function`);
-          return r2;
-        }
-      }
-      n$2(Ut, "GetMethod");
-      function Ji(e2) {
-        const t3 = { [Symbol.iterator]: () => e2.iterator }, r2 = (async function* () {
-          return yield* t3;
-        })(), s2 = r2.next;
-        return { iterator: r2, nextMethod: s2, done: false };
-      }
-      n$2(Ji, "CreateAsyncFromSyncIterator");
-      const Ur = (Mr = ($r = Symbol.asyncIterator) !== null && $r !== void 0 ? $r : (Dr = Symbol.for) === null || Dr === void 0 ? void 0 : Dr.call(Symbol, "Symbol.asyncIterator")) !== null && Mr !== void 0 ? Mr : "@@asyncIterator";
-      function uo(e2, t3 = "sync", r2) {
-        if (r2 === void 0) if (t3 === "async") {
-          if (r2 = Ut(e2, Ur), r2 === void 0) {
-            const c2 = Ut(e2, Symbol.iterator), d2 = uo(e2, "sync", c2);
-            return Ji(d2);
-          }
-        } else r2 = Ut(e2, Symbol.iterator);
-        if (r2 === void 0) throw new TypeError("The object is not iterable");
-        const s2 = z(r2, e2, []);
-        if (!l2(s2)) throw new TypeError("The iterator method must return an object");
-        const u2 = s2.next;
-        return { iterator: s2, nextMethod: u2, done: false };
-      }
-      n$2(uo, "GetIterator");
-      function Xi(e2) {
-        const t3 = z(e2.nextMethod, e2.iterator, []);
-        if (!l2(t3)) throw new TypeError("The iterator.next() method must return an object");
-        return t3;
-      }
-      n$2(Xi, "IteratorNext");
-      function ea(e2) {
-        return !!e2.done;
-      }
-      n$2(ea, "IteratorComplete");
-      function ta(e2) {
-        return e2.value;
-      }
-      n$2(ta, "IteratorValue");
-      function ra(e2) {
-        return !(typeof e2 != "number" || ao(e2) || e2 < 0);
-      }
-      n$2(ra, "IsNonNegativeNumber");
-      function fo(e2) {
-        const t3 = lo(e2.buffer, e2.byteOffset, e2.byteOffset + e2.byteLength);
-        return new Uint8Array(t3);
-      }
-      n$2(fo, "CloneAsUint8Array");
-      function xr(e2) {
-        const t3 = e2._queue.shift();
-        return e2._queueTotalSize -= t3.size, e2._queueTotalSize < 0 && (e2._queueTotalSize = 0), t3.value;
-      }
-      n$2(xr, "DequeueValue");
-      function Nr(e2, t3, r2) {
-        if (!ra(r2) || r2 === 1 / 0) throw new RangeError("Size must be a finite, non-NaN, non-negative number.");
-        e2._queue.push({ value: t3, size: r2 }), e2._queueTotalSize += r2;
-      }
-      n$2(Nr, "EnqueueValueWithSize");
-      function na(e2) {
-        return e2._queue.peek().value;
-      }
-      n$2(na, "PeekQueueValue");
-      function Be(e2) {
-        e2._queue = new D2(), e2._queueTotalSize = 0;
-      }
-      n$2(Be, "ResetQueue");
-      function co(e2) {
-        return e2 === DataView;
-      }
-      n$2(co, "isDataViewConstructor");
-      function oa(e2) {
-        return co(e2.constructor);
-      }
-      n$2(oa, "isDataView");
-      function ia(e2) {
-        return co(e2) ? 1 : e2.BYTES_PER_ELEMENT;
-      }
-      n$2(ia, "arrayBufferViewElementSize");
-      const gn = class gn {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get view() {
-          if (!Hr(this)) throw Zr("view");
-          return this._view;
-        }
-        respond(t3) {
-          if (!Hr(this)) throw Zr("respond");
-          if (Se(t3, 1, "respond"), t3 = Fr(t3, "First parameter"), this._associatedReadableByteStreamController === void 0) throw new TypeError("This BYOB request has been invalidated");
-          if (Ae(this._view.buffer)) throw new TypeError("The BYOB request's buffer has been detached and so cannot be used as a response");
-          Vt(this._associatedReadableByteStreamController, t3);
-        }
-        respondWithNewView(t3) {
-          if (!Hr(this)) throw Zr("respondWithNewView");
-          if (Se(t3, 1, "respondWithNewView"), !ArrayBuffer.isView(t3)) throw new TypeError("You can only respond with array buffer views");
-          if (this._associatedReadableByteStreamController === void 0) throw new TypeError("This BYOB request has been invalidated");
-          if (Ae(t3.buffer)) throw new TypeError("The given view's buffer has been detached and so cannot be used as a response");
-          Qt(this._associatedReadableByteStreamController, t3);
-        }
-      };
-      n$2(gn, "ReadableStreamBYOBRequest");
-      let Re = gn;
-      Object.defineProperties(Re.prototype, { respond: { enumerable: true }, respondWithNewView: { enumerable: true }, view: { enumerable: true } }), h2(Re.prototype.respond, "respond"), h2(Re.prototype.respondWithNewView, "respondWithNewView"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(Re.prototype, Symbol.toStringTag, { value: "ReadableStreamBYOBRequest", configurable: true });
-      const _n = class _n {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get byobRequest() {
-          if (!Ie(this)) throw Rt("byobRequest");
-          return Gr(this);
-        }
-        get desiredSize() {
-          if (!Ie(this)) throw Rt("desiredSize");
-          return Ro(this);
-        }
-        close() {
-          if (!Ie(this)) throw Rt("close");
-          if (this._closeRequested) throw new TypeError("The stream has already been closed; do not close it again!");
-          const t3 = this._controlledReadableByteStream._state;
-          if (t3 !== "readable") throw new TypeError(`The stream (in ${t3} state) is not in the readable state and cannot be closed`);
-          wt(this);
-        }
-        enqueue(t3) {
-          if (!Ie(this)) throw Rt("enqueue");
-          if (Se(t3, 1, "enqueue"), !ArrayBuffer.isView(t3)) throw new TypeError("chunk must be an array buffer view");
-          if (t3.byteLength === 0) throw new TypeError("chunk must have non-zero byteLength");
-          if (t3.buffer.byteLength === 0) throw new TypeError("chunk's buffer must have non-zero byteLength");
-          if (this._closeRequested) throw new TypeError("stream is closed or draining");
-          const r2 = this._controlledReadableByteStream._state;
-          if (r2 !== "readable") throw new TypeError(`The stream (in ${r2} state) is not in the readable state and cannot be enqueued to`);
-          Ht(this, t3);
-        }
-        error(t3 = void 0) {
-          if (!Ie(this)) throw Rt("error");
-          K(this, t3);
-        }
-        [Ar](t3) {
-          ho(this), Be(this);
-          const r2 = this._cancelAlgorithm(t3);
-          return Nt(this), r2;
-        }
-        [Br](t3) {
-          const r2 = this._controlledReadableByteStream;
-          if (this._queueTotalSize > 0) {
-            wo(this, t3);
-            return;
-          }
-          const s2 = this._autoAllocateChunkSize;
-          if (s2 !== void 0) {
-            let u2;
-            try {
-              u2 = new ArrayBuffer(s2);
-            } catch (d2) {
-              t3._errorSteps(d2);
-              return;
-            }
-            const c2 = { buffer: u2, bufferByteLength: s2, byteOffset: 0, byteLength: s2, bytesFilled: 0, minimumFill: 1, elementSize: 1, viewConstructor: Uint8Array, readerType: "default" };
-            this._pendingPullIntos.push(c2);
-          }
-          eo(r2, t3), Fe(this);
-        }
-        [kr]() {
-          if (this._pendingPullIntos.length > 0) {
-            const t3 = this._pendingPullIntos.peek();
-            t3.readerType = "none", this._pendingPullIntos = new D2(), this._pendingPullIntos.push(t3);
-          }
-        }
-      };
-      n$2(_n, "ReadableByteStreamController");
-      let te = _n;
-      Object.defineProperties(te.prototype, { close: { enumerable: true }, enqueue: { enumerable: true }, error: { enumerable: true }, byobRequest: { enumerable: true }, desiredSize: { enumerable: true } }), h2(te.prototype.close, "close"), h2(te.prototype.enqueue, "enqueue"), h2(te.prototype.error, "error"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(te.prototype, Symbol.toStringTag, { value: "ReadableByteStreamController", configurable: true });
-      function Ie(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_controlledReadableByteStream") ? false : e2 instanceof te;
-      }
-      n$2(Ie, "IsReadableByteStreamController");
-      function Hr(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_associatedReadableByteStreamController") ? false : e2 instanceof Re;
-      }
-      n$2(Hr, "IsReadableStreamBYOBRequest");
-      function Fe(e2) {
-        if (!fa(e2)) return;
-        if (e2._pulling) {
-          e2._pullAgain = true;
-          return;
-        }
-        e2._pulling = true;
-        const r2 = e2._pullAlgorithm();
-        g2(r2, () => (e2._pulling = false, e2._pullAgain && (e2._pullAgain = false, Fe(e2)), null), (s2) => (K(e2, s2), null));
-      }
-      n$2(Fe, "ReadableByteStreamControllerCallPullIfNeeded");
-      function ho(e2) {
-        Qr(e2), e2._pendingPullIntos = new D2();
-      }
-      n$2(ho, "ReadableByteStreamControllerClearPendingPullIntos");
-      function Vr(e2, t3) {
-        let r2 = false;
-        e2._state === "closed" && (r2 = true);
-        const s2 = po(t3);
-        t3.readerType === "default" ? Lr(e2, s2, r2) : ma(e2, s2, r2);
-      }
-      n$2(Vr, "ReadableByteStreamControllerCommitPullIntoDescriptor");
-      function po(e2) {
-        const t3 = e2.bytesFilled, r2 = e2.elementSize;
-        return new e2.viewConstructor(e2.buffer, e2.byteOffset, t3 / r2);
-      }
-      n$2(po, "ReadableByteStreamControllerConvertPullIntoDescriptor");
-      function xt(e2, t3, r2, s2) {
-        e2._queue.push({ buffer: t3, byteOffset: r2, byteLength: s2 }), e2._queueTotalSize += s2;
-      }
-      n$2(xt, "ReadableByteStreamControllerEnqueueChunkToQueue");
-      function bo(e2, t3, r2, s2) {
-        let u2;
-        try {
-          u2 = lo(t3, r2, r2 + s2);
-        } catch (c2) {
-          throw K(e2, c2), c2;
-        }
-        xt(e2, u2, 0, s2);
-      }
-      n$2(bo, "ReadableByteStreamControllerEnqueueClonedChunkToQueue");
-      function mo(e2, t3) {
-        t3.bytesFilled > 0 && bo(e2, t3.buffer, t3.byteOffset, t3.bytesFilled), Ye(e2);
-      }
-      n$2(mo, "ReadableByteStreamControllerEnqueueDetachedPullIntoToQueue");
-      function yo(e2, t3) {
-        const r2 = Math.min(e2._queueTotalSize, t3.byteLength - t3.bytesFilled), s2 = t3.bytesFilled + r2;
-        let u2 = r2, c2 = false;
-        const d2 = s2 % t3.elementSize, m2 = s2 - d2;
-        m2 >= t3.minimumFill && (u2 = m2 - t3.bytesFilled, c2 = true);
-        const R2 = e2._queue;
-        for (; u2 > 0; ) {
-          const y2 = R2.peek(), C2 = Math.min(u2, y2.byteLength), P2 = t3.byteOffset + t3.bytesFilled;
-          so(t3.buffer, P2, y2.buffer, y2.byteOffset, C2), y2.byteLength === C2 ? R2.shift() : (y2.byteOffset += C2, y2.byteLength -= C2), e2._queueTotalSize -= C2, go(e2, C2, t3), u2 -= C2;
-        }
-        return c2;
-      }
-      n$2(yo, "ReadableByteStreamControllerFillPullIntoDescriptorFromQueue");
-      function go(e2, t3, r2) {
-        r2.bytesFilled += t3;
-      }
-      n$2(go, "ReadableByteStreamControllerFillHeadPullIntoDescriptor");
-      function _o(e2) {
-        e2._queueTotalSize === 0 && e2._closeRequested ? (Nt(e2), At(e2._controlledReadableByteStream)) : Fe(e2);
-      }
-      n$2(_o, "ReadableByteStreamControllerHandleQueueDrain");
-      function Qr(e2) {
-        e2._byobRequest !== null && (e2._byobRequest._associatedReadableByteStreamController = void 0, e2._byobRequest._view = null, e2._byobRequest = null);
-      }
-      n$2(Qr, "ReadableByteStreamControllerInvalidateBYOBRequest");
-      function Yr(e2) {
-        for (; e2._pendingPullIntos.length > 0; ) {
-          if (e2._queueTotalSize === 0) return;
-          const t3 = e2._pendingPullIntos.peek();
-          yo(e2, t3) && (Ye(e2), Vr(e2._controlledReadableByteStream, t3));
-        }
-      }
-      n$2(Yr, "ReadableByteStreamControllerProcessPullIntoDescriptorsUsingQueue");
-      function aa(e2) {
-        const t3 = e2._controlledReadableByteStream._reader;
-        for (; t3._readRequests.length > 0; ) {
-          if (e2._queueTotalSize === 0) return;
-          const r2 = t3._readRequests.shift();
-          wo(e2, r2);
-        }
-      }
-      n$2(aa, "ReadableByteStreamControllerProcessReadRequestsUsingQueue");
-      function sa(e2, t3, r2, s2) {
-        const u2 = e2._controlledReadableByteStream, c2 = t3.constructor, d2 = ia(c2), { byteOffset: m2, byteLength: R2 } = t3, y2 = r2 * d2;
-        let C2;
-        try {
-          C2 = we(t3.buffer);
-        } catch (B) {
-          s2._errorSteps(B);
-          return;
-        }
-        const P2 = { buffer: C2, bufferByteLength: C2.byteLength, byteOffset: m2, byteLength: R2, bytesFilled: 0, minimumFill: y2, elementSize: d2, viewConstructor: c2, readerType: "byob" };
-        if (e2._pendingPullIntos.length > 0) {
-          e2._pendingPullIntos.push(P2), Po(u2, s2);
-          return;
-        }
-        if (u2._state === "closed") {
-          const B = new c2(P2.buffer, P2.byteOffset, 0);
-          s2._closeSteps(B);
-          return;
-        }
-        if (e2._queueTotalSize > 0) {
-          if (yo(e2, P2)) {
-            const B = po(P2);
-            _o(e2), s2._chunkSteps(B);
-            return;
-          }
-          if (e2._closeRequested) {
-            const B = new TypeError("Insufficient bytes to fill elements in the given buffer");
-            K(e2, B), s2._errorSteps(B);
-            return;
-          }
-        }
-        e2._pendingPullIntos.push(P2), Po(u2, s2), Fe(e2);
-      }
-      n$2(sa, "ReadableByteStreamControllerPullInto");
-      function la(e2, t3) {
-        t3.readerType === "none" && Ye(e2);
-        const r2 = e2._controlledReadableByteStream;
-        if (Kr(r2)) for (; vo(r2) > 0; ) {
-          const s2 = Ye(e2);
-          Vr(r2, s2);
-        }
-      }
-      n$2(la, "ReadableByteStreamControllerRespondInClosedState");
-      function ua(e2, t3, r2) {
-        if (go(e2, t3, r2), r2.readerType === "none") {
-          mo(e2, r2), Yr(e2);
-          return;
-        }
-        if (r2.bytesFilled < r2.minimumFill) return;
-        Ye(e2);
-        const s2 = r2.bytesFilled % r2.elementSize;
-        if (s2 > 0) {
-          const u2 = r2.byteOffset + r2.bytesFilled;
-          bo(e2, r2.buffer, u2 - s2, s2);
-        }
-        r2.bytesFilled -= s2, Vr(e2._controlledReadableByteStream, r2), Yr(e2);
-      }
-      n$2(ua, "ReadableByteStreamControllerRespondInReadableState");
-      function So(e2, t3) {
-        const r2 = e2._pendingPullIntos.peek();
-        Qr(e2), e2._controlledReadableByteStream._state === "closed" ? la(e2, r2) : ua(e2, t3, r2), Fe(e2);
-      }
-      n$2(So, "ReadableByteStreamControllerRespondInternal");
-      function Ye(e2) {
-        return e2._pendingPullIntos.shift();
-      }
-      n$2(Ye, "ReadableByteStreamControllerShiftPendingPullInto");
-      function fa(e2) {
-        const t3 = e2._controlledReadableByteStream;
-        return t3._state !== "readable" || e2._closeRequested || !e2._started ? false : !!(to(t3) && $t(t3) > 0 || Kr(t3) && vo(t3) > 0 || Ro(e2) > 0);
-      }
-      n$2(fa, "ReadableByteStreamControllerShouldCallPull");
-      function Nt(e2) {
-        e2._pullAlgorithm = void 0, e2._cancelAlgorithm = void 0;
-      }
-      n$2(Nt, "ReadableByteStreamControllerClearAlgorithms");
-      function wt(e2) {
-        const t3 = e2._controlledReadableByteStream;
-        if (!(e2._closeRequested || t3._state !== "readable")) {
-          if (e2._queueTotalSize > 0) {
-            e2._closeRequested = true;
-            return;
-          }
-          if (e2._pendingPullIntos.length > 0) {
-            const r2 = e2._pendingPullIntos.peek();
-            if (r2.bytesFilled % r2.elementSize !== 0) {
-              const s2 = new TypeError("Insufficient bytes to fill elements in the given buffer");
-              throw K(e2, s2), s2;
-            }
-          }
-          Nt(e2), At(t3);
-        }
-      }
-      n$2(wt, "ReadableByteStreamControllerClose");
-      function Ht(e2, t3) {
-        const r2 = e2._controlledReadableByteStream;
-        if (e2._closeRequested || r2._state !== "readable") return;
-        const { buffer: s2, byteOffset: u2, byteLength: c2 } = t3;
-        if (Ae(s2)) throw new TypeError("chunk's buffer is detached and so cannot be enqueued");
-        const d2 = we(s2);
-        if (e2._pendingPullIntos.length > 0) {
-          const m2 = e2._pendingPullIntos.peek();
-          if (Ae(m2.buffer)) throw new TypeError("The BYOB request's buffer has been detached and so cannot be filled with an enqueued chunk");
-          Qr(e2), m2.buffer = we(m2.buffer), m2.readerType === "none" && mo(e2, m2);
-        }
-        if (to(r2)) if (aa(e2), $t(r2) === 0) xt(e2, d2, u2, c2);
-        else {
-          e2._pendingPullIntos.length > 0 && Ye(e2);
-          const m2 = new Uint8Array(d2, u2, c2);
-          Lr(r2, m2, false);
-        }
-        else Kr(r2) ? (xt(e2, d2, u2, c2), Yr(e2)) : xt(e2, d2, u2, c2);
-        Fe(e2);
-      }
-      n$2(Ht, "ReadableByteStreamControllerEnqueue");
-      function K(e2, t3) {
-        const r2 = e2._controlledReadableByteStream;
-        r2._state === "readable" && (ho(e2), Be(e2), Nt(e2), Zo(r2, t3));
-      }
-      n$2(K, "ReadableByteStreamControllerError");
-      function wo(e2, t3) {
-        const r2 = e2._queue.shift();
-        e2._queueTotalSize -= r2.byteLength, _o(e2);
-        const s2 = new Uint8Array(r2.buffer, r2.byteOffset, r2.byteLength);
-        t3._chunkSteps(s2);
-      }
-      n$2(wo, "ReadableByteStreamControllerFillReadRequestFromQueue");
-      function Gr(e2) {
-        if (e2._byobRequest === null && e2._pendingPullIntos.length > 0) {
-          const t3 = e2._pendingPullIntos.peek(), r2 = new Uint8Array(t3.buffer, t3.byteOffset + t3.bytesFilled, t3.byteLength - t3.bytesFilled), s2 = Object.create(Re.prototype);
-          da(s2, e2, r2), e2._byobRequest = s2;
-        }
-        return e2._byobRequest;
-      }
-      n$2(Gr, "ReadableByteStreamControllerGetBYOBRequest");
-      function Ro(e2) {
-        const t3 = e2._controlledReadableByteStream._state;
-        return t3 === "errored" ? null : t3 === "closed" ? 0 : e2._strategyHWM - e2._queueTotalSize;
-      }
-      n$2(Ro, "ReadableByteStreamControllerGetDesiredSize");
-      function Vt(e2, t3) {
-        const r2 = e2._pendingPullIntos.peek();
-        if (e2._controlledReadableByteStream._state === "closed") {
-          if (t3 !== 0) throw new TypeError("bytesWritten must be 0 when calling respond() on a closed stream");
-        } else {
-          if (t3 === 0) throw new TypeError("bytesWritten must be greater than 0 when calling respond() on a readable stream");
-          if (r2.bytesFilled + t3 > r2.byteLength) throw new RangeError("bytesWritten out of range");
-        }
-        r2.buffer = we(r2.buffer), So(e2, t3);
-      }
-      n$2(Vt, "ReadableByteStreamControllerRespond");
-      function Qt(e2, t3) {
-        const r2 = e2._pendingPullIntos.peek();
-        if (e2._controlledReadableByteStream._state === "closed") {
-          if (t3.byteLength !== 0) throw new TypeError("The view's length must be 0 when calling respondWithNewView() on a closed stream");
-        } else if (t3.byteLength === 0) throw new TypeError("The view's length must be greater than 0 when calling respondWithNewView() on a readable stream");
-        if (r2.byteOffset + r2.bytesFilled !== t3.byteOffset) throw new RangeError("The region specified by view does not match byobRequest");
-        if (r2.bufferByteLength !== t3.buffer.byteLength) throw new RangeError("The buffer of view has different capacity than byobRequest");
-        if (r2.bytesFilled + t3.byteLength > r2.byteLength) throw new RangeError("The region specified by view is larger than byobRequest");
-        const u2 = t3.byteLength;
-        r2.buffer = we(t3.buffer), So(e2, u2);
-      }
-      n$2(Qt, "ReadableByteStreamControllerRespondWithNewView");
-      function To(e2, t3, r2, s2, u2, c2, d2) {
-        t3._controlledReadableByteStream = e2, t3._pullAgain = false, t3._pulling = false, t3._byobRequest = null, t3._queue = t3._queueTotalSize = void 0, Be(t3), t3._closeRequested = false, t3._started = false, t3._strategyHWM = c2, t3._pullAlgorithm = s2, t3._cancelAlgorithm = u2, t3._autoAllocateChunkSize = d2, t3._pendingPullIntos = new D2(), e2._readableStreamController = t3;
-        const m2 = r2();
-        g2(T2(m2), () => (t3._started = true, Fe(t3), null), (R2) => (K(t3, R2), null));
-      }
-      n$2(To, "SetUpReadableByteStreamController");
-      function ca(e2, t3, r2) {
-        const s2 = Object.create(te.prototype);
-        let u2, c2, d2;
-        t3.start !== void 0 ? u2 = n$2(() => t3.start(s2), "startAlgorithm") : u2 = n$2(() => {
-        }, "startAlgorithm"), t3.pull !== void 0 ? c2 = n$2(() => t3.pull(s2), "pullAlgorithm") : c2 = n$2(() => T2(void 0), "pullAlgorithm"), t3.cancel !== void 0 ? d2 = n$2((R2) => t3.cancel(R2), "cancelAlgorithm") : d2 = n$2(() => T2(void 0), "cancelAlgorithm");
-        const m2 = t3.autoAllocateChunkSize;
-        if (m2 === 0) throw new TypeError("autoAllocateChunkSize must be greater than 0");
-        To(e2, s2, u2, c2, d2, r2, m2);
-      }
-      n$2(ca, "SetUpReadableByteStreamControllerFromUnderlyingSource");
-      function da(e2, t3, r2) {
-        e2._associatedReadableByteStreamController = t3, e2._view = r2;
-      }
-      n$2(da, "SetUpReadableStreamBYOBRequest");
-      function Zr(e2) {
-        return new TypeError(`ReadableStreamBYOBRequest.prototype.${e2} can only be used on a ReadableStreamBYOBRequest`);
-      }
-      n$2(Zr, "byobRequestBrandCheckException");
-      function Rt(e2) {
-        return new TypeError(`ReadableByteStreamController.prototype.${e2} can only be used on a ReadableByteStreamController`);
-      }
-      n$2(Rt, "byteStreamControllerBrandCheckException");
-      function ha(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.mode;
-        return { mode: r2 === void 0 ? void 0 : pa(r2, `${t3} has member 'mode' that`) };
-      }
-      n$2(ha, "convertReaderOptions");
-      function pa(e2, t3) {
-        if (e2 = `${e2}`, e2 !== "byob") throw new TypeError(`${t3} '${e2}' is not a valid enumeration value for ReadableStreamReaderMode`);
-        return e2;
-      }
-      n$2(pa, "convertReadableStreamReaderMode");
-      function ba(e2, t3) {
-        var r2;
-        ue(e2, t3);
-        const s2 = (r2 = e2?.min) !== null && r2 !== void 0 ? r2 : 1;
-        return { min: Fr(s2, `${t3} has member 'min' that`) };
-      }
-      n$2(ba, "convertByobReadOptions");
-      function Co(e2) {
-        return new ce(e2);
-      }
-      n$2(Co, "AcquireReadableStreamBYOBReader");
-      function Po(e2, t3) {
-        e2._reader._readIntoRequests.push(t3);
-      }
-      n$2(Po, "ReadableStreamAddReadIntoRequest");
-      function ma(e2, t3, r2) {
-        const u2 = e2._reader._readIntoRequests.shift();
-        r2 ? u2._closeSteps(t3) : u2._chunkSteps(t3);
-      }
-      n$2(ma, "ReadableStreamFulfillReadIntoRequest");
-      function vo(e2) {
-        return e2._reader._readIntoRequests.length;
-      }
-      n$2(vo, "ReadableStreamGetNumReadIntoRequests");
-      function Kr(e2) {
-        const t3 = e2._reader;
-        return !(t3 === void 0 || !je(t3));
-      }
-      n$2(Kr, "ReadableStreamHasBYOBReader");
-      const Sn = class Sn {
-        constructor(t3) {
-          if (Se(t3, 1, "ReadableStreamBYOBReader"), jr(t3, "First parameter"), qe(t3)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-          if (!Ie(t3._readableStreamController)) throw new TypeError("Cannot construct a ReadableStreamBYOBReader for a stream not constructed with a byte source");
-          Yn(this, t3), this._readIntoRequests = new D2();
-        }
-        get closed() {
-          return je(this) ? this._closedPromise : b2(Yt("closed"));
-        }
-        cancel(t3 = void 0) {
-          return je(this) ? this._ownerReadableStream === void 0 ? b2(Lt("cancel")) : Wr(this, t3) : b2(Yt("cancel"));
-        }
-        read(t3, r2 = {}) {
-          if (!je(this)) return b2(Yt("read"));
-          if (!ArrayBuffer.isView(t3)) return b2(new TypeError("view must be an array buffer view"));
-          if (t3.byteLength === 0) return b2(new TypeError("view must have non-zero byteLength"));
-          if (t3.buffer.byteLength === 0) return b2(new TypeError("view's buffer must have non-zero byteLength"));
-          if (Ae(t3.buffer)) return b2(new TypeError("view's buffer has been detached"));
-          let s2;
-          try {
-            s2 = ba(r2, "options");
-          } catch (y2) {
-            return b2(y2);
-          }
-          const u2 = s2.min;
-          if (u2 === 0) return b2(new TypeError("options.min must be greater than 0"));
-          if (oa(t3)) {
-            if (u2 > t3.byteLength) return b2(new RangeError("options.min must be less than or equal to view's byteLength"));
-          } else if (u2 > t3.length) return b2(new RangeError("options.min must be less than or equal to view's length"));
-          if (this._ownerReadableStream === void 0) return b2(Lt("read from"));
-          let c2, d2;
-          const m2 = A2((y2, C2) => {
-            c2 = y2, d2 = C2;
-          });
-          return Eo(this, t3, u2, { _chunkSteps: n$2((y2) => c2({ value: y2, done: false }), "_chunkSteps"), _closeSteps: n$2((y2) => c2({ value: y2, done: true }), "_closeSteps"), _errorSteps: n$2((y2) => d2(y2), "_errorSteps") }), m2;
-        }
-        releaseLock() {
-          if (!je(this)) throw Yt("releaseLock");
-          this._ownerReadableStream !== void 0 && ya(this);
-        }
-      };
-      n$2(Sn, "ReadableStreamBYOBReader");
-      let ce = Sn;
-      Object.defineProperties(ce.prototype, { cancel: { enumerable: true }, read: { enumerable: true }, releaseLock: { enumerable: true }, closed: { enumerable: true } }), h2(ce.prototype.cancel, "cancel"), h2(ce.prototype.read, "read"), h2(ce.prototype.releaseLock, "releaseLock"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(ce.prototype, Symbol.toStringTag, { value: "ReadableStreamBYOBReader", configurable: true });
-      function je(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_readIntoRequests") ? false : e2 instanceof ce;
-      }
-      n$2(je, "IsReadableStreamBYOBReader");
-      function Eo(e2, t3, r2, s2) {
-        const u2 = e2._ownerReadableStream;
-        u2._disturbed = true, u2._state === "errored" ? s2._errorSteps(u2._storedError) : sa(u2._readableStreamController, t3, r2, s2);
-      }
-      n$2(Eo, "ReadableStreamBYOBReaderRead");
-      function ya(e2) {
-        _e(e2);
-        const t3 = new TypeError("Reader was released");
-        Ao(e2, t3);
-      }
-      n$2(ya, "ReadableStreamBYOBReaderRelease");
-      function Ao(e2, t3) {
-        const r2 = e2._readIntoRequests;
-        e2._readIntoRequests = new D2(), r2.forEach((s2) => {
-          s2._errorSteps(t3);
-        });
-      }
-      n$2(Ao, "ReadableStreamBYOBReaderErrorReadIntoRequests");
-      function Yt(e2) {
-        return new TypeError(`ReadableStreamBYOBReader.prototype.${e2} can only be used on a ReadableStreamBYOBReader`);
-      }
-      n$2(Yt, "byobReaderBrandCheckException");
-      function Tt(e2, t3) {
-        const { highWaterMark: r2 } = e2;
-        if (r2 === void 0) return t3;
-        if (ao(r2) || r2 < 0) throw new RangeError("Invalid highWaterMark");
-        return r2;
-      }
-      n$2(Tt, "ExtractHighWaterMark");
-      function Gt(e2) {
-        const { size: t3 } = e2;
-        return t3 || (() => 1);
-      }
-      n$2(Gt, "ExtractSizeAlgorithm");
-      function Zt(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.highWaterMark, s2 = e2?.size;
-        return { highWaterMark: r2 === void 0 ? void 0 : Ir(r2), size: s2 === void 0 ? void 0 : ga(s2, `${t3} has member 'size' that`) };
-      }
-      n$2(Zt, "convertQueuingStrategy");
-      function ga(e2, t3) {
-        return Z(e2, t3), (r2) => Ir(e2(r2));
-      }
-      n$2(ga, "convertQueuingStrategySize");
-      function _a(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.abort, s2 = e2?.close, u2 = e2?.start, c2 = e2?.type, d2 = e2?.write;
-        return { abort: r2 === void 0 ? void 0 : Sa(r2, e2, `${t3} has member 'abort' that`), close: s2 === void 0 ? void 0 : wa(s2, e2, `${t3} has member 'close' that`), start: u2 === void 0 ? void 0 : Ra(u2, e2, `${t3} has member 'start' that`), write: d2 === void 0 ? void 0 : Ta(d2, e2, `${t3} has member 'write' that`), type: c2 };
-      }
-      n$2(_a, "convertUnderlyingSink");
-      function Sa(e2, t3, r2) {
-        return Z(e2, r2), (s2) => j2(e2, t3, [s2]);
-      }
-      n$2(Sa, "convertUnderlyingSinkAbortCallback");
-      function wa(e2, t3, r2) {
-        return Z(e2, r2), () => j2(e2, t3, []);
-      }
-      n$2(wa, "convertUnderlyingSinkCloseCallback");
-      function Ra(e2, t3, r2) {
-        return Z(e2, r2), (s2) => z(e2, t3, [s2]);
-      }
-      n$2(Ra, "convertUnderlyingSinkStartCallback");
-      function Ta(e2, t3, r2) {
-        return Z(e2, r2), (s2, u2) => j2(e2, t3, [s2, u2]);
-      }
-      n$2(Ta, "convertUnderlyingSinkWriteCallback");
-      function Bo(e2, t3) {
-        if (!Ge(e2)) throw new TypeError(`${t3} is not a WritableStream.`);
-      }
-      n$2(Bo, "assertWritableStream");
-      function Ca(e2) {
-        if (typeof e2 != "object" || e2 === null) return false;
-        try {
-          return typeof e2.aborted == "boolean";
-        } catch {
-          return false;
-        }
-      }
-      n$2(Ca, "isAbortSignal");
-      const Pa = typeof AbortController == "function";
-      function va() {
-        if (Pa) return new AbortController();
-      }
-      n$2(va, "createAbortController");
-      const wn = class wn {
-        constructor(t3 = {}, r2 = {}) {
-          t3 === void 0 ? t3 = null : Jn(t3, "First parameter");
-          const s2 = Zt(r2, "Second parameter"), u2 = _a(t3, "First parameter");
-          if (Wo(this), u2.type !== void 0) throw new RangeError("Invalid type is specified");
-          const d2 = Gt(s2), m2 = Tt(s2, 1);
-          Da(this, u2, m2, d2);
-        }
-        get locked() {
-          if (!Ge(this)) throw tr("locked");
-          return Ze(this);
-        }
-        abort(t3 = void 0) {
-          return Ge(this) ? Ze(this) ? b2(new TypeError("Cannot abort a stream that already has a writer")) : Kt(this, t3) : b2(tr("abort"));
-        }
-        close() {
-          return Ge(this) ? Ze(this) ? b2(new TypeError("Cannot close a stream that already has a writer")) : he(this) ? b2(new TypeError("Cannot close an already-closing stream")) : qo(this) : b2(tr("close"));
-        }
-        getWriter() {
-          if (!Ge(this)) throw tr("getWriter");
-          return ko(this);
-        }
-      };
-      n$2(wn, "WritableStream");
-      let de = wn;
-      Object.defineProperties(de.prototype, { abort: { enumerable: true }, close: { enumerable: true }, getWriter: { enumerable: true }, locked: { enumerable: true } }), h2(de.prototype.abort, "abort"), h2(de.prototype.close, "close"), h2(de.prototype.getWriter, "getWriter"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(de.prototype, Symbol.toStringTag, { value: "WritableStream", configurable: true });
-      function ko(e2) {
-        return new re(e2);
-      }
-      n$2(ko, "AcquireWritableStreamDefaultWriter");
-      function Ea(e2, t3, r2, s2, u2 = 1, c2 = () => 1) {
-        const d2 = Object.create(de.prototype);
-        Wo(d2);
-        const m2 = Object.create(ke.prototype);
-        return Lo(d2, m2, e2, t3, r2, s2, u2, c2), d2;
-      }
-      n$2(Ea, "CreateWritableStream");
-      function Wo(e2) {
-        e2._state = "writable", e2._storedError = void 0, e2._writer = void 0, e2._writableStreamController = void 0, e2._writeRequests = new D2(), e2._inFlightWriteRequest = void 0, e2._closeRequest = void 0, e2._inFlightCloseRequest = void 0, e2._pendingAbortRequest = void 0, e2._backpressure = false;
-      }
-      n$2(Wo, "InitializeWritableStream");
-      function Ge(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_writableStreamController") ? false : e2 instanceof de;
-      }
-      n$2(Ge, "IsWritableStream");
-      function Ze(e2) {
-        return e2._writer !== void 0;
-      }
-      n$2(Ze, "IsWritableStreamLocked");
-      function Kt(e2, t3) {
-        var r2;
-        if (e2._state === "closed" || e2._state === "errored") return T2(void 0);
-        e2._writableStreamController._abortReason = t3, (r2 = e2._writableStreamController._abortController) === null || r2 === void 0 || r2.abort(t3);
-        const s2 = e2._state;
-        if (s2 === "closed" || s2 === "errored") return T2(void 0);
-        if (e2._pendingAbortRequest !== void 0) return e2._pendingAbortRequest._promise;
-        let u2 = false;
-        s2 === "erroring" && (u2 = true, t3 = void 0);
-        const c2 = A2((d2, m2) => {
-          e2._pendingAbortRequest = { _promise: void 0, _resolve: d2, _reject: m2, _reason: t3, _wasAlreadyErroring: u2 };
-        });
-        return e2._pendingAbortRequest._promise = c2, u2 || Xr(e2, t3), c2;
-      }
-      n$2(Kt, "WritableStreamAbort");
-      function qo(e2) {
-        const t3 = e2._state;
-        if (t3 === "closed" || t3 === "errored") return b2(new TypeError(`The stream (in ${t3} state) is not in the writable state and cannot be closed`));
-        const r2 = A2((u2, c2) => {
-          const d2 = { _resolve: u2, _reject: c2 };
-          e2._closeRequest = d2;
-        }), s2 = e2._writer;
-        return s2 !== void 0 && e2._backpressure && t3 === "writable" && ln(s2), Ma(e2._writableStreamController), r2;
-      }
-      n$2(qo, "WritableStreamClose");
-      function Aa(e2) {
-        return A2((r2, s2) => {
-          const u2 = { _resolve: r2, _reject: s2 };
-          e2._writeRequests.push(u2);
-        });
-      }
-      n$2(Aa, "WritableStreamAddWriteRequest");
-      function Jr(e2, t3) {
-        if (e2._state === "writable") {
-          Xr(e2, t3);
-          return;
-        }
-        en(e2);
-      }
-      n$2(Jr, "WritableStreamDealWithRejection");
-      function Xr(e2, t3) {
-        const r2 = e2._writableStreamController;
-        e2._state = "erroring", e2._storedError = t3;
-        const s2 = e2._writer;
-        s2 !== void 0 && zo(s2, t3), !Oa(e2) && r2._started && en(e2);
-      }
-      n$2(Xr, "WritableStreamStartErroring");
-      function en(e2) {
-        e2._state = "errored", e2._writableStreamController[Qn]();
-        const t3 = e2._storedError;
-        if (e2._writeRequests.forEach((u2) => {
-          u2._reject(t3);
-        }), e2._writeRequests = new D2(), e2._pendingAbortRequest === void 0) {
-          Jt(e2);
-          return;
-        }
-        const r2 = e2._pendingAbortRequest;
-        if (e2._pendingAbortRequest = void 0, r2._wasAlreadyErroring) {
-          r2._reject(t3), Jt(e2);
-          return;
-        }
-        const s2 = e2._writableStreamController[jt](r2._reason);
-        g2(s2, () => (r2._resolve(), Jt(e2), null), (u2) => (r2._reject(u2), Jt(e2), null));
-      }
-      n$2(en, "WritableStreamFinishErroring");
-      function Ba(e2) {
-        e2._inFlightWriteRequest._resolve(void 0), e2._inFlightWriteRequest = void 0;
-      }
-      n$2(Ba, "WritableStreamFinishInFlightWrite");
-      function ka(e2, t3) {
-        e2._inFlightWriteRequest._reject(t3), e2._inFlightWriteRequest = void 0, Jr(e2, t3);
-      }
-      n$2(ka, "WritableStreamFinishInFlightWriteWithError");
-      function Wa(e2) {
-        e2._inFlightCloseRequest._resolve(void 0), e2._inFlightCloseRequest = void 0, e2._state === "erroring" && (e2._storedError = void 0, e2._pendingAbortRequest !== void 0 && (e2._pendingAbortRequest._resolve(), e2._pendingAbortRequest = void 0)), e2._state = "closed";
-        const r2 = e2._writer;
-        r2 !== void 0 && Uo(r2);
-      }
-      n$2(Wa, "WritableStreamFinishInFlightClose");
-      function qa(e2, t3) {
-        e2._inFlightCloseRequest._reject(t3), e2._inFlightCloseRequest = void 0, e2._pendingAbortRequest !== void 0 && (e2._pendingAbortRequest._reject(t3), e2._pendingAbortRequest = void 0), Jr(e2, t3);
-      }
-      n$2(qa, "WritableStreamFinishInFlightCloseWithError");
-      function he(e2) {
-        return !(e2._closeRequest === void 0 && e2._inFlightCloseRequest === void 0);
-      }
-      n$2(he, "WritableStreamCloseQueuedOrInFlight");
-      function Oa(e2) {
-        return !(e2._inFlightWriteRequest === void 0 && e2._inFlightCloseRequest === void 0);
-      }
-      n$2(Oa, "WritableStreamHasOperationMarkedInFlight");
-      function za(e2) {
-        e2._inFlightCloseRequest = e2._closeRequest, e2._closeRequest = void 0;
-      }
-      n$2(za, "WritableStreamMarkCloseRequestInFlight");
-      function Ia(e2) {
-        e2._inFlightWriteRequest = e2._writeRequests.shift();
-      }
-      n$2(Ia, "WritableStreamMarkFirstWriteRequestInFlight");
-      function Jt(e2) {
-        e2._closeRequest !== void 0 && (e2._closeRequest._reject(e2._storedError), e2._closeRequest = void 0);
-        const t3 = e2._writer;
-        t3 !== void 0 && an(t3, e2._storedError);
-      }
-      n$2(Jt, "WritableStreamRejectCloseAndClosedPromiseIfNeeded");
-      function tn(e2, t3) {
-        const r2 = e2._writer;
-        r2 !== void 0 && t3 !== e2._backpressure && (t3 ? Ya(r2) : ln(r2)), e2._backpressure = t3;
-      }
-      n$2(tn, "WritableStreamUpdateBackpressure");
-      const Rn = class Rn {
-        constructor(t3) {
-          if (Se(t3, 1, "WritableStreamDefaultWriter"), Bo(t3, "First parameter"), Ze(t3)) throw new TypeError("This stream has already been locked for exclusive writing by another writer");
-          this._ownerWritableStream = t3, t3._writer = this;
-          const r2 = t3._state;
-          if (r2 === "writable") !he(t3) && t3._backpressure ? nr(this) : xo(this), rr(this);
-          else if (r2 === "erroring") sn(this, t3._storedError), rr(this);
-          else if (r2 === "closed") xo(this), Va(this);
-          else {
-            const s2 = t3._storedError;
-            sn(this, s2), Mo(this, s2);
-          }
-        }
-        get closed() {
-          return Le(this) ? this._closedPromise : b2($e("closed"));
-        }
-        get desiredSize() {
-          if (!Le(this)) throw $e("desiredSize");
-          if (this._ownerWritableStream === void 0) throw Pt("desiredSize");
-          return $a(this);
-        }
-        get ready() {
-          return Le(this) ? this._readyPromise : b2($e("ready"));
-        }
-        abort(t3 = void 0) {
-          return Le(this) ? this._ownerWritableStream === void 0 ? b2(Pt("abort")) : Fa(this, t3) : b2($e("abort"));
-        }
-        close() {
-          if (!Le(this)) return b2($e("close"));
-          const t3 = this._ownerWritableStream;
-          return t3 === void 0 ? b2(Pt("close")) : he(t3) ? b2(new TypeError("Cannot close an already-closing stream")) : Oo(this);
-        }
-        releaseLock() {
-          if (!Le(this)) throw $e("releaseLock");
-          this._ownerWritableStream !== void 0 && Io(this);
-        }
-        write(t3 = void 0) {
-          return Le(this) ? this._ownerWritableStream === void 0 ? b2(Pt("write to")) : Fo(this, t3) : b2($e("write"));
-        }
-      };
-      n$2(Rn, "WritableStreamDefaultWriter");
-      let re = Rn;
-      Object.defineProperties(re.prototype, { abort: { enumerable: true }, close: { enumerable: true }, releaseLock: { enumerable: true }, write: { enumerable: true }, closed: { enumerable: true }, desiredSize: { enumerable: true }, ready: { enumerable: true } }), h2(re.prototype.abort, "abort"), h2(re.prototype.close, "close"), h2(re.prototype.releaseLock, "releaseLock"), h2(re.prototype.write, "write"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(re.prototype, Symbol.toStringTag, { value: "WritableStreamDefaultWriter", configurable: true });
-      function Le(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_ownerWritableStream") ? false : e2 instanceof re;
-      }
-      n$2(Le, "IsWritableStreamDefaultWriter");
-      function Fa(e2, t3) {
-        const r2 = e2._ownerWritableStream;
-        return Kt(r2, t3);
-      }
-      n$2(Fa, "WritableStreamDefaultWriterAbort");
-      function Oo(e2) {
-        const t3 = e2._ownerWritableStream;
-        return qo(t3);
-      }
-      n$2(Oo, "WritableStreamDefaultWriterClose");
-      function ja(e2) {
-        const t3 = e2._ownerWritableStream, r2 = t3._state;
-        return he(t3) || r2 === "closed" ? T2(void 0) : r2 === "errored" ? b2(t3._storedError) : Oo(e2);
-      }
-      n$2(ja, "WritableStreamDefaultWriterCloseWithErrorPropagation");
-      function La(e2, t3) {
-        e2._closedPromiseState === "pending" ? an(e2, t3) : Qa(e2, t3);
-      }
-      n$2(La, "WritableStreamDefaultWriterEnsureClosedPromiseRejected");
-      function zo(e2, t3) {
-        e2._readyPromiseState === "pending" ? No(e2, t3) : Ga(e2, t3);
-      }
-      n$2(zo, "WritableStreamDefaultWriterEnsureReadyPromiseRejected");
-      function $a(e2) {
-        const t3 = e2._ownerWritableStream, r2 = t3._state;
-        return r2 === "errored" || r2 === "erroring" ? null : r2 === "closed" ? 0 : $o(t3._writableStreamController);
-      }
-      n$2($a, "WritableStreamDefaultWriterGetDesiredSize");
-      function Io(e2) {
-        const t3 = e2._ownerWritableStream, r2 = new TypeError("Writer was released and can no longer be used to monitor the stream's closedness");
-        zo(e2, r2), La(e2, r2), t3._writer = void 0, e2._ownerWritableStream = void 0;
-      }
-      n$2(Io, "WritableStreamDefaultWriterRelease");
-      function Fo(e2, t3) {
-        const r2 = e2._ownerWritableStream, s2 = r2._writableStreamController, u2 = Ua(s2, t3);
-        if (r2 !== e2._ownerWritableStream) return b2(Pt("write to"));
-        const c2 = r2._state;
-        if (c2 === "errored") return b2(r2._storedError);
-        if (he(r2) || c2 === "closed") return b2(new TypeError("The stream is closing or closed and cannot be written to"));
-        if (c2 === "erroring") return b2(r2._storedError);
-        const d2 = Aa(r2);
-        return xa(s2, t3, u2), d2;
-      }
-      n$2(Fo, "WritableStreamDefaultWriterWrite");
-      const jo = {}, Tn = class Tn {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get abortReason() {
-          if (!rn(this)) throw on("abortReason");
-          return this._abortReason;
-        }
-        get signal() {
-          if (!rn(this)) throw on("signal");
-          if (this._abortController === void 0) throw new TypeError("WritableStreamDefaultController.prototype.signal is not supported");
-          return this._abortController.signal;
-        }
-        error(t3 = void 0) {
-          if (!rn(this)) throw on("error");
-          this._controlledWritableStream._state === "writable" && Do(this, t3);
-        }
-        [jt](t3) {
-          const r2 = this._abortAlgorithm(t3);
-          return Xt(this), r2;
-        }
-        [Qn]() {
-          Be(this);
-        }
-      };
-      n$2(Tn, "WritableStreamDefaultController");
-      let ke = Tn;
-      Object.defineProperties(ke.prototype, { abortReason: { enumerable: true }, signal: { enumerable: true }, error: { enumerable: true } }), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(ke.prototype, Symbol.toStringTag, { value: "WritableStreamDefaultController", configurable: true });
-      function rn(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_controlledWritableStream") ? false : e2 instanceof ke;
-      }
-      n$2(rn, "IsWritableStreamDefaultController");
-      function Lo(e2, t3, r2, s2, u2, c2, d2, m2) {
-        t3._controlledWritableStream = e2, e2._writableStreamController = t3, t3._queue = void 0, t3._queueTotalSize = void 0, Be(t3), t3._abortReason = void 0, t3._abortController = va(), t3._started = false, t3._strategySizeAlgorithm = m2, t3._strategyHWM = d2, t3._writeAlgorithm = s2, t3._closeAlgorithm = u2, t3._abortAlgorithm = c2;
-        const R2 = nn(t3);
-        tn(e2, R2);
-        const y2 = r2(), C2 = T2(y2);
-        g2(C2, () => (t3._started = true, er(t3), null), (P2) => (t3._started = true, Jr(e2, P2), null));
-      }
-      n$2(Lo, "SetUpWritableStreamDefaultController");
-      function Da(e2, t3, r2, s2) {
-        const u2 = Object.create(ke.prototype);
-        let c2, d2, m2, R2;
-        t3.start !== void 0 ? c2 = n$2(() => t3.start(u2), "startAlgorithm") : c2 = n$2(() => {
-        }, "startAlgorithm"), t3.write !== void 0 ? d2 = n$2((y2) => t3.write(y2, u2), "writeAlgorithm") : d2 = n$2(() => T2(void 0), "writeAlgorithm"), t3.close !== void 0 ? m2 = n$2(() => t3.close(), "closeAlgorithm") : m2 = n$2(() => T2(void 0), "closeAlgorithm"), t3.abort !== void 0 ? R2 = n$2((y2) => t3.abort(y2), "abortAlgorithm") : R2 = n$2(() => T2(void 0), "abortAlgorithm"), Lo(e2, u2, c2, d2, m2, R2, r2, s2);
-      }
-      n$2(Da, "SetUpWritableStreamDefaultControllerFromUnderlyingSink");
-      function Xt(e2) {
-        e2._writeAlgorithm = void 0, e2._closeAlgorithm = void 0, e2._abortAlgorithm = void 0, e2._strategySizeAlgorithm = void 0;
-      }
-      n$2(Xt, "WritableStreamDefaultControllerClearAlgorithms");
-      function Ma(e2) {
-        Nr(e2, jo, 0), er(e2);
-      }
-      n$2(Ma, "WritableStreamDefaultControllerClose");
-      function Ua(e2, t3) {
-        try {
-          return e2._strategySizeAlgorithm(t3);
-        } catch (r2) {
-          return Ct(e2, r2), 1;
-        }
-      }
-      n$2(Ua, "WritableStreamDefaultControllerGetChunkSize");
-      function $o(e2) {
-        return e2._strategyHWM - e2._queueTotalSize;
-      }
-      n$2($o, "WritableStreamDefaultControllerGetDesiredSize");
-      function xa(e2, t3, r2) {
-        try {
-          Nr(e2, t3, r2);
-        } catch (u2) {
-          Ct(e2, u2);
-          return;
-        }
-        const s2 = e2._controlledWritableStream;
-        if (!he(s2) && s2._state === "writable") {
-          const u2 = nn(e2);
-          tn(s2, u2);
-        }
-        er(e2);
-      }
-      n$2(xa, "WritableStreamDefaultControllerWrite");
-      function er(e2) {
-        const t3 = e2._controlledWritableStream;
-        if (!e2._started || t3._inFlightWriteRequest !== void 0) return;
-        if (t3._state === "erroring") {
-          en(t3);
-          return;
-        }
-        if (e2._queue.length === 0) return;
-        const s2 = na(e2);
-        s2 === jo ? Na(e2) : Ha(e2, s2);
-      }
-      n$2(er, "WritableStreamDefaultControllerAdvanceQueueIfNeeded");
-      function Ct(e2, t3) {
-        e2._controlledWritableStream._state === "writable" && Do(e2, t3);
-      }
-      n$2(Ct, "WritableStreamDefaultControllerErrorIfNeeded");
-      function Na(e2) {
-        const t3 = e2._controlledWritableStream;
-        za(t3), xr(e2);
-        const r2 = e2._closeAlgorithm();
-        Xt(e2), g2(r2, () => (Wa(t3), null), (s2) => (qa(t3, s2), null));
-      }
-      n$2(Na, "WritableStreamDefaultControllerProcessClose");
-      function Ha(e2, t3) {
-        const r2 = e2._controlledWritableStream;
-        Ia(r2);
-        const s2 = e2._writeAlgorithm(t3);
-        g2(s2, () => {
-          Ba(r2);
-          const u2 = r2._state;
-          if (xr(e2), !he(r2) && u2 === "writable") {
-            const c2 = nn(e2);
-            tn(r2, c2);
-          }
-          return er(e2), null;
-        }, (u2) => (r2._state === "writable" && Xt(e2), ka(r2, u2), null));
-      }
-      n$2(Ha, "WritableStreamDefaultControllerProcessWrite");
-      function nn(e2) {
-        return $o(e2) <= 0;
-      }
-      n$2(nn, "WritableStreamDefaultControllerGetBackpressure");
-      function Do(e2, t3) {
-        const r2 = e2._controlledWritableStream;
-        Xt(e2), Xr(r2, t3);
-      }
-      n$2(Do, "WritableStreamDefaultControllerError");
-      function tr(e2) {
-        return new TypeError(`WritableStream.prototype.${e2} can only be used on a WritableStream`);
-      }
-      n$2(tr, "streamBrandCheckException$2");
-      function on(e2) {
-        return new TypeError(`WritableStreamDefaultController.prototype.${e2} can only be used on a WritableStreamDefaultController`);
-      }
-      n$2(on, "defaultControllerBrandCheckException$2");
-      function $e(e2) {
-        return new TypeError(`WritableStreamDefaultWriter.prototype.${e2} can only be used on a WritableStreamDefaultWriter`);
-      }
-      n$2($e, "defaultWriterBrandCheckException");
-      function Pt(e2) {
-        return new TypeError("Cannot " + e2 + " a stream using a released writer");
-      }
-      n$2(Pt, "defaultWriterLockException");
-      function rr(e2) {
-        e2._closedPromise = A2((t3, r2) => {
-          e2._closedPromise_resolve = t3, e2._closedPromise_reject = r2, e2._closedPromiseState = "pending";
-        });
-      }
-      n$2(rr, "defaultWriterClosedPromiseInitialize");
-      function Mo(e2, t3) {
-        rr(e2), an(e2, t3);
-      }
-      n$2(Mo, "defaultWriterClosedPromiseInitializeAsRejected");
-      function Va(e2) {
-        rr(e2), Uo(e2);
-      }
-      n$2(Va, "defaultWriterClosedPromiseInitializeAsResolved");
-      function an(e2, t3) {
-        e2._closedPromise_reject !== void 0 && (Q(e2._closedPromise), e2._closedPromise_reject(t3), e2._closedPromise_resolve = void 0, e2._closedPromise_reject = void 0, e2._closedPromiseState = "rejected");
-      }
-      n$2(an, "defaultWriterClosedPromiseReject");
-      function Qa(e2, t3) {
-        Mo(e2, t3);
-      }
-      n$2(Qa, "defaultWriterClosedPromiseResetToRejected");
-      function Uo(e2) {
-        e2._closedPromise_resolve !== void 0 && (e2._closedPromise_resolve(void 0), e2._closedPromise_resolve = void 0, e2._closedPromise_reject = void 0, e2._closedPromiseState = "resolved");
-      }
-      n$2(Uo, "defaultWriterClosedPromiseResolve");
-      function nr(e2) {
-        e2._readyPromise = A2((t3, r2) => {
-          e2._readyPromise_resolve = t3, e2._readyPromise_reject = r2;
-        }), e2._readyPromiseState = "pending";
-      }
-      n$2(nr, "defaultWriterReadyPromiseInitialize");
-      function sn(e2, t3) {
-        nr(e2), No(e2, t3);
-      }
-      n$2(sn, "defaultWriterReadyPromiseInitializeAsRejected");
-      function xo(e2) {
-        nr(e2), ln(e2);
-      }
-      n$2(xo, "defaultWriterReadyPromiseInitializeAsResolved");
-      function No(e2, t3) {
-        e2._readyPromise_reject !== void 0 && (Q(e2._readyPromise), e2._readyPromise_reject(t3), e2._readyPromise_resolve = void 0, e2._readyPromise_reject = void 0, e2._readyPromiseState = "rejected");
-      }
-      n$2(No, "defaultWriterReadyPromiseReject");
-      function Ya(e2) {
-        nr(e2);
-      }
-      n$2(Ya, "defaultWriterReadyPromiseReset");
-      function Ga(e2, t3) {
-        sn(e2, t3);
-      }
-      n$2(Ga, "defaultWriterReadyPromiseResetToRejected");
-      function ln(e2) {
-        e2._readyPromise_resolve !== void 0 && (e2._readyPromise_resolve(void 0), e2._readyPromise_resolve = void 0, e2._readyPromise_reject = void 0, e2._readyPromiseState = "fulfilled");
-      }
-      n$2(ln, "defaultWriterReadyPromiseResolve");
-      function Za() {
-        if (typeof globalThis < "u") return globalThis;
-        if (typeof self < "u") return self;
-        if (typeof n$3 < "u") return n$3;
-      }
-      n$2(Za, "getGlobals");
-      const un = Za();
-      function Ka(e2) {
-        if (!(typeof e2 == "function" || typeof e2 == "object") || e2.name !== "DOMException") return false;
-        try {
-          return new e2(), true;
-        } catch {
-          return false;
-        }
-      }
-      n$2(Ka, "isDOMExceptionConstructor");
-      function Ja() {
-        const e2 = un?.DOMException;
-        return Ka(e2) ? e2 : void 0;
-      }
-      n$2(Ja, "getFromGlobal");
-      function Xa() {
-        const e2 = n$2(function(r2, s2) {
-          this.message = r2 || "", this.name = s2 || "Error", Error.captureStackTrace && Error.captureStackTrace(this, this.constructor);
-        }, "DOMException");
-        return h2(e2, "DOMException"), e2.prototype = Object.create(Error.prototype), Object.defineProperty(e2.prototype, "constructor", { value: e2, writable: true, configurable: true }), e2;
-      }
-      n$2(Xa, "createPolyfill");
-      const es = Ja() || Xa();
-      function Ho(e2, t3, r2, s2, u2, c2) {
-        const d2 = Qe(e2), m2 = ko(t3);
-        e2._disturbed = true;
-        let R2 = false, y2 = T2(void 0);
-        return A2((C2, P2) => {
-          let B;
-          if (c2 !== void 0) {
-            if (B = n$2(() => {
-              const _2 = c2.reason !== void 0 ? c2.reason : new es("Aborted", "AbortError"), E2 = [];
-              s2 || E2.push(() => t3._state === "writable" ? Kt(t3, _2) : T2(void 0)), u2 || E2.push(() => e2._state === "readable" ? ie(e2, _2) : T2(void 0)), N2(() => Promise.all(E2.map((k2) => k2())), true, _2);
-            }, "abortAlgorithm"), c2.aborted) {
-              B();
-              return;
-            }
-            c2.addEventListener("abort", B);
-          }
-          function ae() {
-            return A2((_2, E2) => {
-              function k2(Y) {
-                Y ? _2() : q(nt(), k2, E2);
-              }
-              n$2(k2, "next"), k2(false);
-            });
-          }
-          n$2(ae, "pipeLoop");
-          function nt() {
-            return R2 ? T2(true) : q(m2._readyPromise, () => A2((_2, E2) => {
-              _t(d2, { _chunkSteps: n$2((k2) => {
-                y2 = q(Fo(m2, k2), void 0, f2), _2(false);
-              }, "_chunkSteps"), _closeSteps: n$2(() => _2(true), "_closeSteps"), _errorSteps: E2 });
-            }));
-          }
-          if (n$2(nt, "pipeStep"), Te(e2, d2._closedPromise, (_2) => (s2 ? J(true, _2) : N2(() => Kt(t3, _2), true, _2), null)), Te(t3, m2._closedPromise, (_2) => (u2 ? J(true, _2) : N2(() => ie(e2, _2), true, _2), null)), x2(e2, d2._closedPromise, () => (r2 ? J() : N2(() => ja(m2)), null)), he(t3) || t3._state === "closed") {
-            const _2 = new TypeError("the destination writable stream closed before all data could be piped to it");
-            u2 ? J(true, _2) : N2(() => ie(e2, _2), true, _2);
-          }
-          Q(ae());
-          function Oe() {
-            const _2 = y2;
-            return q(y2, () => _2 !== y2 ? Oe() : void 0);
-          }
-          n$2(Oe, "waitForWritesToFinish");
-          function Te(_2, E2, k2) {
-            _2._state === "errored" ? k2(_2._storedError) : I2(E2, k2);
-          }
-          n$2(Te, "isOrBecomesErrored");
-          function x2(_2, E2, k2) {
-            _2._state === "closed" ? k2() : V(E2, k2);
-          }
-          n$2(x2, "isOrBecomesClosed");
-          function N2(_2, E2, k2) {
-            if (R2) return;
-            R2 = true, t3._state === "writable" && !he(t3) ? V(Oe(), Y) : Y();
-            function Y() {
-              return g2(_2(), () => Ce(E2, k2), (ot) => Ce(true, ot)), null;
-            }
-            n$2(Y, "doTheRest");
-          }
-          n$2(N2, "shutdownWithAction");
-          function J(_2, E2) {
-            R2 || (R2 = true, t3._state === "writable" && !he(t3) ? V(Oe(), () => Ce(_2, E2)) : Ce(_2, E2));
-          }
-          n$2(J, "shutdown");
-          function Ce(_2, E2) {
-            return Io(m2), _e(d2), c2 !== void 0 && c2.removeEventListener("abort", B), _2 ? P2(E2) : C2(void 0), null;
-          }
-          n$2(Ce, "finalize");
-        });
-      }
-      n$2(Ho, "ReadableStreamPipeTo");
-      const Cn = class Cn {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get desiredSize() {
-          if (!or(this)) throw ar("desiredSize");
-          return fn(this);
-        }
-        close() {
-          if (!or(this)) throw ar("close");
-          if (!Je(this)) throw new TypeError("The stream is not in a state that permits close");
-          De(this);
-        }
-        enqueue(t3 = void 0) {
-          if (!or(this)) throw ar("enqueue");
-          if (!Je(this)) throw new TypeError("The stream is not in a state that permits enqueue");
-          return Ke(this, t3);
-        }
-        error(t3 = void 0) {
-          if (!or(this)) throw ar("error");
-          oe(this, t3);
-        }
-        [Ar](t3) {
-          Be(this);
-          const r2 = this._cancelAlgorithm(t3);
-          return ir(this), r2;
-        }
-        [Br](t3) {
-          const r2 = this._controlledReadableStream;
-          if (this._queue.length > 0) {
-            const s2 = xr(this);
-            this._closeRequested && this._queue.length === 0 ? (ir(this), At(r2)) : vt(this), t3._chunkSteps(s2);
-          } else eo(r2, t3), vt(this);
-        }
-        [kr]() {
-        }
-      };
-      n$2(Cn, "ReadableStreamDefaultController");
-      let ne = Cn;
-      Object.defineProperties(ne.prototype, { close: { enumerable: true }, enqueue: { enumerable: true }, error: { enumerable: true }, desiredSize: { enumerable: true } }), h2(ne.prototype.close, "close"), h2(ne.prototype.enqueue, "enqueue"), h2(ne.prototype.error, "error"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(ne.prototype, Symbol.toStringTag, { value: "ReadableStreamDefaultController", configurable: true });
-      function or(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_controlledReadableStream") ? false : e2 instanceof ne;
-      }
-      n$2(or, "IsReadableStreamDefaultController");
-      function vt(e2) {
-        if (!Vo(e2)) return;
-        if (e2._pulling) {
-          e2._pullAgain = true;
-          return;
-        }
-        e2._pulling = true;
-        const r2 = e2._pullAlgorithm();
-        g2(r2, () => (e2._pulling = false, e2._pullAgain && (e2._pullAgain = false, vt(e2)), null), (s2) => (oe(e2, s2), null));
-      }
-      n$2(vt, "ReadableStreamDefaultControllerCallPullIfNeeded");
-      function Vo(e2) {
-        const t3 = e2._controlledReadableStream;
-        return !Je(e2) || !e2._started ? false : !!(qe(t3) && $t(t3) > 0 || fn(e2) > 0);
-      }
-      n$2(Vo, "ReadableStreamDefaultControllerShouldCallPull");
-      function ir(e2) {
-        e2._pullAlgorithm = void 0, e2._cancelAlgorithm = void 0, e2._strategySizeAlgorithm = void 0;
-      }
-      n$2(ir, "ReadableStreamDefaultControllerClearAlgorithms");
-      function De(e2) {
-        if (!Je(e2)) return;
-        const t3 = e2._controlledReadableStream;
-        e2._closeRequested = true, e2._queue.length === 0 && (ir(e2), At(t3));
-      }
-      n$2(De, "ReadableStreamDefaultControllerClose");
-      function Ke(e2, t3) {
-        if (!Je(e2)) return;
-        const r2 = e2._controlledReadableStream;
-        if (qe(r2) && $t(r2) > 0) Lr(r2, t3, false);
-        else {
-          let s2;
-          try {
-            s2 = e2._strategySizeAlgorithm(t3);
-          } catch (u2) {
-            throw oe(e2, u2), u2;
-          }
-          try {
-            Nr(e2, t3, s2);
-          } catch (u2) {
-            throw oe(e2, u2), u2;
-          }
-        }
-        vt(e2);
-      }
-      n$2(Ke, "ReadableStreamDefaultControllerEnqueue");
-      function oe(e2, t3) {
-        const r2 = e2._controlledReadableStream;
-        r2._state === "readable" && (Be(e2), ir(e2), Zo(r2, t3));
-      }
-      n$2(oe, "ReadableStreamDefaultControllerError");
-      function fn(e2) {
-        const t3 = e2._controlledReadableStream._state;
-        return t3 === "errored" ? null : t3 === "closed" ? 0 : e2._strategyHWM - e2._queueTotalSize;
-      }
-      n$2(fn, "ReadableStreamDefaultControllerGetDesiredSize");
-      function ts(e2) {
-        return !Vo(e2);
-      }
-      n$2(ts, "ReadableStreamDefaultControllerHasBackpressure");
-      function Je(e2) {
-        const t3 = e2._controlledReadableStream._state;
-        return !e2._closeRequested && t3 === "readable";
-      }
-      n$2(Je, "ReadableStreamDefaultControllerCanCloseOrEnqueue");
-      function Qo(e2, t3, r2, s2, u2, c2, d2) {
-        t3._controlledReadableStream = e2, t3._queue = void 0, t3._queueTotalSize = void 0, Be(t3), t3._started = false, t3._closeRequested = false, t3._pullAgain = false, t3._pulling = false, t3._strategySizeAlgorithm = d2, t3._strategyHWM = c2, t3._pullAlgorithm = s2, t3._cancelAlgorithm = u2, e2._readableStreamController = t3;
-        const m2 = r2();
-        g2(T2(m2), () => (t3._started = true, vt(t3), null), (R2) => (oe(t3, R2), null));
-      }
-      n$2(Qo, "SetUpReadableStreamDefaultController");
-      function rs(e2, t3, r2, s2) {
-        const u2 = Object.create(ne.prototype);
-        let c2, d2, m2;
-        t3.start !== void 0 ? c2 = n$2(() => t3.start(u2), "startAlgorithm") : c2 = n$2(() => {
-        }, "startAlgorithm"), t3.pull !== void 0 ? d2 = n$2(() => t3.pull(u2), "pullAlgorithm") : d2 = n$2(() => T2(void 0), "pullAlgorithm"), t3.cancel !== void 0 ? m2 = n$2((R2) => t3.cancel(R2), "cancelAlgorithm") : m2 = n$2(() => T2(void 0), "cancelAlgorithm"), Qo(e2, u2, c2, d2, m2, r2, s2);
-      }
-      n$2(rs, "SetUpReadableStreamDefaultControllerFromUnderlyingSource");
-      function ar(e2) {
-        return new TypeError(`ReadableStreamDefaultController.prototype.${e2} can only be used on a ReadableStreamDefaultController`);
-      }
-      n$2(ar, "defaultControllerBrandCheckException$1");
-      function ns(e2, t3) {
-        return Ie(e2._readableStreamController) ? is(e2) : os(e2);
-      }
-      n$2(ns, "ReadableStreamTee");
-      function os(e2, t3) {
-        const r2 = Qe(e2);
-        let s2 = false, u2 = false, c2 = false, d2 = false, m2, R2, y2, C2, P2;
-        const B = A2((x2) => {
-          P2 = x2;
-        });
-        function ae() {
-          return s2 ? (u2 = true, T2(void 0)) : (s2 = true, _t(r2, { _chunkSteps: n$2((N2) => {
-            ge(() => {
-              u2 = false;
-              const J = N2, Ce = N2;
-              c2 || Ke(y2._readableStreamController, J), d2 || Ke(C2._readableStreamController, Ce), s2 = false, u2 && ae();
-            });
-          }, "_chunkSteps"), _closeSteps: n$2(() => {
-            s2 = false, c2 || De(y2._readableStreamController), d2 || De(C2._readableStreamController), (!c2 || !d2) && P2(void 0);
-          }, "_closeSteps"), _errorSteps: n$2(() => {
-            s2 = false;
-          }, "_errorSteps") }), T2(void 0));
-        }
-        n$2(ae, "pullAlgorithm");
-        function nt(x2) {
-          if (c2 = true, m2 = x2, d2) {
-            const N2 = St([m2, R2]), J = ie(e2, N2);
-            P2(J);
-          }
-          return B;
-        }
-        n$2(nt, "cancel1Algorithm");
-        function Oe(x2) {
-          if (d2 = true, R2 = x2, c2) {
-            const N2 = St([m2, R2]), J = ie(e2, N2);
-            P2(J);
-          }
-          return B;
-        }
-        n$2(Oe, "cancel2Algorithm");
-        function Te() {
-        }
-        return n$2(Te, "startAlgorithm"), y2 = Et(Te, ae, nt), C2 = Et(Te, ae, Oe), I2(r2._closedPromise, (x2) => (oe(y2._readableStreamController, x2), oe(C2._readableStreamController, x2), (!c2 || !d2) && P2(void 0), null)), [y2, C2];
-      }
-      n$2(os, "ReadableStreamDefaultTee");
-      function is(e2) {
-        let t3 = Qe(e2), r2 = false, s2 = false, u2 = false, c2 = false, d2 = false, m2, R2, y2, C2, P2;
-        const B = A2((_2) => {
-          P2 = _2;
-        });
-        function ae(_2) {
-          I2(_2._closedPromise, (E2) => (_2 !== t3 || (K(y2._readableStreamController, E2), K(C2._readableStreamController, E2), (!c2 || !d2) && P2(void 0)), null));
-        }
-        n$2(ae, "forwardReaderError");
-        function nt() {
-          je(t3) && (_e(t3), t3 = Qe(e2), ae(t3)), _t(t3, { _chunkSteps: n$2((E2) => {
-            ge(() => {
-              s2 = false, u2 = false;
-              const k2 = E2;
-              let Y = E2;
-              if (!c2 && !d2) try {
-                Y = fo(E2);
-              } catch (ot) {
-                K(y2._readableStreamController, ot), K(C2._readableStreamController, ot), P2(ie(e2, ot));
-                return;
-              }
-              c2 || Ht(y2._readableStreamController, k2), d2 || Ht(C2._readableStreamController, Y), r2 = false, s2 ? Te() : u2 && x2();
-            });
-          }, "_chunkSteps"), _closeSteps: n$2(() => {
-            r2 = false, c2 || wt(y2._readableStreamController), d2 || wt(C2._readableStreamController), y2._readableStreamController._pendingPullIntos.length > 0 && Vt(y2._readableStreamController, 0), C2._readableStreamController._pendingPullIntos.length > 0 && Vt(C2._readableStreamController, 0), (!c2 || !d2) && P2(void 0);
-          }, "_closeSteps"), _errorSteps: n$2(() => {
-            r2 = false;
-          }, "_errorSteps") });
-        }
-        n$2(nt, "pullWithDefaultReader");
-        function Oe(_2, E2) {
-          Ee(t3) && (_e(t3), t3 = Co(e2), ae(t3));
-          const k2 = E2 ? C2 : y2, Y = E2 ? y2 : C2;
-          Eo(t3, _2, 1, { _chunkSteps: n$2((it) => {
-            ge(() => {
-              s2 = false, u2 = false;
-              const at = E2 ? d2 : c2;
-              if (E2 ? c2 : d2) at || Qt(k2._readableStreamController, it);
-              else {
-                let ui;
-                try {
-                  ui = fo(it);
-                } catch (kn) {
-                  K(k2._readableStreamController, kn), K(Y._readableStreamController, kn), P2(ie(e2, kn));
-                  return;
-                }
-                at || Qt(k2._readableStreamController, it), Ht(Y._readableStreamController, ui);
-              }
-              r2 = false, s2 ? Te() : u2 && x2();
-            });
-          }, "_chunkSteps"), _closeSteps: n$2((it) => {
-            r2 = false;
-            const at = E2 ? d2 : c2, cr = E2 ? c2 : d2;
-            at || wt(k2._readableStreamController), cr || wt(Y._readableStreamController), it !== void 0 && (at || Qt(k2._readableStreamController, it), !cr && Y._readableStreamController._pendingPullIntos.length > 0 && Vt(Y._readableStreamController, 0)), (!at || !cr) && P2(void 0);
-          }, "_closeSteps"), _errorSteps: n$2(() => {
-            r2 = false;
-          }, "_errorSteps") });
-        }
-        n$2(Oe, "pullWithBYOBReader");
-        function Te() {
-          if (r2) return s2 = true, T2(void 0);
-          r2 = true;
-          const _2 = Gr(y2._readableStreamController);
-          return _2 === null ? nt() : Oe(_2._view, false), T2(void 0);
-        }
-        n$2(Te, "pull1Algorithm");
-        function x2() {
-          if (r2) return u2 = true, T2(void 0);
-          r2 = true;
-          const _2 = Gr(C2._readableStreamController);
-          return _2 === null ? nt() : Oe(_2._view, true), T2(void 0);
-        }
-        n$2(x2, "pull2Algorithm");
-        function N2(_2) {
-          if (c2 = true, m2 = _2, d2) {
-            const E2 = St([m2, R2]), k2 = ie(e2, E2);
-            P2(k2);
-          }
-          return B;
-        }
-        n$2(N2, "cancel1Algorithm");
-        function J(_2) {
-          if (d2 = true, R2 = _2, c2) {
-            const E2 = St([m2, R2]), k2 = ie(e2, E2);
-            P2(k2);
-          }
-          return B;
-        }
-        n$2(J, "cancel2Algorithm");
-        function Ce() {
-        }
-        return n$2(Ce, "startAlgorithm"), y2 = Go(Ce, Te, N2), C2 = Go(Ce, x2, J), ae(t3), [y2, C2];
-      }
-      n$2(is, "ReadableByteStreamTee");
-      function as(e2) {
-        return l2(e2) && typeof e2.getReader < "u";
-      }
-      n$2(as, "isReadableStreamLike");
-      function ss(e2) {
-        return as(e2) ? us(e2.getReader()) : ls(e2);
-      }
-      n$2(ss, "ReadableStreamFrom");
-      function ls(e2) {
-        let t3;
-        const r2 = uo(e2, "async"), s2 = f2;
-        function u2() {
-          let d2;
-          try {
-            d2 = Xi(r2);
-          } catch (R2) {
-            return b2(R2);
-          }
-          const m2 = T2(d2);
-          return F(m2, (R2) => {
-            if (!l2(R2)) throw new TypeError("The promise returned by the iterator.next() method must fulfill with an object");
-            if (ea(R2)) De(t3._readableStreamController);
-            else {
-              const C2 = ta(R2);
-              Ke(t3._readableStreamController, C2);
-            }
-          });
-        }
-        n$2(u2, "pullAlgorithm");
-        function c2(d2) {
-          const m2 = r2.iterator;
-          let R2;
-          try {
-            R2 = Ut(m2, "return");
-          } catch (P2) {
-            return b2(P2);
-          }
-          if (R2 === void 0) return T2(void 0);
-          let y2;
-          try {
-            y2 = z(R2, m2, [d2]);
-          } catch (P2) {
-            return b2(P2);
-          }
-          const C2 = T2(y2);
-          return F(C2, (P2) => {
-            if (!l2(P2)) throw new TypeError("The promise returned by the iterator.return() method must fulfill with an object");
-          });
-        }
-        return n$2(c2, "cancelAlgorithm"), t3 = Et(s2, u2, c2, 0), t3;
-      }
-      n$2(ls, "ReadableStreamFromIterable");
-      function us(e2) {
-        let t3;
-        const r2 = f2;
-        function s2() {
-          let c2;
-          try {
-            c2 = e2.read();
-          } catch (d2) {
-            return b2(d2);
-          }
-          return F(c2, (d2) => {
-            if (!l2(d2)) throw new TypeError("The promise returned by the reader.read() method must fulfill with an object");
-            if (d2.done) De(t3._readableStreamController);
-            else {
-              const m2 = d2.value;
-              Ke(t3._readableStreamController, m2);
-            }
-          });
-        }
-        n$2(s2, "pullAlgorithm");
-        function u2(c2) {
-          try {
-            return T2(e2.cancel(c2));
-          } catch (d2) {
-            return b2(d2);
-          }
-        }
-        return n$2(u2, "cancelAlgorithm"), t3 = Et(r2, s2, u2, 0), t3;
-      }
-      n$2(us, "ReadableStreamFromDefaultReader");
-      function fs(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2, s2 = r2?.autoAllocateChunkSize, u2 = r2?.cancel, c2 = r2?.pull, d2 = r2?.start, m2 = r2?.type;
-        return { autoAllocateChunkSize: s2 === void 0 ? void 0 : Fr(s2, `${t3} has member 'autoAllocateChunkSize' that`), cancel: u2 === void 0 ? void 0 : cs(u2, r2, `${t3} has member 'cancel' that`), pull: c2 === void 0 ? void 0 : ds(c2, r2, `${t3} has member 'pull' that`), start: d2 === void 0 ? void 0 : hs(d2, r2, `${t3} has member 'start' that`), type: m2 === void 0 ? void 0 : ps(m2, `${t3} has member 'type' that`) };
-      }
-      n$2(fs, "convertUnderlyingDefaultOrByteSource");
-      function cs(e2, t3, r2) {
-        return Z(e2, r2), (s2) => j2(e2, t3, [s2]);
-      }
-      n$2(cs, "convertUnderlyingSourceCancelCallback");
-      function ds(e2, t3, r2) {
-        return Z(e2, r2), (s2) => j2(e2, t3, [s2]);
-      }
-      n$2(ds, "convertUnderlyingSourcePullCallback");
-      function hs(e2, t3, r2) {
-        return Z(e2, r2), (s2) => z(e2, t3, [s2]);
-      }
-      n$2(hs, "convertUnderlyingSourceStartCallback");
-      function ps(e2, t3) {
-        if (e2 = `${e2}`, e2 !== "bytes") throw new TypeError(`${t3} '${e2}' is not a valid enumeration value for ReadableStreamType`);
-        return e2;
-      }
-      n$2(ps, "convertReadableStreamType");
-      function bs(e2, t3) {
-        return ue(e2, t3), { preventCancel: !!e2?.preventCancel };
-      }
-      n$2(bs, "convertIteratorOptions");
-      function Yo(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.preventAbort, s2 = e2?.preventCancel, u2 = e2?.preventClose, c2 = e2?.signal;
-        return c2 !== void 0 && ms(c2, `${t3} has member 'signal' that`), { preventAbort: !!r2, preventCancel: !!s2, preventClose: !!u2, signal: c2 };
-      }
-      n$2(Yo, "convertPipeOptions");
-      function ms(e2, t3) {
-        if (!Ca(e2)) throw new TypeError(`${t3} is not an AbortSignal.`);
-      }
-      n$2(ms, "assertAbortSignal");
-      function ys(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.readable;
-        zr(r2, "readable", "ReadableWritablePair"), jr(r2, `${t3} has member 'readable' that`);
-        const s2 = e2?.writable;
-        return zr(s2, "writable", "ReadableWritablePair"), Bo(s2, `${t3} has member 'writable' that`), { readable: r2, writable: s2 };
-      }
-      n$2(ys, "convertReadableWritablePair");
-      const Pn = class Pn {
-        constructor(t3 = {}, r2 = {}) {
-          t3 === void 0 ? t3 = null : Jn(t3, "First parameter");
-          const s2 = Zt(r2, "Second parameter"), u2 = fs(t3, "First parameter");
-          if (cn(this), u2.type === "bytes") {
-            if (s2.size !== void 0) throw new RangeError("The strategy for a byte stream cannot have a size function");
-            const c2 = Tt(s2, 0);
-            ca(this, u2, c2);
-          } else {
-            const c2 = Gt(s2), d2 = Tt(s2, 1);
-            rs(this, u2, d2, c2);
-          }
-        }
-        get locked() {
-          if (!We(this)) throw Me("locked");
-          return qe(this);
-        }
-        cancel(t3 = void 0) {
-          return We(this) ? qe(this) ? b2(new TypeError("Cannot cancel a stream that already has a reader")) : ie(this, t3) : b2(Me("cancel"));
-        }
-        getReader(t3 = void 0) {
-          if (!We(this)) throw Me("getReader");
-          return ha(t3, "First parameter").mode === void 0 ? Qe(this) : Co(this);
-        }
-        pipeThrough(t3, r2 = {}) {
-          if (!We(this)) throw Me("pipeThrough");
-          Se(t3, 1, "pipeThrough");
-          const s2 = ys(t3, "First parameter"), u2 = Yo(r2, "Second parameter");
-          if (qe(this)) throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked ReadableStream");
-          if (Ze(s2.writable)) throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked WritableStream");
-          const c2 = Ho(this, s2.writable, u2.preventClose, u2.preventAbort, u2.preventCancel, u2.signal);
-          return Q(c2), s2.readable;
-        }
-        pipeTo(t3, r2 = {}) {
-          if (!We(this)) return b2(Me("pipeTo"));
-          if (t3 === void 0) return b2("Parameter 1 is required in 'pipeTo'.");
-          if (!Ge(t3)) return b2(new TypeError("ReadableStream.prototype.pipeTo's first argument must be a WritableStream"));
-          let s2;
-          try {
-            s2 = Yo(r2, "Second parameter");
-          } catch (u2) {
-            return b2(u2);
-          }
-          return qe(this) ? b2(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked ReadableStream")) : Ze(t3) ? b2(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked WritableStream")) : Ho(this, t3, s2.preventClose, s2.preventAbort, s2.preventCancel, s2.signal);
-        }
-        tee() {
-          if (!We(this)) throw Me("tee");
-          const t3 = ns(this);
-          return St(t3);
-        }
-        values(t3 = void 0) {
-          if (!We(this)) throw Me("values");
-          const r2 = bs(t3, "First parameter");
-          return Ki(this, r2.preventCancel);
-        }
-        [Ur](t3) {
-          return this.values(t3);
-        }
-        static from(t3) {
-          return ss(t3);
-        }
-      };
-      n$2(Pn, "ReadableStream");
-      let L = Pn;
-      Object.defineProperties(L, { from: { enumerable: true } }), Object.defineProperties(L.prototype, { cancel: { enumerable: true }, getReader: { enumerable: true }, pipeThrough: { enumerable: true }, pipeTo: { enumerable: true }, tee: { enumerable: true }, values: { enumerable: true }, locked: { enumerable: true } }), h2(L.from, "from"), h2(L.prototype.cancel, "cancel"), h2(L.prototype.getReader, "getReader"), h2(L.prototype.pipeThrough, "pipeThrough"), h2(L.prototype.pipeTo, "pipeTo"), h2(L.prototype.tee, "tee"), h2(L.prototype.values, "values"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(L.prototype, Symbol.toStringTag, { value: "ReadableStream", configurable: true }), Object.defineProperty(L.prototype, Ur, { value: L.prototype.values, writable: true, configurable: true });
-      function Et(e2, t3, r2, s2 = 1, u2 = () => 1) {
-        const c2 = Object.create(L.prototype);
-        cn(c2);
-        const d2 = Object.create(ne.prototype);
-        return Qo(c2, d2, e2, t3, r2, s2, u2), c2;
-      }
-      n$2(Et, "CreateReadableStream");
-      function Go(e2, t3, r2) {
-        const s2 = Object.create(L.prototype);
-        cn(s2);
-        const u2 = Object.create(te.prototype);
-        return To(s2, u2, e2, t3, r2, 0, void 0), s2;
-      }
-      n$2(Go, "CreateReadableByteStream");
-      function cn(e2) {
-        e2._state = "readable", e2._reader = void 0, e2._storedError = void 0, e2._disturbed = false;
-      }
-      n$2(cn, "InitializeReadableStream");
-      function We(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_readableStreamController") ? false : e2 instanceof L;
-      }
-      n$2(We, "IsReadableStream");
-      function qe(e2) {
-        return e2._reader !== void 0;
-      }
-      n$2(qe, "IsReadableStreamLocked");
-      function ie(e2, t3) {
-        if (e2._disturbed = true, e2._state === "closed") return T2(void 0);
-        if (e2._state === "errored") return b2(e2._storedError);
-        At(e2);
-        const r2 = e2._reader;
-        if (r2 !== void 0 && je(r2)) {
-          const u2 = r2._readIntoRequests;
-          r2._readIntoRequests = new D2(), u2.forEach((c2) => {
-            c2._closeSteps(void 0);
-          });
-        }
-        const s2 = e2._readableStreamController[Ar](t3);
-        return F(s2, f2);
-      }
-      n$2(ie, "ReadableStreamCancel");
-      function At(e2) {
-        e2._state = "closed";
-        const t3 = e2._reader;
-        if (t3 !== void 0 && (Zn(t3), Ee(t3))) {
-          const r2 = t3._readRequests;
-          t3._readRequests = new D2(), r2.forEach((s2) => {
-            s2._closeSteps();
-          });
-        }
-      }
-      n$2(At, "ReadableStreamClose");
-      function Zo(e2, t3) {
-        e2._state = "errored", e2._storedError = t3;
-        const r2 = e2._reader;
-        r2 !== void 0 && (Or(r2, t3), Ee(r2) ? ro(r2, t3) : Ao(r2, t3));
-      }
-      n$2(Zo, "ReadableStreamError");
-      function Me(e2) {
-        return new TypeError(`ReadableStream.prototype.${e2} can only be used on a ReadableStream`);
-      }
-      n$2(Me, "streamBrandCheckException$1");
-      function Ko(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.highWaterMark;
-        return zr(r2, "highWaterMark", "QueuingStrategyInit"), { highWaterMark: Ir(r2) };
-      }
-      n$2(Ko, "convertQueuingStrategyInit");
-      const Jo = n$2((e2) => e2.byteLength, "byteLengthSizeFunction");
-      h2(Jo, "size");
-      const vn = class vn {
-        constructor(t3) {
-          Se(t3, 1, "ByteLengthQueuingStrategy"), t3 = Ko(t3, "First parameter"), this._byteLengthQueuingStrategyHighWaterMark = t3.highWaterMark;
-        }
-        get highWaterMark() {
-          if (!ei(this)) throw Xo("highWaterMark");
-          return this._byteLengthQueuingStrategyHighWaterMark;
-        }
-        get size() {
-          if (!ei(this)) throw Xo("size");
-          return Jo;
-        }
-      };
-      n$2(vn, "ByteLengthQueuingStrategy");
-      let Xe = vn;
-      Object.defineProperties(Xe.prototype, { highWaterMark: { enumerable: true }, size: { enumerable: true } }), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(Xe.prototype, Symbol.toStringTag, { value: "ByteLengthQueuingStrategy", configurable: true });
-      function Xo(e2) {
-        return new TypeError(`ByteLengthQueuingStrategy.prototype.${e2} can only be used on a ByteLengthQueuingStrategy`);
-      }
-      n$2(Xo, "byteLengthBrandCheckException");
-      function ei(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_byteLengthQueuingStrategyHighWaterMark") ? false : e2 instanceof Xe;
-      }
-      n$2(ei, "IsByteLengthQueuingStrategy");
-      const ti = n$2(() => 1, "countSizeFunction");
-      h2(ti, "size");
-      const En = class En {
-        constructor(t3) {
-          Se(t3, 1, "CountQueuingStrategy"), t3 = Ko(t3, "First parameter"), this._countQueuingStrategyHighWaterMark = t3.highWaterMark;
-        }
-        get highWaterMark() {
-          if (!ni(this)) throw ri("highWaterMark");
-          return this._countQueuingStrategyHighWaterMark;
-        }
-        get size() {
-          if (!ni(this)) throw ri("size");
-          return ti;
-        }
-      };
-      n$2(En, "CountQueuingStrategy");
-      let et = En;
-      Object.defineProperties(et.prototype, { highWaterMark: { enumerable: true }, size: { enumerable: true } }), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(et.prototype, Symbol.toStringTag, { value: "CountQueuingStrategy", configurable: true });
-      function ri(e2) {
-        return new TypeError(`CountQueuingStrategy.prototype.${e2} can only be used on a CountQueuingStrategy`);
-      }
-      n$2(ri, "countBrandCheckException");
-      function ni(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_countQueuingStrategyHighWaterMark") ? false : e2 instanceof et;
-      }
-      n$2(ni, "IsCountQueuingStrategy");
-      function gs(e2, t3) {
-        ue(e2, t3);
-        const r2 = e2?.cancel, s2 = e2?.flush, u2 = e2?.readableType, c2 = e2?.start, d2 = e2?.transform, m2 = e2?.writableType;
-        return { cancel: r2 === void 0 ? void 0 : Rs(r2, e2, `${t3} has member 'cancel' that`), flush: s2 === void 0 ? void 0 : _s(s2, e2, `${t3} has member 'flush' that`), readableType: u2, start: c2 === void 0 ? void 0 : Ss(c2, e2, `${t3} has member 'start' that`), transform: d2 === void 0 ? void 0 : ws(d2, e2, `${t3} has member 'transform' that`), writableType: m2 };
-      }
-      n$2(gs, "convertTransformer");
-      function _s(e2, t3, r2) {
-        return Z(e2, r2), (s2) => j2(e2, t3, [s2]);
-      }
-      n$2(_s, "convertTransformerFlushCallback");
-      function Ss(e2, t3, r2) {
-        return Z(e2, r2), (s2) => z(e2, t3, [s2]);
-      }
-      n$2(Ss, "convertTransformerStartCallback");
-      function ws(e2, t3, r2) {
-        return Z(e2, r2), (s2, u2) => j2(e2, t3, [s2, u2]);
-      }
-      n$2(ws, "convertTransformerTransformCallback");
-      function Rs(e2, t3, r2) {
-        return Z(e2, r2), (s2) => j2(e2, t3, [s2]);
-      }
-      n$2(Rs, "convertTransformerCancelCallback");
-      const An = class An {
-        constructor(t3 = {}, r2 = {}, s2 = {}) {
-          t3 === void 0 && (t3 = null);
-          const u2 = Zt(r2, "Second parameter"), c2 = Zt(s2, "Third parameter"), d2 = gs(t3, "First parameter");
-          if (d2.readableType !== void 0) throw new RangeError("Invalid readableType specified");
-          if (d2.writableType !== void 0) throw new RangeError("Invalid writableType specified");
-          const m2 = Tt(c2, 0), R2 = Gt(c2), y2 = Tt(u2, 1), C2 = Gt(u2);
-          let P2;
-          const B = A2((ae) => {
-            P2 = ae;
-          });
-          Ts(this, B, y2, C2, m2, R2), Ps(this, d2), d2.start !== void 0 ? P2(d2.start(this._transformStreamController)) : P2(void 0);
-        }
-        get readable() {
-          if (!oi(this)) throw li("readable");
-          return this._readable;
-        }
-        get writable() {
-          if (!oi(this)) throw li("writable");
-          return this._writable;
-        }
-      };
-      n$2(An, "TransformStream");
-      let tt = An;
-      Object.defineProperties(tt.prototype, { readable: { enumerable: true }, writable: { enumerable: true } }), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(tt.prototype, Symbol.toStringTag, { value: "TransformStream", configurable: true });
-      function Ts(e2, t3, r2, s2, u2, c2) {
-        function d2() {
-          return t3;
-        }
-        n$2(d2, "startAlgorithm");
-        function m2(B) {
-          return As(e2, B);
-        }
-        n$2(m2, "writeAlgorithm");
-        function R2(B) {
-          return Bs(e2, B);
-        }
-        n$2(R2, "abortAlgorithm");
-        function y2() {
-          return ks(e2);
-        }
-        n$2(y2, "closeAlgorithm"), e2._writable = Ea(d2, m2, y2, R2, r2, s2);
-        function C2() {
-          return Ws(e2);
-        }
-        n$2(C2, "pullAlgorithm");
-        function P2(B) {
-          return qs(e2, B);
-        }
-        n$2(P2, "cancelAlgorithm"), e2._readable = Et(d2, C2, P2, u2, c2), e2._backpressure = void 0, e2._backpressureChangePromise = void 0, e2._backpressureChangePromise_resolve = void 0, sr(e2, true), e2._transformStreamController = void 0;
-      }
-      n$2(Ts, "InitializeTransformStream");
-      function oi(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_transformStreamController") ? false : e2 instanceof tt;
-      }
-      n$2(oi, "IsTransformStream");
-      function ii(e2, t3) {
-        oe(e2._readable._readableStreamController, t3), dn(e2, t3);
-      }
-      n$2(ii, "TransformStreamError");
-      function dn(e2, t3) {
-        ur(e2._transformStreamController), Ct(e2._writable._writableStreamController, t3), hn(e2);
-      }
-      n$2(dn, "TransformStreamErrorWritableAndUnblockWrite");
-      function hn(e2) {
-        e2._backpressure && sr(e2, false);
-      }
-      n$2(hn, "TransformStreamUnblockWrite");
-      function sr(e2, t3) {
-        e2._backpressureChangePromise !== void 0 && e2._backpressureChangePromise_resolve(), e2._backpressureChangePromise = A2((r2) => {
-          e2._backpressureChangePromise_resolve = r2;
-        }), e2._backpressure = t3;
-      }
-      n$2(sr, "TransformStreamSetBackpressure");
-      const Bn = class Bn {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get desiredSize() {
-          if (!lr(this)) throw fr("desiredSize");
-          const t3 = this._controlledTransformStream._readable._readableStreamController;
-          return fn(t3);
-        }
-        enqueue(t3 = void 0) {
-          if (!lr(this)) throw fr("enqueue");
-          ai(this, t3);
-        }
-        error(t3 = void 0) {
-          if (!lr(this)) throw fr("error");
-          vs(this, t3);
-        }
-        terminate() {
-          if (!lr(this)) throw fr("terminate");
-          Es(this);
-        }
-      };
-      n$2(Bn, "TransformStreamDefaultController");
-      let pe = Bn;
-      Object.defineProperties(pe.prototype, { enqueue: { enumerable: true }, error: { enumerable: true }, terminate: { enumerable: true }, desiredSize: { enumerable: true } }), h2(pe.prototype.enqueue, "enqueue"), h2(pe.prototype.error, "error"), h2(pe.prototype.terminate, "terminate"), typeof Symbol.toStringTag == "symbol" && Object.defineProperty(pe.prototype, Symbol.toStringTag, { value: "TransformStreamDefaultController", configurable: true });
-      function lr(e2) {
-        return !l2(e2) || !Object.prototype.hasOwnProperty.call(e2, "_controlledTransformStream") ? false : e2 instanceof pe;
-      }
-      n$2(lr, "IsTransformStreamDefaultController");
-      function Cs(e2, t3, r2, s2, u2) {
-        t3._controlledTransformStream = e2, e2._transformStreamController = t3, t3._transformAlgorithm = r2, t3._flushAlgorithm = s2, t3._cancelAlgorithm = u2, t3._finishPromise = void 0, t3._finishPromise_resolve = void 0, t3._finishPromise_reject = void 0;
-      }
-      n$2(Cs, "SetUpTransformStreamDefaultController");
-      function Ps(e2, t3) {
-        const r2 = Object.create(pe.prototype);
-        let s2, u2, c2;
-        t3.transform !== void 0 ? s2 = n$2((d2) => t3.transform(d2, r2), "transformAlgorithm") : s2 = n$2((d2) => {
-          try {
-            return ai(r2, d2), T2(void 0);
-          } catch (m2) {
-            return b2(m2);
-          }
-        }, "transformAlgorithm"), t3.flush !== void 0 ? u2 = n$2(() => t3.flush(r2), "flushAlgorithm") : u2 = n$2(() => T2(void 0), "flushAlgorithm"), t3.cancel !== void 0 ? c2 = n$2((d2) => t3.cancel(d2), "cancelAlgorithm") : c2 = n$2(() => T2(void 0), "cancelAlgorithm"), Cs(e2, r2, s2, u2, c2);
-      }
-      n$2(Ps, "SetUpTransformStreamDefaultControllerFromTransformer");
-      function ur(e2) {
-        e2._transformAlgorithm = void 0, e2._flushAlgorithm = void 0, e2._cancelAlgorithm = void 0;
-      }
-      n$2(ur, "TransformStreamDefaultControllerClearAlgorithms");
-      function ai(e2, t3) {
-        const r2 = e2._controlledTransformStream, s2 = r2._readable._readableStreamController;
-        if (!Je(s2)) throw new TypeError("Readable side is not in a state that permits enqueue");
-        try {
-          Ke(s2, t3);
-        } catch (c2) {
-          throw dn(r2, c2), r2._readable._storedError;
-        }
-        ts(s2) !== r2._backpressure && sr(r2, true);
-      }
-      n$2(ai, "TransformStreamDefaultControllerEnqueue");
-      function vs(e2, t3) {
-        ii(e2._controlledTransformStream, t3);
-      }
-      n$2(vs, "TransformStreamDefaultControllerError");
-      function si(e2, t3) {
-        const r2 = e2._transformAlgorithm(t3);
-        return F(r2, void 0, (s2) => {
-          throw ii(e2._controlledTransformStream, s2), s2;
-        });
-      }
-      n$2(si, "TransformStreamDefaultControllerPerformTransform");
-      function Es(e2) {
-        const t3 = e2._controlledTransformStream, r2 = t3._readable._readableStreamController;
-        De(r2);
-        const s2 = new TypeError("TransformStream terminated");
-        dn(t3, s2);
-      }
-      n$2(Es, "TransformStreamDefaultControllerTerminate");
-      function As(e2, t3) {
-        const r2 = e2._transformStreamController;
-        if (e2._backpressure) {
-          const s2 = e2._backpressureChangePromise;
-          return F(s2, () => {
-            const u2 = e2._writable;
-            if (u2._state === "erroring") throw u2._storedError;
-            return si(r2, t3);
-          });
-        }
-        return si(r2, t3);
-      }
-      n$2(As, "TransformStreamDefaultSinkWriteAlgorithm");
-      function Bs(e2, t3) {
-        const r2 = e2._transformStreamController;
-        if (r2._finishPromise !== void 0) return r2._finishPromise;
-        const s2 = e2._readable;
-        r2._finishPromise = A2((c2, d2) => {
-          r2._finishPromise_resolve = c2, r2._finishPromise_reject = d2;
-        });
-        const u2 = r2._cancelAlgorithm(t3);
-        return ur(r2), g2(u2, () => (s2._state === "errored" ? rt(r2, s2._storedError) : (oe(s2._readableStreamController, t3), pn(r2)), null), (c2) => (oe(s2._readableStreamController, c2), rt(r2, c2), null)), r2._finishPromise;
-      }
-      n$2(Bs, "TransformStreamDefaultSinkAbortAlgorithm");
-      function ks(e2) {
-        const t3 = e2._transformStreamController;
-        if (t3._finishPromise !== void 0) return t3._finishPromise;
-        const r2 = e2._readable;
-        t3._finishPromise = A2((u2, c2) => {
-          t3._finishPromise_resolve = u2, t3._finishPromise_reject = c2;
-        });
-        const s2 = t3._flushAlgorithm();
-        return ur(t3), g2(s2, () => (r2._state === "errored" ? rt(t3, r2._storedError) : (De(r2._readableStreamController), pn(t3)), null), (u2) => (oe(r2._readableStreamController, u2), rt(t3, u2), null)), t3._finishPromise;
-      }
-      n$2(ks, "TransformStreamDefaultSinkCloseAlgorithm");
-      function Ws(e2) {
-        return sr(e2, false), e2._backpressureChangePromise;
-      }
-      n$2(Ws, "TransformStreamDefaultSourcePullAlgorithm");
-      function qs(e2, t3) {
-        const r2 = e2._transformStreamController;
-        if (r2._finishPromise !== void 0) return r2._finishPromise;
-        const s2 = e2._writable;
-        r2._finishPromise = A2((c2, d2) => {
-          r2._finishPromise_resolve = c2, r2._finishPromise_reject = d2;
-        });
-        const u2 = r2._cancelAlgorithm(t3);
-        return ur(r2), g2(u2, () => (s2._state === "errored" ? rt(r2, s2._storedError) : (Ct(s2._writableStreamController, t3), hn(e2), pn(r2)), null), (c2) => (Ct(s2._writableStreamController, c2), hn(e2), rt(r2, c2), null)), r2._finishPromise;
-      }
-      n$2(qs, "TransformStreamDefaultSourceCancelAlgorithm");
-      function fr(e2) {
-        return new TypeError(`TransformStreamDefaultController.prototype.${e2} can only be used on a TransformStreamDefaultController`);
-      }
-      n$2(fr, "defaultControllerBrandCheckException");
-      function pn(e2) {
-        e2._finishPromise_resolve !== void 0 && (e2._finishPromise_resolve(), e2._finishPromise_resolve = void 0, e2._finishPromise_reject = void 0);
-      }
-      n$2(pn, "defaultControllerFinishPromiseResolve");
-      function rt(e2, t3) {
-        e2._finishPromise_reject !== void 0 && (Q(e2._finishPromise), e2._finishPromise_reject(t3), e2._finishPromise_resolve = void 0, e2._finishPromise_reject = void 0);
-      }
-      n$2(rt, "defaultControllerFinishPromiseReject");
-      function li(e2) {
-        return new TypeError(`TransformStream.prototype.${e2} can only be used on a TransformStream`);
-      }
-      n$2(li, "streamBrandCheckException"), a2.ByteLengthQueuingStrategy = Xe, a2.CountQueuingStrategy = et, a2.ReadableByteStreamController = te, a2.ReadableStream = L, a2.ReadableStreamBYOBReader = ce, a2.ReadableStreamBYOBRequest = Re, a2.ReadableStreamDefaultController = ne, a2.ReadableStreamDefaultReader = fe, a2.TransformStream = tt, a2.TransformStreamDefaultController = pe, a2.WritableStream = de, a2.WritableStreamDefaultController = ke, a2.WritableStreamDefaultWriter = re;
-    });
-  })(kt, kt.exports)), kt.exports;
-}
-n$2(Ns, "requirePonyfill_es2018");
-var mi;
-function Hs() {
-  if (mi) return pi;
-  mi = 1;
-  const i2 = 65536;
-  if (!globalThis.ReadableStream) try {
-    const o2 = require("node:process"), { emitWarning: a2 } = o2;
-    try {
-      o2.emitWarning = () => {
-      }, Object.assign(globalThis, require("node:stream/web")), o2.emitWarning = a2;
-    } catch (f2) {
-      throw o2.emitWarning = a2, f2;
-    }
-  } catch {
-    Object.assign(globalThis, Ns());
-  }
-  try {
-    const { Blob: o2 } = require("buffer");
-    o2 && !o2.prototype.stream && (o2.prototype.stream = n$2(function(f2) {
-      let l2 = 0;
-      const p2 = this;
-      return new ReadableStream({ type: "bytes", async pull(h2) {
-        const v2 = await p2.slice(l2, Math.min(p2.size, l2 + i2)).arrayBuffer();
-        l2 += v2.byteLength, h2.enqueue(new Uint8Array(v2)), l2 === p2.size && h2.close();
-      } });
-    }, "name"));
-  } catch {
-  }
-  return pi;
-}
-n$2(Hs, "requireStreams"), Hs();
-const yi = 65536;
-async function* Wn(i2, o2 = true) {
-  for (const a2 of i2) if ("stream" in a2) yield* a2.stream();
-  else if (ArrayBuffer.isView(a2)) if (o2) {
-    let f2 = a2.byteOffset;
-    const l2 = a2.byteOffset + a2.byteLength;
-    for (; f2 !== l2; ) {
-      const p2 = Math.min(l2 - f2, yi), h2 = a2.buffer.slice(f2, f2 + p2);
-      f2 += h2.byteLength, yield new Uint8Array(h2);
-    }
-  } else yield a2;
-  else {
-    let f2 = 0, l2 = a2;
-    for (; f2 !== l2.size; ) {
-      const h2 = await l2.slice(f2, Math.min(l2.size, f2 + yi)).arrayBuffer();
-      f2 += h2.byteLength, yield new Uint8Array(h2);
-    }
-  }
-}
-n$2(Wn, "toIterator");
-const gi = (ze = class {
-  constructor(o2 = [], a2 = {}) {
-    be(this, ve, []);
-    be(this, zt, "");
-    be(this, bt, 0);
-    be(this, Cr, "transparent");
-    if (typeof o2 != "object" || o2 === null) throw new TypeError("Failed to construct 'Blob': The provided value cannot be converted to a sequence.");
-    if (typeof o2[Symbol.iterator] != "function") throw new TypeError("Failed to construct 'Blob': The object must have a callable @@iterator property.");
-    if (typeof a2 != "object" && typeof a2 != "function") throw new TypeError("Failed to construct 'Blob': parameter 2 cannot convert to dictionary.");
-    a2 === null && (a2 = {});
-    const f2 = new TextEncoder();
-    for (const p2 of o2) {
-      let h2;
-      ArrayBuffer.isView(p2) ? h2 = new Uint8Array(p2.buffer.slice(p2.byteOffset, p2.byteOffset + p2.byteLength)) : p2 instanceof ArrayBuffer ? h2 = new Uint8Array(p2.slice(0)) : p2 instanceof ze ? h2 = p2 : h2 = f2.encode(`${p2}`), X(this, bt, O$1(this, bt) + (ArrayBuffer.isView(h2) ? h2.byteLength : h2.size)), O$1(this, ve).push(h2);
-    }
-    X(this, Cr, `${a2.endings === void 0 ? "transparent" : a2.endings}`);
-    const l2 = a2.type === void 0 ? "" : String(a2.type);
-    X(this, zt, /^[\x20-\x7E]*$/.test(l2) ? l2 : "");
-  }
-  get size() {
-    return O$1(this, bt);
-  }
-  get type() {
-    return O$1(this, zt);
-  }
-  async text() {
-    const o2 = new TextDecoder();
-    let a2 = "";
-    for await (const f2 of Wn(O$1(this, ve), false)) a2 += o2.decode(f2, { stream: true });
-    return a2 += o2.decode(), a2;
-  }
-  async arrayBuffer() {
-    const o2 = new Uint8Array(this.size);
-    let a2 = 0;
-    for await (const f2 of Wn(O$1(this, ve), false)) o2.set(f2, a2), a2 += f2.length;
-    return o2.buffer;
-  }
-  stream() {
-    const o2 = Wn(O$1(this, ve), true);
-    return new globalThis.ReadableStream({ type: "bytes", async pull(a2) {
-      const f2 = await o2.next();
-      f2.done ? a2.close() : a2.enqueue(f2.value);
-    }, async cancel() {
-      await o2.return();
-    } });
-  }
-  slice(o2 = 0, a2 = this.size, f2 = "") {
-    const { size: l2 } = this;
-    let p2 = o2 < 0 ? Math.max(l2 + o2, 0) : Math.min(o2, l2), h2 = a2 < 0 ? Math.max(l2 + a2, 0) : Math.min(a2, l2);
-    const S2 = Math.max(h2 - p2, 0), v2 = O$1(this, ve), w2 = [];
-    let A2 = 0;
-    for (const b2 of v2) {
-      if (A2 >= S2) break;
-      const q = ArrayBuffer.isView(b2) ? b2.byteLength : b2.size;
-      if (p2 && q <= p2) p2 -= q, h2 -= q;
-      else {
-        let g2;
-        ArrayBuffer.isView(b2) ? (g2 = b2.subarray(p2, Math.min(q, h2)), A2 += g2.byteLength) : (g2 = b2.slice(p2, Math.min(q, h2)), A2 += g2.size), h2 -= q, w2.push(g2), p2 = 0;
-      }
-    }
-    const T2 = new ze([], { type: String(f2).toLowerCase() });
-    return X(T2, bt, S2), X(T2, ve, w2), T2;
-  }
-  get [Symbol.toStringTag]() {
-    return "Blob";
-  }
-  static [Symbol.hasInstance](o2) {
-    return o2 && typeof o2 == "object" && typeof o2.constructor == "function" && (typeof o2.stream == "function" || typeof o2.arrayBuffer == "function") && /^(Blob|File)$/.test(o2[Symbol.toStringTag]);
-  }
-}, ve = /* @__PURE__ */ new WeakMap(), zt = /* @__PURE__ */ new WeakMap(), bt = /* @__PURE__ */ new WeakMap(), Cr = /* @__PURE__ */ new WeakMap(), n$2(ze, "Blob"), ze);
-Object.defineProperties(gi.prototype, { size: { enumerable: true }, type: { enumerable: true }, slice: { enumerable: true } });
-const ut = gi, Vs = (mt = class extends ut {
-  constructor(a2, f2, l2 = {}) {
-    if (arguments.length < 2) throw new TypeError(`Failed to construct 'File': 2 arguments required, but only ${arguments.length} present.`);
-    super(a2, l2);
-    be(this, It, 0);
-    be(this, Ft, "");
-    l2 === null && (l2 = {});
-    const p2 = l2.lastModified === void 0 ? Date.now() : Number(l2.lastModified);
-    Number.isNaN(p2) || X(this, It, p2), X(this, Ft, String(f2));
-  }
-  get name() {
-    return O$1(this, Ft);
-  }
-  get lastModified() {
-    return O$1(this, It);
-  }
-  get [Symbol.toStringTag]() {
-    return "File";
-  }
-  static [Symbol.hasInstance](a2) {
-    return !!a2 && a2 instanceof ut && /^(File)$/.test(a2[Symbol.toStringTag]);
-  }
-}, It = /* @__PURE__ */ new WeakMap(), Ft = /* @__PURE__ */ new WeakMap(), n$2(mt, "File"), mt), qn = Vs;
-var { toStringTag: Wt, iterator: Qs, hasInstance: Ys } = Symbol, _i = Math.random, Gs = "append,set,get,getAll,delete,keys,values,entries,forEach,constructor".split(","), Si = n$2((i2, o2, a2) => (i2 += "", /^(Blob|File)$/.test(o2 && o2[Wt]) ? [(a2 = a2 !== void 0 ? a2 + "" : o2[Wt] == "File" ? o2.name : "blob", i2), o2.name !== a2 || o2[Wt] == "blob" ? new qn([o2], a2, o2) : o2] : [i2, o2 + ""]), "f"), On = n$2((i2, o2) => (o2 ? i2 : i2.replace(/\r?\n|\r/g, `\r
-`)).replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22"), "e$1"), Ue = n$2((i2, o2, a2) => {
-  if (o2.length < a2) throw new TypeError(`Failed to execute '${i2}' on 'FormData': ${a2} arguments required, but only ${o2.length} present.`);
-}, "x");
-const br = (yt = class {
-  constructor(...o2) {
-    be(this, ee, []);
-    if (o2.length) throw new TypeError("Failed to construct 'FormData': parameter 1 is not of type 'HTMLFormElement'.");
-  }
-  get [Wt]() {
-    return "FormData";
-  }
-  [Qs]() {
-    return this.entries();
-  }
-  static [Ys](o2) {
-    return o2 && typeof o2 == "object" && o2[Wt] === "FormData" && !Gs.some((a2) => typeof o2[a2] != "function");
-  }
-  append(...o2) {
-    Ue("append", arguments, 2), O$1(this, ee).push(Si(...o2));
-  }
-  delete(o2) {
-    Ue("delete", arguments, 1), o2 += "", X(this, ee, O$1(this, ee).filter(([a2]) => a2 !== o2));
-  }
-  get(o2) {
-    Ue("get", arguments, 1), o2 += "";
-    for (var a2 = O$1(this, ee), f2 = a2.length, l2 = 0; l2 < f2; l2++) if (a2[l2][0] === o2) return a2[l2][1];
-    return null;
-  }
-  getAll(o2, a2) {
-    return Ue("getAll", arguments, 1), a2 = [], o2 += "", O$1(this, ee).forEach((f2) => f2[0] === o2 && a2.push(f2[1])), a2;
-  }
-  has(o2) {
-    return Ue("has", arguments, 1), o2 += "", O$1(this, ee).some((a2) => a2[0] === o2);
-  }
-  forEach(o2, a2) {
-    Ue("forEach", arguments, 1);
-    for (var [f2, l2] of this) o2.call(a2, l2, f2, this);
-  }
-  set(...o2) {
-    Ue("set", arguments, 2);
-    var a2 = [], f2 = true;
-    o2 = Si(...o2), O$1(this, ee).forEach((l2) => {
-      l2[0] === o2[0] ? f2 && (f2 = !a2.push(o2)) : a2.push(l2);
-    }), f2 && a2.push(o2), X(this, ee, a2);
-  }
-  *entries() {
-    yield* O$1(this, ee);
-  }
-  *keys() {
-    for (var [o2] of this) yield o2;
-  }
-  *values() {
-    for (var [, o2] of this) yield o2;
-  }
-}, ee = /* @__PURE__ */ new WeakMap(), n$2(yt, "FormData"), yt);
-function Zs(i2, o2 = ut) {
-  var a2 = `${_i()}${_i()}`.replace(/\./g, "").slice(-28).padStart(32, "-"), f2 = [], l2 = `--${a2}\r
-Content-Disposition: form-data; name="`;
-  return i2.forEach((p2, h2) => typeof p2 == "string" ? f2.push(l2 + On(h2) + `"\r
-\r
-${p2.replace(new RegExp("\\r(?!\\n)|(?<!\\r)\\n", "g"), `\r
-`)}\r
-`) : f2.push(l2 + On(h2) + `"; filename="${On(p2.name, 1)}"\r
-Content-Type: ${p2.type || "application/octet-stream"}\r
-\r
-`, p2, `\r
-`)), f2.push(`--${a2}--`), new o2(f2, { type: "multipart/form-data; boundary=" + a2 });
-}
-n$2(Zs, "formDataToBlob");
-const Un = class Un2 extends Error {
-  constructor(o2, a2) {
-    super(o2), Error.captureStackTrace(this, this.constructor), this.type = a2;
-  }
-  get name() {
-    return this.constructor.name;
-  }
-  get [Symbol.toStringTag]() {
-    return this.constructor.name;
-  }
-};
-n$2(Un, "FetchBaseError");
-let ft = Un;
-const xn = class xn2 extends ft {
-  constructor(o2, a2, f2) {
-    super(o2, a2), f2 && (this.code = this.errno = f2.code, this.erroredSysCall = f2.syscall);
-  }
-};
-n$2(xn, "FetchError");
-let G = xn;
-const mr = Symbol.toStringTag, wi = n$2((i2) => typeof i2 == "object" && typeof i2.append == "function" && typeof i2.delete == "function" && typeof i2.get == "function" && typeof i2.getAll == "function" && typeof i2.has == "function" && typeof i2.set == "function" && typeof i2.sort == "function" && i2[mr] === "URLSearchParams", "isURLSearchParameters"), yr = n$2((i2) => i2 && typeof i2 == "object" && typeof i2.arrayBuffer == "function" && typeof i2.type == "string" && typeof i2.stream == "function" && typeof i2.constructor == "function" && /^(Blob|File)$/.test(i2[mr]), "isBlob"), Ks = n$2((i2) => typeof i2 == "object" && (i2[mr] === "AbortSignal" || i2[mr] === "EventTarget"), "isAbortSignal"), Js = n$2((i2, o2) => {
-  const a2 = new URL(o2).hostname, f2 = new URL(i2).hostname;
-  return a2 === f2 || a2.endsWith(`.${f2}`);
-}, "isDomainOrSubdomain"), Xs = n$2((i2, o2) => {
-  const a2 = new URL(o2).protocol, f2 = new URL(i2).protocol;
-  return a2 === f2;
-}, "isSameProtocol"), el = promisify(me.pipeline), H = /* @__PURE__ */ Symbol("Body internals"), Nn = class Nn2 {
-  constructor(o2, { size: a2 = 0 } = {}) {
-    let f2 = null;
-    o2 === null ? o2 = null : wi(o2) ? o2 = Buffer$1.from(o2.toString()) : yr(o2) || Buffer$1.isBuffer(o2) || (types.isAnyArrayBuffer(o2) ? o2 = Buffer$1.from(o2) : ArrayBuffer.isView(o2) ? o2 = Buffer$1.from(o2.buffer, o2.byteOffset, o2.byteLength) : o2 instanceof me || (o2 instanceof br ? (o2 = Zs(o2), f2 = o2.type.split("=")[1]) : o2 = Buffer$1.from(String(o2))));
-    let l2 = o2;
-    Buffer$1.isBuffer(o2) ? l2 = me.Readable.from(o2) : yr(o2) && (l2 = me.Readable.from(o2.stream())), this[H] = { body: o2, stream: l2, boundary: f2, disturbed: false, error: null }, this.size = a2, o2 instanceof me && o2.on("error", (p2) => {
-      const h2 = p2 instanceof ft ? p2 : new G(`Invalid response body while trying to fetch ${this.url}: ${p2.message}`, "system", p2);
-      this[H].error = h2;
-    });
-  }
-  get body() {
-    return this[H].stream;
-  }
-  get bodyUsed() {
-    return this[H].disturbed;
-  }
-  async arrayBuffer() {
-    const { buffer: o2, byteOffset: a2, byteLength: f2 } = await zn(this);
-    return o2.slice(a2, a2 + f2);
-  }
-  async formData() {
-    const o2 = this.headers.get("content-type");
-    if (o2.startsWith("application/x-www-form-urlencoded")) {
-      const f2 = new br(), l2 = new URLSearchParams(await this.text());
-      for (const [p2, h2] of l2) f2.append(p2, h2);
-      return f2;
-    }
-    const { toFormData: a2 } = await import("./assets/multipart-parser-CXwME_t2.js");
-    return a2(this.body, o2);
-  }
-  async blob() {
-    const o2 = this.headers && this.headers.get("content-type") || this[H].body && this[H].body.type || "", a2 = await this.arrayBuffer();
-    return new ut([a2], { type: o2 });
-  }
-  async json() {
-    const o2 = await this.text();
-    return JSON.parse(o2);
-  }
-  async text() {
-    const o2 = await zn(this);
-    return new TextDecoder().decode(o2);
-  }
-  buffer() {
-    return zn(this);
-  }
-};
-n$2(Nn, "Body");
-let xe = Nn;
-xe.prototype.buffer = deprecate(xe.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer"), Object.defineProperties(xe.prototype, { body: { enumerable: true }, bodyUsed: { enumerable: true }, arrayBuffer: { enumerable: true }, blob: { enumerable: true }, json: { enumerable: true }, text: { enumerable: true }, data: { get: deprecate(() => {
-}, "data doesn't exist, use json(), text(), arrayBuffer(), or body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (response)") } });
-async function zn(i2) {
-  if (i2[H].disturbed) throw new TypeError(`body used already for: ${i2.url}`);
-  if (i2[H].disturbed = true, i2[H].error) throw i2[H].error;
-  const { body: o2 } = i2;
-  if (o2 === null) return Buffer$1.alloc(0);
-  if (!(o2 instanceof me)) return Buffer$1.alloc(0);
-  const a2 = [];
-  let f2 = 0;
-  try {
-    for await (const l2 of o2) {
-      if (i2.size > 0 && f2 + l2.length > i2.size) {
-        const p2 = new G(`content size at ${i2.url} over limit: ${i2.size}`, "max-size");
-        throw o2.destroy(p2), p2;
-      }
-      f2 += l2.length, a2.push(l2);
-    }
-  } catch (l2) {
-    throw l2 instanceof ft ? l2 : new G(`Invalid response body while trying to fetch ${i2.url}: ${l2.message}`, "system", l2);
-  }
-  if (o2.readableEnded === true || o2._readableState.ended === true) try {
-    return a2.every((l2) => typeof l2 == "string") ? Buffer$1.from(a2.join("")) : Buffer$1.concat(a2, f2);
-  } catch (l2) {
-    throw new G(`Could not create Buffer from response body for ${i2.url}: ${l2.message}`, "system", l2);
-  }
-  else throw new G(`Premature close of server response while trying to fetch ${i2.url}`);
-}
-n$2(zn, "consumeBody");
-const In = n$2((i2, o2) => {
-  let a2, f2, { body: l2 } = i2[H];
-  if (i2.bodyUsed) throw new Error("cannot clone body after it is used");
-  return l2 instanceof me && typeof l2.getBoundary != "function" && (a2 = new PassThrough({ highWaterMark: o2 }), f2 = new PassThrough({ highWaterMark: o2 }), l2.pipe(a2), l2.pipe(f2), i2[H].stream = a2, l2 = f2), l2;
-}, "clone"), tl = deprecate((i2) => i2.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167"), Ri = n$2((i2, o2) => i2 === null ? null : typeof i2 == "string" ? "text/plain;charset=UTF-8" : wi(i2) ? "application/x-www-form-urlencoded;charset=UTF-8" : yr(i2) ? i2.type || null : Buffer$1.isBuffer(i2) || types.isAnyArrayBuffer(i2) || ArrayBuffer.isView(i2) ? null : i2 instanceof br ? `multipart/form-data; boundary=${o2[H].boundary}` : i2 && typeof i2.getBoundary == "function" ? `multipart/form-data;boundary=${tl(i2)}` : i2 instanceof me ? null : "text/plain;charset=UTF-8", "extractContentType"), rl = n$2((i2) => {
-  const { body: o2 } = i2[H];
-  return o2 === null ? 0 : yr(o2) ? o2.size : Buffer$1.isBuffer(o2) ? o2.length : o2 && typeof o2.getLengthSync == "function" && o2.hasKnownLength && o2.hasKnownLength() ? o2.getLengthSync() : null;
-}, "getTotalBytes"), nl = n$2(async (i2, { body: o2 }) => {
-  o2 === null ? i2.end() : await el(o2, i2);
-}, "writeToStream"), gr = typeof Bt.validateHeaderName == "function" ? Bt.validateHeaderName : (i2) => {
-  if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(i2)) {
-    const o2 = new TypeError(`Header name must be a valid HTTP token [${i2}]`);
-    throw Object.defineProperty(o2, "code", { value: "ERR_INVALID_HTTP_TOKEN" }), o2;
-  }
-}, Fn = typeof Bt.validateHeaderValue == "function" ? Bt.validateHeaderValue : (i2, o2) => {
-  if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(o2)) {
-    const a2 = new TypeError(`Invalid character in header content ["${i2}"]`);
-    throw Object.defineProperty(a2, "code", { value: "ERR_INVALID_CHAR" }), a2;
-  }
-}, Pr = class Pr2 extends URLSearchParams {
-  constructor(o2) {
-    let a2 = [];
-    if (o2 instanceof Pr2) {
-      const f2 = o2.raw();
-      for (const [l2, p2] of Object.entries(f2)) a2.push(...p2.map((h2) => [l2, h2]));
-    } else if (o2 != null) if (typeof o2 == "object" && !types.isBoxedPrimitive(o2)) {
-      const f2 = o2[Symbol.iterator];
-      if (f2 == null) a2.push(...Object.entries(o2));
-      else {
-        if (typeof f2 != "function") throw new TypeError("Header pairs must be iterable");
-        a2 = [...o2].map((l2) => {
-          if (typeof l2 != "object" || types.isBoxedPrimitive(l2)) throw new TypeError("Each header pair must be an iterable object");
-          return [...l2];
-        }).map((l2) => {
-          if (l2.length !== 2) throw new TypeError("Each header pair must be a name/value tuple");
-          return [...l2];
-        });
-      }
-    } else throw new TypeError("Failed to construct 'Headers': The provided value is not of type '(sequence<sequence<ByteString>> or record<ByteString, ByteString>)");
-    return a2 = a2.length > 0 ? a2.map(([f2, l2]) => (gr(f2), Fn(f2, String(l2)), [String(f2).toLowerCase(), String(l2)])) : void 0, super(a2), new Proxy(this, { get(f2, l2, p2) {
-      switch (l2) {
-        case "append":
-        case "set":
-          return (h2, S2) => (gr(h2), Fn(h2, String(S2)), URLSearchParams.prototype[l2].call(f2, String(h2).toLowerCase(), String(S2)));
-        case "delete":
-        case "has":
-        case "getAll":
-          return (h2) => (gr(h2), URLSearchParams.prototype[l2].call(f2, String(h2).toLowerCase()));
-        case "keys":
-          return () => (f2.sort(), new Set(URLSearchParams.prototype.keys.call(f2)).keys());
-        default:
-          return Reflect.get(f2, l2, p2);
-      }
-    } });
-  }
-  get [Symbol.toStringTag]() {
-    return this.constructor.name;
-  }
-  toString() {
-    return Object.prototype.toString.call(this);
-  }
-  get(o2) {
-    const a2 = this.getAll(o2);
-    if (a2.length === 0) return null;
-    let f2 = a2.join(", ");
-    return /^content-encoding$/i.test(o2) && (f2 = f2.toLowerCase()), f2;
-  }
-  forEach(o2, a2 = void 0) {
-    for (const f2 of this.keys()) Reflect.apply(o2, a2, [this.get(f2), f2, this]);
-  }
-  *values() {
-    for (const o2 of this.keys()) yield this.get(o2);
-  }
-  *entries() {
-    for (const o2 of this.keys()) yield [o2, this.get(o2)];
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  raw() {
-    return [...this.keys()].reduce((o2, a2) => (o2[a2] = this.getAll(a2), o2), {});
-  }
-  [/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")]() {
-    return [...this.keys()].reduce((o2, a2) => {
-      const f2 = this.getAll(a2);
-      return a2 === "host" ? o2[a2] = f2[0] : o2[a2] = f2.length > 1 ? f2 : f2[0], o2;
-    }, {});
-  }
-};
-n$2(Pr, "Headers");
-let ye = Pr;
-Object.defineProperties(ye.prototype, ["get", "entries", "forEach", "values"].reduce((i2, o2) => (i2[o2] = { enumerable: true }, i2), {}));
-function ol(i2 = []) {
-  return new ye(i2.reduce((o2, a2, f2, l2) => (f2 % 2 === 0 && o2.push(l2.slice(f2, f2 + 2)), o2), []).filter(([o2, a2]) => {
-    try {
-      return gr(o2), Fn(o2, String(a2)), true;
-    } catch {
-      return false;
-    }
-  }));
-}
-n$2(ol, "fromRawHeaders");
-const il = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]), jn = n$2((i2) => il.has(i2), "isRedirect"), se = /* @__PURE__ */ Symbol("Response internals"), Ne = class Ne2 extends xe {
-  constructor(o2 = null, a2 = {}) {
-    super(o2, a2);
-    const f2 = a2.status != null ? a2.status : 200, l2 = new ye(a2.headers);
-    if (o2 !== null && !l2.has("Content-Type")) {
-      const p2 = Ri(o2, this);
-      p2 && l2.append("Content-Type", p2);
-    }
-    this[se] = { type: "default", url: a2.url, status: f2, statusText: a2.statusText || "", headers: l2, counter: a2.counter, highWaterMark: a2.highWaterMark };
-  }
-  get type() {
-    return this[se].type;
-  }
-  get url() {
-    return this[se].url || "";
-  }
-  get status() {
-    return this[se].status;
-  }
-  get ok() {
-    return this[se].status >= 200 && this[se].status < 300;
-  }
-  get redirected() {
-    return this[se].counter > 0;
-  }
-  get statusText() {
-    return this[se].statusText;
-  }
-  get headers() {
-    return this[se].headers;
-  }
-  get highWaterMark() {
-    return this[se].highWaterMark;
-  }
-  clone() {
-    return new Ne2(In(this, this.highWaterMark), { type: this.type, url: this.url, status: this.status, statusText: this.statusText, headers: this.headers, ok: this.ok, redirected: this.redirected, size: this.size, highWaterMark: this.highWaterMark });
-  }
-  static redirect(o2, a2 = 302) {
-    if (!jn(a2)) throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
-    return new Ne2(null, { headers: { location: new URL(o2).toString() }, status: a2 });
-  }
-  static error() {
-    const o2 = new Ne2(null, { status: 0, statusText: "" });
-    return o2[se].type = "error", o2;
-  }
-  static json(o2 = void 0, a2 = {}) {
-    const f2 = JSON.stringify(o2);
-    if (f2 === void 0) throw new TypeError("data is not JSON serializable");
-    const l2 = new ye(a2 && a2.headers);
-    return l2.has("content-type") || l2.set("content-type", "application/json"), new Ne2(f2, { ...a2, headers: l2 });
-  }
-  get [Symbol.toStringTag]() {
-    return "Response";
-  }
-};
-n$2(Ne, "Response");
-let le = Ne;
-Object.defineProperties(le.prototype, { type: { enumerable: true }, url: { enumerable: true }, status: { enumerable: true }, ok: { enumerable: true }, redirected: { enumerable: true }, statusText: { enumerable: true }, headers: { enumerable: true }, clone: { enumerable: true } });
-const al = n$2((i2) => {
-  if (i2.search) return i2.search;
-  const o2 = i2.href.length - 1, a2 = i2.hash || (i2.href[o2] === "#" ? "#" : "");
-  return i2.href[o2 - a2.length] === "?" ? "?" : "";
-}, "getSearch");
-function Ti(i2, o2 = false) {
-  return i2 == null || (i2 = new URL(i2), /^(about|blob|data):$/.test(i2.protocol)) ? "no-referrer" : (i2.username = "", i2.password = "", i2.hash = "", o2 && (i2.pathname = "", i2.search = ""), i2);
-}
-n$2(Ti, "stripURLForUseAsAReferrer");
-const Ci = /* @__PURE__ */ new Set(["", "no-referrer", "no-referrer-when-downgrade", "same-origin", "origin", "strict-origin", "origin-when-cross-origin", "strict-origin-when-cross-origin", "unsafe-url"]), sl = "strict-origin-when-cross-origin";
-function ll(i2) {
-  if (!Ci.has(i2)) throw new TypeError(`Invalid referrerPolicy: ${i2}`);
-  return i2;
-}
-n$2(ll, "validateReferrerPolicy");
-function ul(i2) {
-  if (/^(http|ws)s:$/.test(i2.protocol)) return true;
-  const o2 = i2.host.replace(/(^\[)|(]$)/g, ""), a2 = isIP(o2);
-  return a2 === 4 && /^127\./.test(o2) || a2 === 6 && /^(((0+:){7})|(::(0+:){0,6}))0*1$/.test(o2) ? true : i2.host === "localhost" || i2.host.endsWith(".localhost") ? false : i2.protocol === "file:";
-}
-n$2(ul, "isOriginPotentiallyTrustworthy");
-function ct(i2) {
-  return /^about:(blank|srcdoc)$/.test(i2) || i2.protocol === "data:" || /^(blob|filesystem):$/.test(i2.protocol) ? true : ul(i2);
-}
-n$2(ct, "isUrlPotentiallyTrustworthy");
-function fl(i2, { referrerURLCallback: o2, referrerOriginCallback: a2 } = {}) {
-  if (i2.referrer === "no-referrer" || i2.referrerPolicy === "") return null;
-  const f2 = i2.referrerPolicy;
-  if (i2.referrer === "about:client") return "no-referrer";
-  const l2 = i2.referrer;
-  let p2 = Ti(l2), h2 = Ti(l2, true);
-  p2.toString().length > 4096 && (p2 = h2), o2 && (p2 = o2(p2)), a2 && (h2 = a2(h2));
-  const S2 = new URL(i2.url);
-  switch (f2) {
-    case "no-referrer":
-      return "no-referrer";
-    case "origin":
-      return h2;
-    case "unsafe-url":
-      return p2;
-    case "strict-origin":
-      return ct(p2) && !ct(S2) ? "no-referrer" : h2.toString();
-    case "strict-origin-when-cross-origin":
-      return p2.origin === S2.origin ? p2 : ct(p2) && !ct(S2) ? "no-referrer" : h2;
-    case "same-origin":
-      return p2.origin === S2.origin ? p2 : "no-referrer";
-    case "origin-when-cross-origin":
-      return p2.origin === S2.origin ? p2 : h2;
-    case "no-referrer-when-downgrade":
-      return ct(p2) && !ct(S2) ? "no-referrer" : p2;
-    default:
-      throw new TypeError(`Invalid referrerPolicy: ${f2}`);
-  }
-}
-n$2(fl, "determineRequestsReferrer");
-function cl(i2) {
-  const o2 = (i2.get("referrer-policy") || "").split(/[,\s]+/);
-  let a2 = "";
-  for (const f2 of o2) f2 && Ci.has(f2) && (a2 = f2);
-  return a2;
-}
-n$2(cl, "parseReferrerPolicyFromHeader");
-const $$1 = /* @__PURE__ */ Symbol("Request internals"), qt = n$2((i2) => typeof i2 == "object" && typeof i2[$$1] == "object", "isRequest"), dl = deprecate(() => {
-}, ".data is not a valid RequestInit property, use .body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (request)"), vr = class vr2 extends xe {
-  constructor(o2, a2 = {}) {
-    let f2;
-    if (qt(o2) ? f2 = new URL(o2.url) : (f2 = new URL(o2), o2 = {}), f2.username !== "" || f2.password !== "") throw new TypeError(`${f2} is an url with embedded credentials.`);
-    let l2 = a2.method || o2.method || "GET";
-    if (/^(delete|get|head|options|post|put)$/i.test(l2) && (l2 = l2.toUpperCase()), !qt(a2) && "data" in a2 && dl(), (a2.body != null || qt(o2) && o2.body !== null) && (l2 === "GET" || l2 === "HEAD")) throw new TypeError("Request with GET/HEAD method cannot have body");
-    const p2 = a2.body ? a2.body : qt(o2) && o2.body !== null ? In(o2) : null;
-    super(p2, { size: a2.size || o2.size || 0 });
-    const h2 = new ye(a2.headers || o2.headers || {});
-    if (p2 !== null && !h2.has("Content-Type")) {
-      const w2 = Ri(p2, this);
-      w2 && h2.set("Content-Type", w2);
-    }
-    let S2 = qt(o2) ? o2.signal : null;
-    if ("signal" in a2 && (S2 = a2.signal), S2 != null && !Ks(S2)) throw new TypeError("Expected signal to be an instanceof AbortSignal or EventTarget");
-    let v2 = a2.referrer == null ? o2.referrer : a2.referrer;
-    if (v2 === "") v2 = "no-referrer";
-    else if (v2) {
-      const w2 = new URL(v2);
-      v2 = /^about:(\/\/)?client$/.test(w2) ? "client" : w2;
-    } else v2 = void 0;
-    this[$$1] = { method: l2, redirect: a2.redirect || o2.redirect || "follow", headers: h2, parsedURL: f2, signal: S2, referrer: v2 }, this.follow = a2.follow === void 0 ? o2.follow === void 0 ? 20 : o2.follow : a2.follow, this.compress = a2.compress === void 0 ? o2.compress === void 0 ? true : o2.compress : a2.compress, this.counter = a2.counter || o2.counter || 0, this.agent = a2.agent || o2.agent, this.highWaterMark = a2.highWaterMark || o2.highWaterMark || 16384, this.insecureHTTPParser = a2.insecureHTTPParser || o2.insecureHTTPParser || false, this.referrerPolicy = a2.referrerPolicy || o2.referrerPolicy || "";
-  }
-  get method() {
-    return this[$$1].method;
-  }
-  get url() {
-    return format(this[$$1].parsedURL);
-  }
-  get headers() {
-    return this[$$1].headers;
-  }
-  get redirect() {
-    return this[$$1].redirect;
-  }
-  get signal() {
-    return this[$$1].signal;
-  }
-  get referrer() {
-    if (this[$$1].referrer === "no-referrer") return "";
-    if (this[$$1].referrer === "client") return "about:client";
-    if (this[$$1].referrer) return this[$$1].referrer.toString();
-  }
-  get referrerPolicy() {
-    return this[$$1].referrerPolicy;
-  }
-  set referrerPolicy(o2) {
-    this[$$1].referrerPolicy = ll(o2);
-  }
-  clone() {
-    return new vr2(this);
-  }
-  get [Symbol.toStringTag]() {
-    return "Request";
-  }
-};
-n$2(vr, "Request");
-let dt = vr;
-Object.defineProperties(dt.prototype, { method: { enumerable: true }, url: { enumerable: true }, headers: { enumerable: true }, redirect: { enumerable: true }, clone: { enumerable: true }, signal: { enumerable: true }, referrer: { enumerable: true }, referrerPolicy: { enumerable: true } });
-const hl = n$2((i2) => {
-  const { parsedURL: o2 } = i2[$$1], a2 = new ye(i2[$$1].headers);
-  a2.has("Accept") || a2.set("Accept", "*/*");
-  let f2 = null;
-  if (i2.body === null && /^(post|put)$/i.test(i2.method) && (f2 = "0"), i2.body !== null) {
-    const S2 = rl(i2);
-    typeof S2 == "number" && !Number.isNaN(S2) && (f2 = String(S2));
-  }
-  f2 && a2.set("Content-Length", f2), i2.referrerPolicy === "" && (i2.referrerPolicy = sl), i2.referrer && i2.referrer !== "no-referrer" ? i2[$$1].referrer = fl(i2) : i2[$$1].referrer = "no-referrer", i2[$$1].referrer instanceof URL && a2.set("Referer", i2.referrer), a2.has("User-Agent") || a2.set("User-Agent", "node-fetch"), i2.compress && !a2.has("Accept-Encoding") && a2.set("Accept-Encoding", "gzip, deflate, br");
-  let { agent: l2 } = i2;
-  typeof l2 == "function" && (l2 = l2(o2));
-  const p2 = al(o2), h2 = { path: o2.pathname + p2, method: i2.method, headers: a2[/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")](), insecureHTTPParser: i2.insecureHTTPParser, agent: l2 };
-  return { parsedURL: o2, options: h2 };
-}, "getNodeRequestOptions"), Hn = class Hn2 extends ft {
-  constructor(o2, a2 = "aborted") {
-    super(o2, a2);
-  }
-};
-n$2(Hn, "AbortError");
-let _r = Hn;
-var Ln, Pi;
-function pl() {
-  if (Pi) return Ln;
-  if (Pi = 1, !globalThis.DOMException) try {
-    const { MessageChannel: i2 } = require("worker_threads"), o2 = new i2().port1, a2 = new ArrayBuffer();
-    o2.postMessage(a2, [a2, a2]);
-  } catch (i2) {
-    i2.constructor.name === "DOMException" && (globalThis.DOMException = i2.constructor);
-  }
-  return Ln = globalThis.DOMException, Ln;
-}
-n$2(pl, "requireNodeDomexception");
-var bl = pl();
-const ml = f$1(bl), { stat: $n } = promises;
-n$2((i2, o2) => vi(statSync(i2), i2, o2), "blobFromSync");
-n$2((i2, o2) => $n(i2).then((a2) => vi(a2, i2, o2)), "blobFrom");
-n$2((i2, o2) => $n(i2).then((a2) => Ei(a2, i2, o2)), "fileFrom");
-n$2((i2, o2) => Ei(statSync(i2), i2, o2), "fileFromSync");
-const vi = n$2((i2, o2, a2 = "") => new ut([new Sr({ path: o2, size: i2.size, lastModified: i2.mtimeMs, start: 0 })], { type: a2 }), "fromBlob"), Ei = n$2((i2, o2, a2 = "") => new qn([new Sr({ path: o2, size: i2.size, lastModified: i2.mtimeMs, start: 0 })], basename(o2), { type: a2, lastModified: i2.mtimeMs }), "fromFile"), Er = class Er2 {
-  constructor(o2) {
-    be(this, He);
-    be(this, Ve);
-    X(this, He, o2.path), X(this, Ve, o2.start), this.size = o2.size, this.lastModified = o2.lastModified;
-  }
-  slice(o2, a2) {
-    return new Er2({ path: O$1(this, He), lastModified: this.lastModified, size: a2 - o2, start: O$1(this, Ve) + o2 });
-  }
-  async *stream() {
-    const { mtimeMs: o2 } = await $n(O$1(this, He));
-    if (o2 > this.lastModified) throw new ml("The requested file could not be read, typically due to permission problems that have occurred after a reference to a file was acquired.", "NotReadableError");
-    yield* createReadStream(O$1(this, He), { start: O$1(this, Ve), end: O$1(this, Ve) + this.size - 1 });
-  }
-  get [Symbol.toStringTag]() {
-    return "Blob";
-  }
-};
-He = /* @__PURE__ */ new WeakMap(), Ve = /* @__PURE__ */ new WeakMap(), n$2(Er, "BlobDataItem");
-let Sr = Er;
-const wl = /* @__PURE__ */ new Set(["data:", "http:", "https:"]);
-async function Ai(i2, o2) {
-  return new Promise((a2, f2) => {
-    const l2 = new dt(i2, o2), { parsedURL: p2, options: h2 } = hl(l2);
-    if (!wl.has(p2.protocol)) throw new TypeError(`node-fetch cannot load ${i2}. URL scheme "${p2.protocol.replace(/:$/, "")}" is not supported.`);
-    if (p2.protocol === "data:") {
-      const g2 = Us(l2.url), V = new le(g2, { headers: { "Content-Type": g2.typeFull } });
-      a2(V);
-      return;
-    }
-    const S2 = (p2.protocol === "https:" ? zs : Bt).request, { signal: v2 } = l2;
-    let w2 = null;
-    const A2 = n$2(() => {
-      const g2 = new _r("The operation was aborted.");
-      f2(g2), l2.body && l2.body instanceof me.Readable && l2.body.destroy(g2), !(!w2 || !w2.body) && w2.body.emit("error", g2);
-    }, "abort");
-    if (v2 && v2.aborted) {
-      A2();
-      return;
-    }
-    const T2 = n$2(() => {
-      A2(), q();
-    }, "abortAndFinalize"), b2 = S2(p2.toString(), h2);
-    v2 && v2.addEventListener("abort", T2);
-    const q = n$2(() => {
-      b2.abort(), v2 && v2.removeEventListener("abort", T2);
-    }, "finalize");
-    b2.on("error", (g2) => {
-      f2(new G(`request to ${l2.url} failed, reason: ${g2.message}`, "system", g2)), q();
-    }), Rl(b2, (g2) => {
-      w2 && w2.body && w2.body.destroy(g2);
-    }), process.version < "v14" && b2.on("socket", (g2) => {
-      let V;
-      g2.prependListener("end", () => {
-        V = g2._eventsCount;
-      }), g2.prependListener("close", (I2) => {
-        if (w2 && V < g2._eventsCount && !I2) {
-          const F = new Error("Premature close");
-          F.code = "ERR_STREAM_PREMATURE_CLOSE", w2.body.emit("error", F);
-        }
-      });
-    }), b2.on("response", (g2) => {
-      b2.setTimeout(0);
-      const V = ol(g2.rawHeaders);
-      if (jn(g2.statusCode)) {
-        const z = V.get("Location");
-        let j2 = null;
-        try {
-          j2 = z === null ? null : new URL(z, l2.url);
-        } catch {
-          if (l2.redirect !== "manual") {
-            f2(new G(`uri requested responds with an invalid redirect URL: ${z}`, "invalid-redirect")), q();
-            return;
-          }
-        }
-        switch (l2.redirect) {
-          case "error":
-            f2(new G(`uri requested responds with a redirect, redirect mode is set to error: ${l2.url}`, "no-redirect")), q();
-            return;
-          case "manual":
-            break;
-          case "follow": {
-            if (j2 === null) break;
-            if (l2.counter >= l2.follow) {
-              f2(new G(`maximum redirect reached at: ${l2.url}`, "max-redirect")), q();
-              return;
-            }
-            const U2 = { headers: new ye(l2.headers), follow: l2.follow, counter: l2.counter + 1, agent: l2.agent, compress: l2.compress, method: l2.method, body: In(l2), signal: l2.signal, size: l2.size, referrer: l2.referrer, referrerPolicy: l2.referrerPolicy };
-            if (!Js(l2.url, j2) || !Xs(l2.url, j2)) for (const jt of ["authorization", "www-authenticate", "cookie", "cookie2"]) U2.headers.delete(jt);
-            if (g2.statusCode !== 303 && l2.body && o2.body instanceof me.Readable) {
-              f2(new G("Cannot follow redirect with body being a readable stream", "unsupported-redirect")), q();
-              return;
-            }
-            (g2.statusCode === 303 || (g2.statusCode === 301 || g2.statusCode === 302) && l2.method === "POST") && (U2.method = "GET", U2.body = void 0, U2.headers.delete("content-length"));
-            const D2 = cl(V);
-            D2 && (U2.referrerPolicy = D2), a2(Ai(new dt(j2, U2))), q();
-            return;
-          }
-          default:
-            return f2(new TypeError(`Redirect option '${l2.redirect}' is not a valid value of RequestRedirect`));
-        }
-      }
-      v2 && g2.once("end", () => {
-        v2.removeEventListener("abort", T2);
-      });
-      let I2 = pipeline(g2, new PassThrough(), (z) => {
-        z && f2(z);
-      });
-      process.version < "v12.10" && g2.on("aborted", T2);
-      const F = { url: l2.url, status: g2.statusCode, statusText: g2.statusMessage, headers: V, size: l2.size, counter: l2.counter, highWaterMark: l2.highWaterMark }, Q = V.get("Content-Encoding");
-      if (!l2.compress || l2.method === "HEAD" || Q === null || g2.statusCode === 204 || g2.statusCode === 304) {
-        w2 = new le(I2, F), a2(w2);
-        return;
-      }
-      const ge = { flush: st.Z_SYNC_FLUSH, finishFlush: st.Z_SYNC_FLUSH };
-      if (Q === "gzip" || Q === "x-gzip") {
-        I2 = pipeline(I2, st.createGunzip(ge), (z) => {
-          z && f2(z);
-        }), w2 = new le(I2, F), a2(w2);
-        return;
-      }
-      if (Q === "deflate" || Q === "x-deflate") {
-        const z = pipeline(g2, new PassThrough(), (j2) => {
-          j2 && f2(j2);
-        });
-        z.once("data", (j2) => {
-          (j2[0] & 15) === 8 ? I2 = pipeline(I2, st.createInflate(), (U2) => {
-            U2 && f2(U2);
-          }) : I2 = pipeline(I2, st.createInflateRaw(), (U2) => {
-            U2 && f2(U2);
-          }), w2 = new le(I2, F), a2(w2);
-        }), z.once("end", () => {
-          w2 || (w2 = new le(I2, F), a2(w2));
-        });
-        return;
-      }
-      if (Q === "br") {
-        I2 = pipeline(I2, st.createBrotliDecompress(), (z) => {
-          z && f2(z);
-        }), w2 = new le(I2, F), a2(w2);
-        return;
-      }
-      w2 = new le(I2, F), a2(w2);
-    }), nl(b2, l2).catch(f2);
-  });
-}
-n$2(Ai, "fetch$1");
-function Rl(i2, o2) {
-  const a2 = Buffer$1.from(`0\r
-\r
-`);
-  let f2 = false, l2 = false, p2;
-  i2.on("response", (h2) => {
-    const { headers: S2 } = h2;
-    f2 = S2["transfer-encoding"] === "chunked" && !S2["content-length"];
-  }), i2.on("socket", (h2) => {
-    const S2 = n$2(() => {
-      if (f2 && !l2) {
-        const w2 = new Error("Premature close");
-        w2.code = "ERR_STREAM_PREMATURE_CLOSE", o2(w2);
-      }
-    }, "onSocketClose"), v2 = n$2((w2) => {
-      l2 = Buffer$1.compare(w2.slice(-5), a2) === 0, !l2 && p2 && (l2 = Buffer$1.compare(p2.slice(-3), a2.slice(0, 3)) === 0 && Buffer$1.compare(w2.slice(-2), a2.slice(3)) === 0), p2 = w2;
-    }, "onData");
-    h2.prependListener("close", S2), h2.on("data", v2), i2.on("close", () => {
-      h2.removeListener("close", S2), h2.removeListener("data", v2);
-    });
-  });
-}
-n$2(Rl, "fixResponseChunkedTransferBadEnding");
-const Bi = /* @__PURE__ */ new WeakMap(), Dn = /* @__PURE__ */ new WeakMap();
-function W(i2) {
-  const o2 = Bi.get(i2);
-  return console.assert(o2 != null, "'this' is expected an Event object, but got", i2), o2;
-}
-n$2(W, "pd");
-function ki(i2) {
-  if (i2.passiveListener != null) {
-    typeof console < "u" && typeof console.error == "function" && console.error("Unable to preventDefault inside passive event listener invocation.", i2.passiveListener);
-    return;
-  }
-  i2.event.cancelable && (i2.canceled = true, typeof i2.event.preventDefault == "function" && i2.event.preventDefault());
-}
-n$2(ki, "setCancelFlag");
-function ht(i2, o2) {
-  Bi.set(this, { eventTarget: i2, event: o2, eventPhase: 2, currentTarget: i2, canceled: false, stopped: false, immediateStopped: false, passiveListener: null, timeStamp: o2.timeStamp || Date.now() }), Object.defineProperty(this, "isTrusted", { value: false, enumerable: true });
-  const a2 = Object.keys(o2);
-  for (let f2 = 0; f2 < a2.length; ++f2) {
-    const l2 = a2[f2];
-    l2 in this || Object.defineProperty(this, l2, Wi(l2));
-  }
-}
-n$2(ht, "Event"), ht.prototype = { get type() {
-  return W(this).event.type;
-}, get target() {
-  return W(this).eventTarget;
-}, get currentTarget() {
-  return W(this).currentTarget;
-}, composedPath() {
-  const i2 = W(this).currentTarget;
-  return i2 == null ? [] : [i2];
-}, get NONE() {
-  return 0;
-}, get CAPTURING_PHASE() {
-  return 1;
-}, get AT_TARGET() {
-  return 2;
-}, get BUBBLING_PHASE() {
-  return 3;
-}, get eventPhase() {
-  return W(this).eventPhase;
-}, stopPropagation() {
-  const i2 = W(this);
-  i2.stopped = true, typeof i2.event.stopPropagation == "function" && i2.event.stopPropagation();
-}, stopImmediatePropagation() {
-  const i2 = W(this);
-  i2.stopped = true, i2.immediateStopped = true, typeof i2.event.stopImmediatePropagation == "function" && i2.event.stopImmediatePropagation();
-}, get bubbles() {
-  return !!W(this).event.bubbles;
-}, get cancelable() {
-  return !!W(this).event.cancelable;
-}, preventDefault() {
-  ki(W(this));
-}, get defaultPrevented() {
-  return W(this).canceled;
-}, get composed() {
-  return !!W(this).event.composed;
-}, get timeStamp() {
-  return W(this).timeStamp;
-}, get srcElement() {
-  return W(this).eventTarget;
-}, get cancelBubble() {
-  return W(this).stopped;
-}, set cancelBubble(i2) {
-  if (!i2) return;
-  const o2 = W(this);
-  o2.stopped = true, typeof o2.event.cancelBubble == "boolean" && (o2.event.cancelBubble = true);
-}, get returnValue() {
-  return !W(this).canceled;
-}, set returnValue(i2) {
-  i2 || ki(W(this));
-}, initEvent() {
-} }, Object.defineProperty(ht.prototype, "constructor", { value: ht, configurable: true, writable: true }), typeof window < "u" && typeof window.Event < "u" && (Object.setPrototypeOf(ht.prototype, window.Event.prototype), Dn.set(window.Event.prototype, ht));
-function Wi(i2) {
-  return { get() {
-    return W(this).event[i2];
-  }, set(o2) {
-    W(this).event[i2] = o2;
-  }, configurable: true, enumerable: true };
-}
-n$2(Wi, "defineRedirectDescriptor");
-function Tl(i2) {
-  return { value() {
-    const o2 = W(this).event;
-    return o2[i2].apply(o2, arguments);
-  }, configurable: true, enumerable: true };
-}
-n$2(Tl, "defineCallDescriptor");
-function Cl(i2, o2) {
-  const a2 = Object.keys(o2);
-  if (a2.length === 0) return i2;
-  function f2(l2, p2) {
-    i2.call(this, l2, p2);
-  }
-  n$2(f2, "CustomEvent"), f2.prototype = Object.create(i2.prototype, { constructor: { value: f2, configurable: true, writable: true } });
-  for (let l2 = 0; l2 < a2.length; ++l2) {
-    const p2 = a2[l2];
-    if (!(p2 in i2.prototype)) {
-      const S2 = typeof Object.getOwnPropertyDescriptor(o2, p2).value == "function";
-      Object.defineProperty(f2.prototype, p2, S2 ? Tl(p2) : Wi(p2));
-    }
-  }
-  return f2;
-}
-n$2(Cl, "defineWrapper");
-function qi(i2) {
-  if (i2 == null || i2 === Object.prototype) return ht;
-  let o2 = Dn.get(i2);
-  return o2 == null && (o2 = Cl(qi(Object.getPrototypeOf(i2)), i2), Dn.set(i2, o2)), o2;
-}
-n$2(qi, "getWrapper");
-function Pl(i2, o2) {
-  const a2 = qi(Object.getPrototypeOf(o2));
-  return new a2(i2, o2);
-}
-n$2(Pl, "wrapEvent");
-function vl(i2) {
-  return W(i2).immediateStopped;
-}
-n$2(vl, "isStopped");
-function El(i2, o2) {
-  W(i2).eventPhase = o2;
-}
-n$2(El, "setEventPhase");
-function Al(i2, o2) {
-  W(i2).currentTarget = o2;
-}
-n$2(Al, "setCurrentTarget");
-function Oi(i2, o2) {
-  W(i2).passiveListener = o2;
-}
-n$2(Oi, "setPassiveListener");
-const zi = /* @__PURE__ */ new WeakMap(), Ii = 1, Fi = 2, wr = 3;
-function Rr(i2) {
-  return i2 !== null && typeof i2 == "object";
-}
-n$2(Rr, "isObject");
-function Ot(i2) {
-  const o2 = zi.get(i2);
-  if (o2 == null) throw new TypeError("'this' is expected an EventTarget object, but got another value.");
-  return o2;
-}
-n$2(Ot, "getListeners");
-function Bl(i2) {
-  return { get() {
-    let a2 = Ot(this).get(i2);
-    for (; a2 != null; ) {
-      if (a2.listenerType === wr) return a2.listener;
-      a2 = a2.next;
-    }
-    return null;
-  }, set(o2) {
-    typeof o2 != "function" && !Rr(o2) && (o2 = null);
-    const a2 = Ot(this);
-    let f2 = null, l2 = a2.get(i2);
-    for (; l2 != null; ) l2.listenerType === wr ? f2 !== null ? f2.next = l2.next : l2.next !== null ? a2.set(i2, l2.next) : a2.delete(i2) : f2 = l2, l2 = l2.next;
-    if (o2 !== null) {
-      const p2 = { listener: o2, listenerType: wr, passive: false, once: false, next: null };
-      f2 === null ? a2.set(i2, p2) : f2.next = p2;
-    }
-  }, configurable: true, enumerable: true };
-}
-n$2(Bl, "defineEventAttributeDescriptor");
-function ji(i2, o2) {
-  Object.defineProperty(i2, `on${o2}`, Bl(o2));
-}
-n$2(ji, "defineEventAttribute");
-function Li(i2) {
-  function o2() {
-    Pe.call(this);
-  }
-  n$2(o2, "CustomEventTarget"), o2.prototype = Object.create(Pe.prototype, { constructor: { value: o2, configurable: true, writable: true } });
-  for (let a2 = 0; a2 < i2.length; ++a2) ji(o2.prototype, i2[a2]);
-  return o2;
-}
-n$2(Li, "defineCustomEventTarget");
-function Pe() {
-  if (this instanceof Pe) {
-    zi.set(this, /* @__PURE__ */ new Map());
-    return;
-  }
-  if (arguments.length === 1 && Array.isArray(arguments[0])) return Li(arguments[0]);
-  if (arguments.length > 0) {
-    const i2 = new Array(arguments.length);
-    for (let o2 = 0; o2 < arguments.length; ++o2) i2[o2] = arguments[o2];
-    return Li(i2);
-  }
-  throw new TypeError("Cannot call a class as a function");
-}
-n$2(Pe, "EventTarget"), Pe.prototype = { addEventListener(i2, o2, a2) {
-  if (o2 == null) return;
-  if (typeof o2 != "function" && !Rr(o2)) throw new TypeError("'listener' should be a function or an object.");
-  const f2 = Ot(this), l2 = Rr(a2), h2 = (l2 ? !!a2.capture : !!a2) ? Ii : Fi, S2 = { listener: o2, listenerType: h2, passive: l2 && !!a2.passive, once: l2 && !!a2.once, next: null };
-  let v2 = f2.get(i2);
-  if (v2 === void 0) {
-    f2.set(i2, S2);
-    return;
-  }
-  let w2 = null;
-  for (; v2 != null; ) {
-    if (v2.listener === o2 && v2.listenerType === h2) return;
-    w2 = v2, v2 = v2.next;
-  }
-  w2.next = S2;
-}, removeEventListener(i2, o2, a2) {
-  if (o2 == null) return;
-  const f2 = Ot(this), p2 = (Rr(a2) ? !!a2.capture : !!a2) ? Ii : Fi;
-  let h2 = null, S2 = f2.get(i2);
-  for (; S2 != null; ) {
-    if (S2.listener === o2 && S2.listenerType === p2) {
-      h2 !== null ? h2.next = S2.next : S2.next !== null ? f2.set(i2, S2.next) : f2.delete(i2);
-      return;
-    }
-    h2 = S2, S2 = S2.next;
-  }
-}, dispatchEvent(i2) {
-  if (i2 == null || typeof i2.type != "string") throw new TypeError('"event.type" should be a string.');
-  const o2 = Ot(this), a2 = i2.type;
-  let f2 = o2.get(a2);
-  if (f2 == null) return true;
-  const l2 = Pl(this, i2);
-  let p2 = null;
-  for (; f2 != null; ) {
-    if (f2.once ? p2 !== null ? p2.next = f2.next : f2.next !== null ? o2.set(a2, f2.next) : o2.delete(a2) : p2 = f2, Oi(l2, f2.passive ? f2.listener : null), typeof f2.listener == "function") try {
-      f2.listener.call(this, l2);
-    } catch (h2) {
-      typeof console < "u" && typeof console.error == "function" && console.error(h2);
-    }
-    else f2.listenerType !== wr && typeof f2.listener.handleEvent == "function" && f2.listener.handleEvent(l2);
-    if (vl(l2)) break;
-    f2 = f2.next;
-  }
-  return Oi(l2, null), El(l2, 0), Al(l2, null), !l2.defaultPrevented;
-} }, Object.defineProperty(Pe.prototype, "constructor", { value: Pe, configurable: true, writable: true }), typeof window < "u" && typeof window.EventTarget < "u" && Object.setPrototypeOf(Pe.prototype, window.EventTarget.prototype);
-const Vn = class Vn2 extends Pe {
-  constructor() {
-    throw super(), new TypeError("AbortSignal cannot be constructed directly");
-  }
-  get aborted() {
-    const o2 = Tr.get(this);
-    if (typeof o2 != "boolean") throw new TypeError(`Expected 'this' to be an 'AbortSignal' object, but got ${this === null ? "null" : typeof this}`);
-    return o2;
-  }
-};
-n$2(Vn, "AbortSignal");
-let pt = Vn;
-ji(pt.prototype, "abort");
-function kl() {
-  const i2 = Object.create(pt.prototype);
-  return Pe.call(i2), Tr.set(i2, false), i2;
-}
-n$2(kl, "createAbortSignal");
-function Wl(i2) {
-  Tr.get(i2) === false && (Tr.set(i2, true), i2.dispatchEvent({ type: "abort" }));
-}
-n$2(Wl, "abortSignal");
-const Tr = /* @__PURE__ */ new WeakMap();
-Object.defineProperties(pt.prototype, { aborted: { enumerable: true } }), typeof Symbol == "function" && typeof Symbol.toStringTag == "symbol" && Object.defineProperty(pt.prototype, Symbol.toStringTag, { configurable: true, value: "AbortSignal" });
-let Mn = (gt = class {
-  constructor() {
-    $i.set(this, kl());
-  }
-  get signal() {
-    return Di(this);
-  }
-  abort() {
-    Wl(Di(this));
-  }
-}, n$2(gt, "AbortController"), gt);
-const $i = /* @__PURE__ */ new WeakMap();
-function Di(i2) {
-  const o2 = $i.get(i2);
-  if (o2 == null) throw new TypeError(`Expected 'this' to be an 'AbortController' object, but got ${i2 === null ? "null" : typeof i2}`);
-  return o2;
-}
-n$2(Di, "getSignal"), Object.defineProperties(Mn.prototype, { signal: { enumerable: true }, abort: { enumerable: true } }), typeof Symbol == "function" && typeof Symbol.toStringTag == "symbol" && Object.defineProperty(Mn.prototype, Symbol.toStringTag, { configurable: true, value: "AbortController" });
-var ql = Object.defineProperty, Ol = n$2((i2, o2) => ql(i2, "name", { value: o2, configurable: true }), "e");
-const Mi = Ai;
-Ui();
-function Ui() {
-  !globalThis.process?.versions?.node && !globalThis.process?.env?.DISABLE_NODE_FETCH_NATIVE_WARN && console.warn("[node-fetch-native] Node.js compatible build of `node-fetch-native` is being used in a non-Node.js environment. Please make sure you are using proper export conditions or report this issue to https://github.com/unjs/node-fetch-native. You can set `process.env.DISABLE_NODE_FETCH_NATIVE_WARN` to disable this warning.");
-}
-n$2(Ui, "s"), Ol(Ui, "checkNodeEnvironment");
-const o$1 = !!globalThis.process?.env?.FORCE_NODE_FETCH, r$1 = !o$1 && globalThis.fetch || Mi, n$1 = !o$1 && globalThis.Headers || ye, T$1 = !o$1 && globalThis.AbortController || Mn;
-const suspectProtoRx = /"(?:_|\\u0{2}5[Ff]){2}(?:p|\\u0{2}70)(?:r|\\u0{2}72)(?:o|\\u0{2}6[Ff])(?:t|\\u0{2}74)(?:o|\\u0{2}6[Ff])(?:_|\\u0{2}5[Ff]){2}"\s*:/;
-const suspectConstructorRx = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
-const JsonSigRx = /^\s*["[{]|^\s*-?\d{1,16}(\.\d{1,17})?([Ee][+-]?\d+)?\s*$/;
-function jsonParseTransform(key, value) {
-  if (key === "__proto__" || key === "constructor" && value && typeof value === "object" && "prototype" in value) {
-    warnKeyDropped(key);
-    return;
-  }
-  return value;
-}
-function warnKeyDropped(key) {
-  console.warn(`[destr] Dropping "${key}" key to prevent prototype pollution.`);
-}
-function destr(value, options = {}) {
-  if (typeof value !== "string") {
-    return value;
-  }
-  if (value[0] === '"' && value[value.length - 1] === '"' && value.indexOf("\\") === -1) {
-    return value.slice(1, -1);
-  }
-  const _value = value.trim();
-  if (_value.length <= 9) {
-    switch (_value.toLowerCase()) {
-      case "true": {
-        return true;
-      }
-      case "false": {
-        return false;
-      }
-      case "undefined": {
-        return void 0;
-      }
-      case "null": {
-        return null;
-      }
-      case "nan": {
-        return Number.NaN;
-      }
-      case "infinity": {
-        return Number.POSITIVE_INFINITY;
-      }
-      case "-infinity": {
-        return Number.NEGATIVE_INFINITY;
-      }
-    }
-  }
-  if (!JsonSigRx.test(value)) {
-    if (options.strict) {
-      throw new SyntaxError("[destr] Invalid JSON");
-    }
-    return value;
-  }
-  try {
-    if (suspectProtoRx.test(value) || suspectConstructorRx.test(value)) {
-      if (options.strict) {
-        throw new Error("[destr] Possible prototype pollution");
-      }
-      return JSON.parse(value, jsonParseTransform);
-    }
-    return JSON.parse(value);
-  } catch (error) {
-    if (options.strict) {
-      throw error;
-    }
-    return value;
-  }
-}
-const HASH_RE = /#/g;
-const AMPERSAND_RE = /&/g;
-const SLASH_RE = /\//g;
-const EQUAL_RE = /=/g;
-const PLUS_RE = /\+/g;
-const ENC_CARET_RE = /%5e/gi;
-const ENC_BACKTICK_RE = /%60/gi;
-const ENC_PIPE_RE = /%7c/gi;
-const ENC_SPACE_RE = /%20/gi;
-function encode(text) {
-  return encodeURI("" + text).replace(ENC_PIPE_RE, "|");
-}
-function encodeQueryValue(input) {
-  return encode(typeof input === "string" ? input : JSON.stringify(input)).replace(PLUS_RE, "%2B").replace(ENC_SPACE_RE, "+").replace(HASH_RE, "%23").replace(AMPERSAND_RE, "%26").replace(ENC_BACKTICK_RE, "`").replace(ENC_CARET_RE, "^").replace(SLASH_RE, "%2F");
-}
-function encodeQueryKey(text) {
-  return encodeQueryValue(text).replace(EQUAL_RE, "%3D");
-}
-function decode(text = "") {
-  try {
-    return decodeURIComponent("" + text);
-  } catch {
-    return "" + text;
-  }
-}
-function decodeQueryKey(text) {
-  return decode(text.replace(PLUS_RE, " "));
-}
-function decodeQueryValue(text) {
-  return decode(text.replace(PLUS_RE, " "));
-}
-function parseQuery(parametersString = "") {
-  const object = /* @__PURE__ */ Object.create(null);
-  if (parametersString[0] === "?") {
-    parametersString = parametersString.slice(1);
-  }
-  for (const parameter of parametersString.split("&")) {
-    const s2 = parameter.match(/([^=]+)=?(.*)/) || [];
-    if (s2.length < 2) {
-      continue;
-    }
-    const key = decodeQueryKey(s2[1]);
-    if (key === "__proto__" || key === "constructor") {
-      continue;
-    }
-    const value = decodeQueryValue(s2[2] || "");
-    if (object[key] === void 0) {
-      object[key] = value;
-    } else if (Array.isArray(object[key])) {
-      object[key].push(value);
-    } else {
-      object[key] = [object[key], value];
-    }
-  }
-  return object;
-}
-function encodeQueryItem(key, value) {
-  if (typeof value === "number" || typeof value === "boolean") {
-    value = String(value);
-  }
-  if (!value) {
-    return encodeQueryKey(key);
-  }
-  if (Array.isArray(value)) {
-    return value.map(
-      (_value) => `${encodeQueryKey(key)}=${encodeQueryValue(_value)}`
-    ).join("&");
-  }
-  return `${encodeQueryKey(key)}=${encodeQueryValue(value)}`;
-}
-function stringifyQuery(query) {
-  return Object.keys(query).filter((k2) => query[k2] !== void 0).map((k2) => encodeQueryItem(k2, query[k2])).filter(Boolean).join("&");
-}
-const PROTOCOL_STRICT_REGEX = /^[\s\w\0+.-]{2,}:([/\\]{1,2})/;
-const PROTOCOL_REGEX = /^[\s\w\0+.-]{2,}:([/\\]{2})?/;
-const PROTOCOL_RELATIVE_REGEX = /^([/\\]\s*){2,}[^/\\]/;
-const JOIN_LEADING_SLASH_RE = /^\.?\//;
-function hasProtocol(inputString, opts = {}) {
-  if (typeof opts === "boolean") {
-    opts = { acceptRelative: opts };
-  }
-  if (opts.strict) {
-    return PROTOCOL_STRICT_REGEX.test(inputString);
-  }
-  return PROTOCOL_REGEX.test(inputString) || (opts.acceptRelative ? PROTOCOL_RELATIVE_REGEX.test(inputString) : false);
-}
-function hasTrailingSlash(input = "", respectQueryAndFragment) {
-  {
-    return input.endsWith("/");
-  }
-}
-function withoutTrailingSlash(input = "", respectQueryAndFragment) {
-  {
-    return (hasTrailingSlash(input) ? input.slice(0, -1) : input) || "/";
-  }
-}
-function withTrailingSlash(input = "", respectQueryAndFragment) {
-  {
-    return input.endsWith("/") ? input : input + "/";
-  }
-}
-function withBase(input, base) {
-  if (isEmptyURL(base) || hasProtocol(input)) {
-    return input;
-  }
-  const _base = withoutTrailingSlash(base);
-  if (input.startsWith(_base)) {
-    const nextChar = input[_base.length];
-    if (!nextChar || nextChar === "/" || nextChar === "?") {
-      return input;
-    }
-  }
-  return joinURL(_base, input);
-}
-function withQuery(input, query) {
-  const parsed = parseURL(input);
-  const mergedQuery = { ...parseQuery(parsed.search), ...query };
-  parsed.search = stringifyQuery(mergedQuery);
-  return stringifyParsedURL(parsed);
-}
-function isEmptyURL(url) {
-  return !url || url === "/";
-}
-function isNonEmptyURL(url) {
-  return url && url !== "/";
-}
-function joinURL(base, ...input) {
-  let url = base || "";
-  for (const segment of input.filter((url2) => isNonEmptyURL(url2))) {
-    if (url) {
-      const _segment = segment.replace(JOIN_LEADING_SLASH_RE, "");
-      url = withTrailingSlash(url) + _segment;
-    } else {
-      url = segment;
-    }
-  }
-  return url;
-}
-const protocolRelative = /* @__PURE__ */ Symbol.for("ufo:protocolRelative");
-function parseURL(input = "", defaultProto) {
-  const _specialProtoMatch = input.match(
-    /^[\s\0]*(blob:|data:|javascript:|vbscript:)(.*)/i
-  );
-  if (_specialProtoMatch) {
-    const [, _proto, _pathname = ""] = _specialProtoMatch;
-    return {
-      protocol: _proto.toLowerCase(),
-      pathname: _pathname,
-      href: _proto + _pathname,
-      auth: "",
-      host: "",
-      search: "",
-      hash: ""
-    };
-  }
-  if (!hasProtocol(input, { acceptRelative: true })) {
-    return parsePath(input);
-  }
-  const [, protocol = "", auth, hostAndPath = ""] = input.replace(/\\/g, "/").match(/^[\s\0]*([\w+.-]{2,}:)?\/\/([^/@]+@)?(.*)/) || [];
-  let [, host = "", path = ""] = hostAndPath.match(/([^#/?]*)(.*)?/) || [];
-  if (protocol === "file:") {
-    path = path.replace(/\/(?=[A-Za-z]:)/, "");
-  }
-  const { pathname, search, hash } = parsePath(path);
-  return {
-    protocol: protocol.toLowerCase(),
-    auth: auth ? auth.slice(0, Math.max(0, auth.length - 1)) : "",
-    host,
-    pathname,
-    search,
-    hash,
-    [protocolRelative]: !protocol
-  };
-}
-function parsePath(input = "") {
-  const [pathname = "", search = "", hash = ""] = (input.match(/([^#?]*)(\?[^#]*)?(#.*)?/) || []).splice(1);
-  return {
-    pathname,
-    search,
-    hash
-  };
-}
-function stringifyParsedURL(parsed) {
-  const pathname = parsed.pathname || "";
-  const search = parsed.search ? (parsed.search.startsWith("?") ? "" : "?") + parsed.search : "";
-  const hash = parsed.hash || "";
-  const auth = parsed.auth ? parsed.auth + "@" : "";
-  const host = parsed.host || "";
-  const proto = parsed.protocol || parsed[protocolRelative] ? (parsed.protocol || "") + "//" : "";
-  return proto + auth + host + pathname + search + hash;
-}
-class FetchError extends Error {
-  constructor(message, opts) {
-    super(message, opts);
-    this.name = "FetchError";
-    if (opts?.cause && !this.cause) {
-      this.cause = opts.cause;
-    }
-  }
-}
-function createFetchError(ctx) {
-  const errorMessage = ctx.error?.message || ctx.error?.toString() || "";
-  const method = ctx.request?.method || ctx.options?.method || "GET";
-  const url = ctx.request?.url || String(ctx.request) || "/";
-  const requestStr = `[${method}] ${JSON.stringify(url)}`;
-  const statusStr = ctx.response ? `${ctx.response.status} ${ctx.response.statusText}` : "<no response>";
-  const message = `${requestStr}: ${statusStr}${errorMessage ? ` ${errorMessage}` : ""}`;
-  const fetchError = new FetchError(
-    message,
-    ctx.error ? { cause: ctx.error } : void 0
-  );
-  for (const key of ["request", "options", "response"]) {
-    Object.defineProperty(fetchError, key, {
-      get() {
-        return ctx[key];
-      }
-    });
-  }
-  for (const [key, refKey] of [
-    ["data", "_data"],
-    ["status", "status"],
-    ["statusCode", "status"],
-    ["statusText", "statusText"],
-    ["statusMessage", "statusText"]
-  ]) {
-    Object.defineProperty(fetchError, key, {
-      get() {
-        return ctx.response && ctx.response[refKey];
-      }
-    });
-  }
-  return fetchError;
-}
-const payloadMethods = new Set(
-  Object.freeze(["PATCH", "POST", "PUT", "DELETE"])
-);
-function isPayloadMethod(method = "GET") {
-  return payloadMethods.has(method.toUpperCase());
-}
-function isJSONSerializable(value) {
-  if (value === void 0) {
-    return false;
-  }
-  const t3 = typeof value;
-  if (t3 === "string" || t3 === "number" || t3 === "boolean" || t3 === null) {
-    return true;
-  }
-  if (t3 !== "object") {
-    return false;
-  }
-  if (Array.isArray(value)) {
-    return true;
-  }
-  if (value.buffer) {
-    return false;
-  }
-  if (value instanceof FormData || value instanceof URLSearchParams) {
-    return false;
-  }
-  return value.constructor && value.constructor.name === "Object" || typeof value.toJSON === "function";
-}
-const textTypes = /* @__PURE__ */ new Set([
-  "image/svg",
-  "application/xml",
-  "application/xhtml",
-  "application/html"
-]);
-const JSON_RE = /^application\/(?:[\w!#$%&*.^`~-]*\+)?json(;.+)?$/i;
-function detectResponseType(_contentType = "") {
-  if (!_contentType) {
-    return "json";
-  }
-  const contentType = _contentType.split(";").shift() || "";
-  if (JSON_RE.test(contentType)) {
-    return "json";
-  }
-  if (contentType === "text/event-stream") {
-    return "stream";
-  }
-  if (textTypes.has(contentType) || contentType.startsWith("text/")) {
-    return "text";
-  }
-  return "blob";
-}
-function resolveFetchOptions(request, input, defaults, Headers2) {
-  const headers = mergeHeaders(
-    input?.headers ?? request?.headers,
-    defaults?.headers,
-    Headers2
-  );
-  let query;
-  if (defaults?.query || defaults?.params || input?.params || input?.query) {
-    query = {
-      ...defaults?.params,
-      ...defaults?.query,
-      ...input?.params,
-      ...input?.query
-    };
-  }
-  return {
-    ...defaults,
-    ...input,
-    query,
-    params: query,
-    headers
-  };
-}
-function mergeHeaders(input, defaults, Headers2) {
-  if (!defaults) {
-    return new Headers2(input);
-  }
-  const headers = new Headers2(defaults);
-  if (input) {
-    for (const [key, value] of Symbol.iterator in input || Array.isArray(input) ? input : new Headers2(input)) {
-      headers.set(key, value);
-    }
-  }
-  return headers;
-}
-async function callHooks(context, hooks) {
-  if (hooks) {
-    if (Array.isArray(hooks)) {
-      for (const hook of hooks) {
-        await hook(context);
-      }
-    } else {
-      await hooks(context);
-    }
-  }
-}
-const retryStatusCodes = /* @__PURE__ */ new Set([
-  408,
-  // Request Timeout
-  409,
-  // Conflict
-  425,
-  // Too Early (Experimental)
-  429,
-  // Too Many Requests
-  500,
-  // Internal Server Error
-  502,
-  // Bad Gateway
-  503,
-  // Service Unavailable
-  504
-  // Gateway Timeout
-]);
-const nullBodyResponses = /* @__PURE__ */ new Set([101, 204, 205, 304]);
-function createFetch(globalOptions = {}) {
-  const {
-    fetch: fetch2 = globalThis.fetch,
-    Headers: Headers2 = globalThis.Headers,
-    AbortController: AbortController2 = globalThis.AbortController
-  } = globalOptions;
-  async function onError(context) {
-    const isAbort = context.error && context.error.name === "AbortError" && !context.options.timeout || false;
-    if (context.options.retry !== false && !isAbort) {
-      let retries;
-      if (typeof context.options.retry === "number") {
-        retries = context.options.retry;
-      } else {
-        retries = isPayloadMethod(context.options.method) ? 0 : 1;
-      }
-      const responseCode = context.response && context.response.status || 500;
-      if (retries > 0 && (Array.isArray(context.options.retryStatusCodes) ? context.options.retryStatusCodes.includes(responseCode) : retryStatusCodes.has(responseCode))) {
-        const retryDelay = typeof context.options.retryDelay === "function" ? context.options.retryDelay(context) : context.options.retryDelay || 0;
-        if (retryDelay > 0) {
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        }
-        return $fetchRaw(context.request, {
-          ...context.options,
-          retry: retries - 1
-        });
-      }
-    }
-    const error = createFetchError(context);
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(error, $fetchRaw);
-    }
-    throw error;
-  }
-  const $fetchRaw = async function $fetchRaw2(_request, _options = {}) {
-    const context = {
-      request: _request,
-      options: resolveFetchOptions(
-        _request,
-        _options,
-        globalOptions.defaults,
-        Headers2
-      ),
-      response: void 0,
-      error: void 0
-    };
-    if (context.options.method) {
-      context.options.method = context.options.method.toUpperCase();
-    }
-    if (context.options.onRequest) {
-      await callHooks(context, context.options.onRequest);
-      if (!(context.options.headers instanceof Headers2)) {
-        context.options.headers = new Headers2(
-          context.options.headers || {}
-          /* compat */
-        );
-      }
-    }
-    if (typeof context.request === "string") {
-      if (context.options.baseURL) {
-        context.request = withBase(context.request, context.options.baseURL);
-      }
-      if (context.options.query) {
-        context.request = withQuery(context.request, context.options.query);
-        delete context.options.query;
-      }
-      if ("query" in context.options) {
-        delete context.options.query;
-      }
-      if ("params" in context.options) {
-        delete context.options.params;
-      }
-    }
-    if (context.options.body && isPayloadMethod(context.options.method)) {
-      if (isJSONSerializable(context.options.body)) {
-        const contentType = context.options.headers.get("content-type");
-        if (typeof context.options.body !== "string") {
-          context.options.body = contentType === "application/x-www-form-urlencoded" ? new URLSearchParams(
-            context.options.body
-          ).toString() : JSON.stringify(context.options.body);
-        }
-        if (!contentType) {
-          context.options.headers.set("content-type", "application/json");
-        }
-        if (!context.options.headers.has("accept")) {
-          context.options.headers.set("accept", "application/json");
-        }
-      } else if (
-        // ReadableStream Body
-        "pipeTo" in context.options.body && typeof context.options.body.pipeTo === "function" || // Node.js Stream Body
-        typeof context.options.body.pipe === "function"
-      ) {
-        if (!("duplex" in context.options)) {
-          context.options.duplex = "half";
-        }
-      }
-    }
-    let abortTimeout;
-    if (!context.options.signal && context.options.timeout) {
-      const controller = new AbortController2();
-      abortTimeout = setTimeout(() => {
-        const error = new Error(
-          "[TimeoutError]: The operation was aborted due to timeout"
-        );
-        error.name = "TimeoutError";
-        error.code = 23;
-        controller.abort(error);
-      }, context.options.timeout);
-      context.options.signal = controller.signal;
-    }
-    try {
-      context.response = await fetch2(
-        context.request,
-        context.options
-      );
-    } catch (error) {
-      context.error = error;
-      if (context.options.onRequestError) {
-        await callHooks(
-          context,
-          context.options.onRequestError
-        );
-      }
-      return await onError(context);
-    } finally {
-      if (abortTimeout) {
-        clearTimeout(abortTimeout);
-      }
-    }
-    const hasBody = (context.response.body || // https://github.com/unjs/ofetch/issues/324
-    // https://github.com/unjs/ofetch/issues/294
-    // https://github.com/JakeChampion/fetch/issues/1454
-    context.response._bodyInit) && !nullBodyResponses.has(context.response.status) && context.options.method !== "HEAD";
-    if (hasBody) {
-      const responseType = (context.options.parseResponse ? "json" : context.options.responseType) || detectResponseType(context.response.headers.get("content-type") || "");
-      switch (responseType) {
-        case "json": {
-          const data = await context.response.text();
-          const parseFunction = context.options.parseResponse || destr;
-          context.response._data = parseFunction(data);
-          break;
-        }
-        case "stream": {
-          context.response._data = context.response.body || context.response._bodyInit;
-          break;
-        }
-        default: {
-          context.response._data = await context.response[responseType]();
-        }
-      }
-    }
-    if (context.options.onResponse) {
-      await callHooks(
-        context,
-        context.options.onResponse
-      );
-    }
-    if (!context.options.ignoreResponseError && context.response.status >= 400 && context.response.status < 600) {
-      if (context.options.onResponseError) {
-        await callHooks(
-          context,
-          context.options.onResponseError
-        );
-      }
-      return await onError(context);
-    }
-    return context.response;
-  };
-  const $fetch = async function $fetch2(request, options) {
-    const r2 = await $fetchRaw(request, options);
-    return r2._data;
-  };
-  $fetch.raw = $fetchRaw;
-  $fetch.native = (...args) => fetch2(...args);
-  $fetch.create = (defaultOptions = {}, customGlobalOptions = {}) => createFetch({
-    ...globalOptions,
-    ...customGlobalOptions,
-    defaults: {
-      ...globalOptions.defaults,
-      ...customGlobalOptions.defaults,
-      ...defaultOptions
-    }
-  });
-  return $fetch;
-}
-function createNodeFetch() {
-  const useKeepAlive = JSON.parse(process.env.FETCH_KEEP_ALIVE || "false");
-  if (!useKeepAlive) {
-    return r$1;
-  }
-  const agentOptions = { keepAlive: true };
-  const httpAgent = new Bt.Agent(agentOptions);
-  const httpsAgent = new zs.Agent(agentOptions);
-  const nodeFetchOptions = {
-    agent(parsedURL) {
-      return parsedURL.protocol === "http:" ? httpAgent : httpsAgent;
-    }
-  };
-  return function nodeFetchWithKeepAlive(input, init) {
-    return r$1(input, { ...nodeFetchOptions, ...init });
-  };
-}
-const fetch = globalThis.fetch ? (...args) => globalThis.fetch(...args) : createNodeFetch();
-const Headers = globalThis.Headers || n$1;
-const AbortController$1 = globalThis.AbortController || T$1;
-const ofetch = createFetch({ fetch, Headers, AbortController: AbortController$1 });
 function findTokenInCookie() {
   const match = document.cookie.match(
     new RegExp("(^|;\\s*)([CX]SRF-TOKEN)=([^;]*)", "i")
@@ -8451,8 +4833,8 @@ const Webpass = {
   isNotPlatformAuthenticator
 };
 Webpass.create({ findXsrfToken: true });
-const _sfc_main$o = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$s = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "LoginPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -8521,89 +4903,93 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$o = _sfc_main$o.setup;
-_sfc_main$o.setup = (props, ctx) => {
+const _sfc_setup$s = _sfc_main$s.setup;
+_sfc_main$s.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/LoginPage.vue");
-  return _sfc_setup$o ? _sfc_setup$o(props, ctx) : void 0;
+  return _sfc_setup$s ? _sfc_setup$s(props, ctx) : void 0;
 };
-const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$o
+  default: _sfc_main$s
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$n = /* @__PURE__ */ defineComponent({
-  __name: "ListStatusTabs",
+const _sfc_main$r = /* @__PURE__ */ defineComponent({
+  __name: "LibraryCardsView",
   __ssrInlineRender: true,
   props: {
-    activeStatus: {},
-    counts: {}
+    entries: {}
   },
-  emits: ["change"],
+  emits: ["edit", "progress"],
   setup(__props, { emit: __emit }) {
-    const statuses = ["all", "watching", "completed", "plan_to_watch", "on_hold", "dropped"];
-    function label(status) {
-      return status === "all" ? "All" : LIST_STATUS_LABELS[status];
-    }
-    function count(status, counts) {
-      if (status === "all") {
-        return Object.values(counts).reduce((sum, c2) => sum + c2, 0);
-      }
-      return counts[status] ?? 0;
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex gap-1 overflow-x-auto border-b border-gray-800 pb-px" }, _attrs))}><!--[-->`);
-      ssrRenderList(statuses, (s2) => {
-        _push(`<button class="${ssrRenderClass([__props.activeStatus === s2 ? "border-b-2 border-primary-400 text-primary-400" : "text-gray-400 hover:text-gray-200", "flex items-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium transition"])}">${ssrInterpolate(label(s2))} <span class="text-xs text-gray-500">(${ssrInterpolate(count(s2, __props.counts))})</span></button>`);
-      });
-      _push(`<!--]--></div>`);
-    };
-  }
-});
-const _sfc_setup$n = _sfc_main$n.setup;
-_sfc_main$n.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListStatusTabs.vue");
-  return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
-};
-const _sfc_main$m = /* @__PURE__ */ defineComponent({
-  __name: "ListTableView",
-  __ssrInlineRender: true,
-  props: {
-    entries: {},
-    readonly: { type: Boolean }
-  },
-  emits: ["update", "delete", "edit"],
-  setup(__props, { emit: __emit }) {
-    const emit = __emit;
-    const statusOptions = Object.entries(LIST_STATUS_LABELS).map(([value, label]) => ({ value, label }));
     function displayTitle(entry) {
       return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
     }
-    function handleStatusChange(entry, status) {
-      emit("update", entry.id, { status });
+    function canIncrement(entry) {
+      const total = entry.anime?.episodes;
+      return total == null || entry.progress < total;
+    }
+    function progressPercent(entry) {
+      const total = entry.anime?.episodes;
+      if (!total) return 0;
+      return Math.min(100, Math.max(0, entry.progress / total * 100));
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Link = resolveComponent("Link");
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "overflow-x-auto" }, _attrs))}><table class="w-full text-sm"><thead><tr class="border-b border-gray-800 text-left text-gray-400"><th class="w-12 py-3 pr-2"></th><th class="py-3 pr-4">Title</th><th class="w-40 py-3 pr-4">Status</th><th class="w-20 py-3 pr-4">Score</th><th class="w-32 py-3 pr-4">Progress</th><th class="w-20 py-3 pr-4">Type</th><th class="w-24 py-3">Updated</th></tr></thead><tbody><!--[-->`);
-      ssrRenderList(__props.entries, (entry) => {
-        _push(`<tr class="border-b border-gray-800/50 hover:bg-gray-900/50 transition"><td class="py-2 pr-2">`);
-        if (entry.anime?.cover_image_medium) {
-          _push(`<img${ssrRenderAttr("src", entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="h-10 w-7 rounded object-cover" loading="lazy">`);
-        } else {
-          _push(`<!---->`);
-        }
-        _push(`</td><td class="py-2 pr-4">`);
-        if (entry.anime) {
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" }, _attrs))}><!--[-->`);
+      ssrRenderList(__props.entries, (e2) => {
+        _push(`<div class="group">`);
+        if (e2.anime) {
           _push(ssrRenderComponent(_component_Link, {
-            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
-            class: "text-gray-200 hover:text-primary-400 transition"
+            href: e2.anime.slug ? _ctx.route("anime.show", { anime: e2.anime.slug }) : "#",
+            class: "relative block aspect-[2/3] overflow-hidden rounded-lg bg-gray-800 shadow-sm",
+            style: { backgroundColor: e2.anime.cover_image_color || void 0 }
           }, {
             default: withCtx((_2, _push2, _parent2, _scopeId) => {
               if (_push2) {
-                _push2(`${ssrInterpolate(displayTitle(entry))}`);
+                if (e2.anime.cover_image_large || e2.anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", e2.anime.cover_image_large || e2.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(e2))} loading="lazy" class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"${_scopeId}></div><div class="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur"${_scopeId}><span class="${ssrRenderClass([unref(statusDotClass)(e2.status), "h-1.5 w-1.5 rounded-full"])}"${_scopeId}></span> ${ssrInterpolate(unref(LIST_STATUS_LABELS)[e2.status])}</div>`);
+                if (e2.display_score) {
+                  _push2(`<div class="absolute right-2 top-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur"${_scopeId}> ★ ${ssrInterpolate(e2.display_score)}</div>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`<div class="absolute inset-x-2.5 bottom-2.5 text-white"${_scopeId}><p class="mb-1.5 line-clamp-2 text-sm font-medium leading-tight drop-shadow"${_scopeId}>${ssrInterpolate(displayTitle(e2))}</p><div class="flex items-center gap-1.5 text-[10px] opacity-90"${_scopeId}><span class="font-mono"${_scopeId}>${ssrInterpolate(e2.progress)}/${ssrInterpolate(e2.anime?.episodes ?? "?")}</span><div class="h-0.5 flex-1 overflow-hidden rounded-full bg-white/20"${_scopeId}><div class="h-full bg-white" style="${ssrRenderStyle({ width: `${progressPercent(e2)}%` })}"${_scopeId}></div></div></div></div>`);
               } else {
                 return [
-                  createTextVNode(toDisplayString(displayTitle(entry)), 1)
+                  e2.anime.cover_image_large || e2.anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                    key: 0,
+                    src: e2.anime.cover_image_large || e2.anime.cover_image_medium,
+                    alt: displayTitle(e2),
+                    loading: "lazy",
+                    class: "h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                  }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
+                  createVNode("div", { class: "absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" }),
+                  createVNode("div", { class: "absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur" }, [
+                    createVNode("span", {
+                      class: ["h-1.5 w-1.5 rounded-full", unref(statusDotClass)(e2.status)]
+                    }, null, 2),
+                    createTextVNode(" " + toDisplayString(unref(LIST_STATUS_LABELS)[e2.status]), 1)
+                  ]),
+                  e2.display_score ? (openBlock(), createBlock("div", {
+                    key: 1,
+                    class: "absolute right-2 top-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur"
+                  }, " ★ " + toDisplayString(e2.display_score), 1)) : createCommentVNode("", true),
+                  createVNode("div", { class: "absolute inset-x-2.5 bottom-2.5 text-white" }, [
+                    createVNode("p", { class: "mb-1.5 line-clamp-2 text-sm font-medium leading-tight drop-shadow" }, toDisplayString(displayTitle(e2)), 1),
+                    createVNode("div", { class: "flex items-center gap-1.5 text-[10px] opacity-90" }, [
+                      createVNode("span", { class: "font-mono" }, toDisplayString(e2.progress) + "/" + toDisplayString(e2.anime?.episodes ?? "?"), 1),
+                      createVNode("div", { class: "h-0.5 flex-1 overflow-hidden rounded-full bg-white/20" }, [
+                        createVNode("div", {
+                          class: "h-full bg-white",
+                          style: { width: `${progressPercent(e2)}%` }
+                        }, null, 4)
+                      ])
+                    ])
+                  ])
                 ];
               }
             }),
@@ -8612,36 +4998,113 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
         } else {
           _push(`<!---->`);
         }
-        _push(`</td><td class="py-2 pr-4">`);
-        if (!__props.readonly) {
-          _push(ssrRenderComponent(unref(Select), {
-            "model-value": entry.status,
-            options: unref(statusOptions),
-            "option-label": "label",
-            "option-value": "value",
-            class: "w-full text-xs",
-            "onUpdate:modelValue": (v2) => handleStatusChange(entry, v2)
-          }, null, _parent));
-        } else {
-          _push(`<span class="text-gray-300 text-xs">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
-        }
-        _push(`</td><td class="py-2 pr-4">`);
-        if (!__props.readonly) {
-          _push(`<input type="number" min="0" max="10" step="0.5"${ssrRenderAttr("value", entry.display_score ?? "")} class="w-16 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-center text-gray-200 text-xs">`);
-        } else {
-          _push(`<span class="text-gray-300 text-xs">${ssrInterpolate(entry.display_score ?? "-")}</span>`);
-        }
-        _push(`</td><td class="py-2 pr-4"><div class="flex items-center gap-1"><span class="text-gray-300">${ssrInterpolate(entry.progress)}</span><span class="text-gray-500">/</span><span class="text-gray-500">${ssrInterpolate(entry.anime?.episodes ?? "?")}</span>`);
-        if (!__props.readonly) {
-          _push(`<button class="ml-1 rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300 hover:bg-gray-600 transition"> + </button>`);
+        _push(`<div class="mt-2 flex items-center gap-1"><button class="flex flex-1 items-center justify-center gap-1 rounded-md border border-gray-700 bg-gray-800 px-2 py-1 text-[11px] font-medium transition hover:border-primary-400 hover:text-primary-400 disabled:cursor-default disabled:text-gray-500 disabled:hover:border-gray-700 disabled:hover:text-gray-500"${ssrIncludeBooleanAttr(!canIncrement(e2)) ? " disabled" : ""}${ssrRenderAttr("title", canIncrement(e2) ? "Add one episode" : "Already at total episode count")}><svg viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 010 2h-5v5a1 1 0 01-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z"></path></svg> EP ${ssrInterpolate(e2.progress + 1)}</button><button class="rounded-md border border-gray-700 bg-gray-800 px-2 py-1 text-gray-400 transition hover:border-gray-600 hover:text-gray-200" title="Edit entry"><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><circle cx="4" cy="10" r="1.5"></circle><circle cx="10" cy="10" r="1.5"></circle><circle cx="16" cy="10" r="1.5"></circle></svg></button></div></div>`);
+      });
+      _push(`<!--]--></div>`);
+    };
+  }
+});
+const _sfc_setup$r = _sfc_main$r.setup;
+_sfc_main$r.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/LibraryCardsView.vue");
+  return _sfc_setup$r ? _sfc_setup$r(props, ctx) : void 0;
+};
+const _sfc_main$q = /* @__PURE__ */ defineComponent({
+  __name: "LibraryRowsView",
+  __ssrInlineRender: true,
+  props: {
+    entries: {}
+  },
+  emits: ["edit", "progress"],
+  setup(__props, { emit: __emit }) {
+    function displayTitle(entry) {
+      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
+    }
+    function canIncrement(entry) {
+      const total = entry.anime?.episodes;
+      return total == null || entry.progress < total;
+    }
+    function progressPercent(entry) {
+      const total = entry.anime?.episodes;
+      if (!total) return 0;
+      return Math.min(100, Math.max(0, entry.progress / total * 100));
+    }
+    function seasonLabel(entry) {
+      const year = entry.anime?.season_year;
+      const season = entry.anime?.season;
+      if (!year && !season) return "—";
+      const s2 = season ? season.charAt(0) + season.slice(1).toLowerCase() : "";
+      return [year, s2].filter(Boolean).join(" ");
+    }
+    function genrePair(entry) {
+      return (entry.anime?.genres ?? []).slice(0, 2).map((g2) => g2.name).join(" / ");
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "overflow-hidden rounded-lg border border-gray-800 bg-gray-900/50" }, _attrs))}><!--[-->`);
+      ssrRenderList(__props.entries, (e2, i2) => {
+        _push(`<div class="${ssrRenderClass([i2 > 0 ? "border-t border-gray-800" : "", "flex items-center gap-3 px-3 py-2.5 transition hover:bg-gray-900"])}">`);
+        if (e2.anime) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: e2.anime.slug ? _ctx.route("anime.show", { anime: e2.anime.slug }) : "#",
+            class: "h-[52px] w-9 flex-none overflow-hidden rounded bg-gray-800"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                if (e2.anime.cover_image_medium || e2.anime.cover_image_large) {
+                  _push2(`<img${ssrRenderAttr("src", e2.anime.cover_image_medium || e2.anime.cover_image_large)}${ssrRenderAttr("alt", displayTitle(e2))} loading="lazy" class="h-full w-full object-cover"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+              } else {
+                return [
+                  e2.anime.cover_image_medium || e2.anime.cover_image_large ? (openBlock(), createBlock("img", {
+                    key: 0,
+                    src: e2.anime.cover_image_medium || e2.anime.cover_image_large,
+                    alt: displayTitle(e2),
+                    loading: "lazy",
+                    class: "h-full w-full object-cover"
+                  }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
         } else {
           _push(`<!---->`);
         }
-        _push(`</div></td><td class="py-2 pr-4 text-gray-400">${ssrInterpolate(entry.anime?.format?.replace(/_/g, " ") ?? "-")}</td><td class="py-2 text-gray-500 text-xs">${ssrInterpolate(new Date(entry.updated_at).toLocaleDateString())}</td></tr>`);
+        _push(`<div class="min-w-0 flex-1">`);
+        if (e2.anime) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: e2.anime.slug ? _ctx.route("anime.show", { anime: e2.anime.slug }) : "#",
+            class: "block truncate text-sm font-medium text-gray-100 transition hover:text-primary-400"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(displayTitle(e2))}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(displayTitle(e2)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`<div class="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-500"><span class="inline-flex items-center gap-1.5"><span class="${ssrRenderClass([unref(statusDotClass)(e2.status), "h-1.5 w-1.5 rounded-full"])}"></span> ${ssrInterpolate(unref(LIST_STATUS_LABELS)[e2.status])}</span><span class="text-gray-700">·</span><span>${ssrInterpolate(seasonLabel(e2))}</span>`);
+        if (genrePair(e2)) {
+          _push(`<!--[--><span class="text-gray-700">·</span><span>${ssrInterpolate(genrePair(e2))}</span><!--]-->`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div></div><div class="hidden w-44 flex-none sm:block"><div class="mb-1 flex justify-between font-mono text-[11px] text-gray-500"><span>EP ${ssrInterpolate(e2.progress)}</span><span>${ssrInterpolate(e2.anime?.episodes ?? "?")}</span></div><div class="h-[3px] overflow-hidden rounded-full bg-gray-800"><div class="h-full bg-primary-400" style="${ssrRenderStyle({ width: `${progressPercent(e2)}%` })}"></div></div></div><div class="${ssrRenderClass([e2.display_score ? "text-gray-200" : "text-gray-600", "w-12 flex-none text-right font-mono text-xs"])}">${ssrInterpolate(e2.display_score ? `★ ${e2.display_score}` : "—")}</div><button class="rounded-md border border-gray-700 bg-gray-800 px-2 py-1 font-mono text-[11px] text-gray-300 transition hover:border-primary-400 hover:text-primary-400 disabled:cursor-default disabled:text-gray-500 disabled:hover:border-gray-700 disabled:hover:text-gray-500"${ssrIncludeBooleanAttr(!canIncrement(e2)) ? " disabled" : ""} title="Add one episode">+1</button><button class="p-1 text-gray-500 transition hover:text-gray-200" title="Edit entry"><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><circle cx="4" cy="10" r="1.5"></circle><circle cx="10" cy="10" r="1.5"></circle><circle cx="16" cy="10" r="1.5"></circle></svg></button></div>`);
       });
-      _push(`<!--]--></tbody></table>`);
+      _push(`<!--]-->`);
       if (__props.entries.length === 0) {
-        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
+        _push(`<p class="px-4 py-8 text-center text-sm text-gray-500"> No entries found. </p>`);
       } else {
         _push(`<!---->`);
       }
@@ -8649,69 +5112,75 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$m = _sfc_main$m.setup;
-_sfc_main$m.setup = (props, ctx) => {
+const _sfc_setup$q = _sfc_main$q.setup;
+_sfc_main$q.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListTableView.vue");
-  return _sfc_setup$m ? _sfc_setup$m(props, ctx) : void 0;
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/LibraryRowsView.vue");
+  return _sfc_setup$q ? _sfc_setup$q(props, ctx) : void 0;
 };
-const _sfc_main$l = /* @__PURE__ */ defineComponent({
-  __name: "ListCardView",
+const _sfc_main$p = /* @__PURE__ */ defineComponent({
+  __name: "LibraryDataTable",
   __ssrInlineRender: true,
   props: {
-    entries: {},
-    readonly: { type: Boolean }
+    entries: {}
   },
   emits: ["edit"],
   setup(__props, { emit: __emit }) {
     function displayTitle(entry) {
       return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
     }
-    const statusColors = {
-      watching: "border-blue-500",
-      completed: "border-green-500",
-      on_hold: "border-yellow-500",
-      dropped: "border-red-500",
-      plan_to_watch: "border-gray-600"
-    };
-    const statusBadgeColors = {
-      watching: "bg-blue-500/20 text-blue-400",
-      completed: "bg-green-500/20 text-green-400",
-      on_hold: "bg-yellow-500/20 text-yellow-400",
-      dropped: "bg-red-500/20 text-red-400",
-      plan_to_watch: "bg-gray-700 text-gray-400"
-    };
+    function progressPercent(entry) {
+      const total = entry.anime?.episodes;
+      if (!total) return 0;
+      return Math.min(100, Math.max(0, entry.progress / total * 100));
+    }
+    function daysAgo(iso) {
+      const ms = Date.now() - new Date(iso).getTime();
+      const days = Math.round(ms / 864e5);
+      if (days <= 0) return "today";
+      if (days === 1) return "1d ago";
+      if (days < 30) return `${days}d ago`;
+      const months = Math.round(days / 30);
+      if (months < 12) return `${months}mo ago`;
+      return `${Math.round(months / 12)}y ago`;
+    }
+    function formatLabel(entry) {
+      return entry.anime?.format?.replace(/_/g, " ") ?? "—";
+    }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Link = resolveComponent("Link");
-      _push(`<!--[--><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"><!--[-->`);
-      ssrRenderList(__props.entries, (entry) => {
-        _push(`<div class="${ssrRenderClass([statusColors[entry.status] ?? "border-gray-700", "group relative overflow-hidden rounded-lg bg-gray-800 border-2"])}">`);
-        if (entry.anime) {
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "overflow-hidden rounded-lg border border-gray-800 bg-gray-900/50" }, _attrs))}><div class="grid grid-cols-[36px_minmax(0,2.4fr)_minmax(0,1fr)_60px_minmax(0,1fr)_70px_minmax(0,0.9fr)_32px] items-center gap-3 border-b border-gray-800 px-3 py-2.5 font-mono text-[10px] uppercase tracking-wider text-gray-500"><div>#</div><div>Title</div><div>Status</div><div>Score</div><div>Progress</div><div>Type</div><div>Updated</div><div></div></div><!--[-->`);
+      ssrRenderList(__props.entries, (e2, i2) => {
+        _push(`<div class="${ssrRenderClass([i2 > 0 ? "border-t border-gray-800" : "", "grid grid-cols-[36px_minmax(0,2.4fr)_minmax(0,1fr)_60px_minmax(0,1fr)_70px_minmax(0,0.9fr)_32px] items-center gap-3 px-3 py-2.5 text-sm transition hover:bg-gray-900"])}"><div class="font-mono text-[11px] text-gray-500">${ssrInterpolate(String(i2 + 1).padStart(2, "0"))}</div>`);
+        if (e2.anime) {
           _push(ssrRenderComponent(_component_Link, {
-            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
-            class: "block"
+            href: e2.anime.slug ? _ctx.route("anime.show", { anime: e2.anime.slug }) : "#",
+            class: "group flex min-w-0 items-center gap-2.5"
           }, {
             default: withCtx((_2, _push2, _parent2, _scopeId) => {
               if (_push2) {
-                if (entry.anime.cover_image_large || entry.anime.cover_image_medium) {
-                  _push2(`<img${ssrRenderAttr("src", entry.anime.cover_image_large || entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="aspect-[3/4] w-full object-cover" loading="lazy"${_scopeId}>`);
+                _push2(`<div class="h-[42px] w-[30px] flex-none overflow-hidden rounded bg-gray-800"${_scopeId}>`);
+                if (e2.anime.cover_image_medium || e2.anime.cover_image_large) {
+                  _push2(`<img${ssrRenderAttr("src", e2.anime.cover_image_medium || e2.anime.cover_image_large)}${ssrRenderAttr("alt", displayTitle(e2))} loading="lazy" class="h-full w-full object-cover"${_scopeId}>`);
                 } else {
-                  _push2(`<div class="aspect-[3/4] w-full bg-gray-700 flex items-center justify-center"${_scopeId}><span class="text-gray-500 text-xs"${_scopeId}>No image</span></div>`);
+                  _push2(`<!---->`);
                 }
+                _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><div class="truncate font-medium text-gray-100 transition group-hover:text-primary-400"${_scopeId}>${ssrInterpolate(displayTitle(e2))}</div><div class="truncate text-[11px] text-gray-500"${_scopeId}>${ssrInterpolate(e2.anime.title_romaji)}</div></div>`);
               } else {
                 return [
-                  entry.anime.cover_image_large || entry.anime.cover_image_medium ? (openBlock(), createBlock("img", {
-                    key: 0,
-                    src: entry.anime.cover_image_large || entry.anime.cover_image_medium,
-                    alt: displayTitle(entry),
-                    class: "aspect-[3/4] w-full object-cover",
-                    loading: "lazy"
-                  }, null, 8, ["src", "alt"])) : (openBlock(), createBlock("div", {
-                    key: 1,
-                    class: "aspect-[3/4] w-full bg-gray-700 flex items-center justify-center"
-                  }, [
-                    createVNode("span", { class: "text-gray-500 text-xs" }, "No image")
-                  ]))
+                  createVNode("div", { class: "h-[42px] w-[30px] flex-none overflow-hidden rounded bg-gray-800" }, [
+                    e2.anime.cover_image_medium || e2.anime.cover_image_large ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: e2.anime.cover_image_medium || e2.anime.cover_image_large,
+                      alt: displayTitle(e2),
+                      loading: "lazy",
+                      class: "h-full w-full object-cover"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true)
+                  ]),
+                  createVNode("div", { class: "min-w-0 flex-1" }, [
+                    createVNode("div", { class: "truncate font-medium text-gray-100 transition group-hover:text-primary-400" }, toDisplayString(displayTitle(e2)), 1),
+                    createVNode("div", { class: "truncate text-[11px] text-gray-500" }, toDisplayString(e2.anime.title_romaji), 1)
+                  ])
                 ];
               }
             }),
@@ -8720,115 +5189,26 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
         } else {
           _push(`<!---->`);
         }
-        _push(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 via-gray-900/70 to-transparent p-2 pt-8"><p class="text-xs font-medium text-gray-200 line-clamp-2 mb-1">${ssrInterpolate(displayTitle(entry))}</p><div class="flex items-center justify-between"><span class="${ssrRenderClass([statusBadgeColors[entry.status] ?? "bg-gray-700 text-gray-400", "text-[10px] px-1.5 py-0.5 rounded-full font-medium"])}">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
-        if (entry.display_score) {
-          _push(`<span class="text-[10px] text-primary-400">${ssrInterpolate(entry.display_score)}</span>`);
-        } else {
-          _push(`<!---->`);
-        }
-        _push(`</div><div class="text-[10px] text-gray-500 mt-0.5">${ssrInterpolate(entry.progress)}${ssrInterpolate(entry.anime?.episodes ? ` / ${entry.anime.episodes}` : "")} eps </div></div>`);
-        if (!__props.readonly) {
-          _push(`<button class="absolute top-1 right-1 rounded bg-gray-900/80 p-1 text-gray-400 opacity-0 group-hover:opacity-100 transition hover:text-gray-200"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`);
-        } else {
-          _push(`<!---->`);
-        }
-        _push(`</div>`);
+        _push(`<div class="inline-flex items-center gap-1.5 text-xs text-gray-300"><span class="${ssrRenderClass([unref(statusDotClass)(e2.status), "h-1.5 w-1.5 rounded-full"])}"></span> ${ssrInterpolate(unref(LIST_STATUS_LABELS)[e2.status])}</div><div class="${ssrRenderClass([e2.display_score ? "text-gray-100" : "text-gray-600", "font-mono text-xs"])}">${ssrInterpolate(e2.display_score ? `★ ${e2.display_score}` : "—")}</div><div><div class="mb-1 flex justify-between font-mono text-[11px] text-gray-500"><span>${ssrInterpolate(e2.progress)}</span><span>${ssrInterpolate(e2.anime?.episodes ?? "?")}</span></div><div class="h-[2px] overflow-hidden rounded-full bg-gray-800"><div class="h-full bg-primary-400" style="${ssrRenderStyle({ width: `${progressPercent(e2)}%` })}"></div></div></div><div class="text-xs text-gray-500">${ssrInterpolate(formatLabel(e2))}</div><div class="font-mono text-[11px] text-gray-500">${ssrInterpolate(daysAgo(e2.updated_at))}</div><button class="p-1 text-gray-500 transition hover:text-gray-200" title="Edit entry"><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><circle cx="4" cy="10" r="1.5"></circle><circle cx="10" cy="10" r="1.5"></circle><circle cx="16" cy="10" r="1.5"></circle></svg></button></div>`);
       });
-      _push(`<!--]--></div>`);
+      _push(`<!--]-->`);
       if (__props.entries.length === 0) {
-        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
+        _push(`<p class="px-4 py-8 text-center text-sm text-gray-500"> No entries found. </p>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`<!--]-->`);
+      _push(`</div>`);
     };
   }
 });
-const _sfc_setup$l = _sfc_main$l.setup;
-_sfc_main$l.setup = (props, ctx) => {
+const _sfc_setup$p = _sfc_main$p.setup;
+_sfc_main$p.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCardView.vue");
-  return _sfc_setup$l ? _sfc_setup$l(props, ctx) : void 0;
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/LibraryDataTable.vue");
+  return _sfc_setup$p ? _sfc_setup$p(props, ctx) : void 0;
 };
-const _sfc_main$k = /* @__PURE__ */ defineComponent({
-  __name: "ListCompactView",
-  __ssrInlineRender: true,
-  props: {
-    entries: {},
-    readonly: { type: Boolean }
-  },
-  emits: ["update"],
-  setup(__props, { emit: __emit }) {
-    const emit = __emit;
-    const statusOptions = Object.entries(LIST_STATUS_LABELS).map(([value, label]) => ({ value, label }));
-    function displayTitle(entry) {
-      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
-    }
-    function handleStatusChange(entry, status) {
-      emit("update", entry.id, { status });
-    }
-    return (_ctx, _push, _parent, _attrs) => {
-      const _component_Link = resolveComponent("Link");
-      _push(`<!--[--><div class="divide-y divide-gray-800/50"><!--[-->`);
-      ssrRenderList(__props.entries, (entry) => {
-        _push(`<div class="flex items-center gap-3 py-1.5 hover:bg-gray-900/30 transition text-xs">`);
-        if (entry.anime) {
-          _push(ssrRenderComponent(_component_Link, {
-            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
-            class: "flex-1 min-w-0 text-gray-200 hover:text-primary-400 transition truncate"
-          }, {
-            default: withCtx((_2, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`${ssrInterpolate(displayTitle(entry))}`);
-              } else {
-                return [
-                  createTextVNode(toDisplayString(displayTitle(entry)), 1)
-                ];
-              }
-            }),
-            _: 2
-          }, _parent));
-        } else {
-          _push(`<!---->`);
-        }
-        if (!__props.readonly) {
-          _push(ssrRenderComponent(unref(Select), {
-            "model-value": entry.status,
-            options: unref(statusOptions),
-            "option-label": "label",
-            "option-value": "value",
-            class: "w-32 text-xs",
-            "onUpdate:modelValue": (v2) => handleStatusChange(entry, v2)
-          }, null, _parent));
-        } else {
-          _push(`<span class="w-32 text-gray-300 text-xs">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
-        }
-        _push(`<span class="w-12 text-center text-gray-400">${ssrInterpolate(entry.display_score ?? "-")}</span><div class="flex items-center gap-1 w-20"><span class="text-gray-300">${ssrInterpolate(entry.progress)}</span><span class="text-gray-600">/${ssrInterpolate(entry.anime?.episodes ?? "?")}</span>`);
-        if (!__props.readonly) {
-          _push(`<button class="rounded bg-gray-700 px-1 text-gray-300 hover:bg-gray-600 transition">+</button>`);
-        } else {
-          _push(`<!---->`);
-        }
-        _push(`</div><span class="w-16 text-gray-500">${ssrInterpolate(entry.anime?.format?.replace(/_/g, " ") ?? "-")}</span></div>`);
-      });
-      _push(`<!--]--></div>`);
-      if (__props.entries.length === 0) {
-        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
-      } else {
-        _push(`<!---->`);
-      }
-      _push(`<!--]-->`);
-    };
-  }
-});
-const _sfc_setup$k = _sfc_main$k.setup;
-_sfc_main$k.setup = (props, ctx) => {
-  const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCompactView.vue");
-  return _sfc_setup$k ? _sfc_setup$k(props, ctx) : void 0;
-};
-const _sfc_main$j = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$o = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "MyListPage",
   __ssrInlineRender: true,
   props: {
@@ -8837,27 +5217,50 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
   },
   setup(__props) {
     const props = __props;
-    const activeStatus = ref("all");
-    const viewMode = ref("table");
+    const VALID_STATUSES = ["all", "watching", "completed", "plan_to_watch", "on_hold", "dropped"];
+    function readStatusFromUrl() {
+      if (typeof window === "undefined") return "all";
+      const param = new URLSearchParams(window.location.search).get("status");
+      return VALID_STATUSES.includes(param ?? "") ? param : "all";
+    }
+    const activeStatus = ref(readStatusFromUrl());
+    const viewMode = ref("card");
+    const sortField = ref("-updated_at");
+    const filterText = ref("");
+    const selectedGenres = ref([]);
     onMounted(() => {
+      activeStatus.value = readStatusFromUrl();
       const saved = localStorage.getItem("list_view");
       if (saved && ["table", "card", "compact"].includes(saved)) {
         viewMode.value = saved;
       }
     });
-    const sortField = ref("-updated_at");
+    const statusFiltered = computed(
+      () => activeStatus.value === "all" ? props.entries : props.entries.filter((e2) => e2.status === activeStatus.value)
+    );
     const filteredEntries = computed(() => {
-      let entries = props.entries;
-      if (activeStatus.value !== "all") {
-        entries = entries.filter((e2) => e2.status === activeStatus.value);
+      let entries = statusFiltered.value;
+      if (filterText.value.trim()) {
+        const t3 = filterText.value.trim().toLowerCase();
+        entries = entries.filter((e2) => {
+          const en = e2.anime?.title_english?.toLowerCase() ?? "";
+          const ro = e2.anime?.title_romaji?.toLowerCase() ?? "";
+          return en.includes(t3) || ro.includes(t3);
+        });
+      }
+      if (selectedGenres.value.length) {
+        entries = entries.filter((e2) => {
+          const names = (e2.anime?.genres ?? []).map((g2) => g2.name);
+          return selectedGenres.value.every((g2) => names.includes(g2));
+        });
       }
       const [dir, field] = sortField.value.startsWith("-") ? ["desc", sortField.value.slice(1)] : ["asc", sortField.value];
       return [...entries].sort((a2, b2) => {
-        let aVal = null;
-        let bVal = null;
+        let aVal = 0;
+        let bVal = 0;
         if (field === "updated_at") {
-          aVal = a2.updated_at;
-          bVal = b2.updated_at;
+          aVal = new Date(a2.updated_at).getTime();
+          bVal = new Date(b2.updated_at).getTime();
         } else if (field === "score") {
           aVal = a2.score ?? -1;
           bVal = b2.score ?? -1;
@@ -8865,17 +5268,42 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
           aVal = (a2.anime?.title_english || a2.anime?.title_romaji || "").toLowerCase();
           bVal = (b2.anime?.title_english || b2.anime?.title_romaji || "").toLowerCase();
         } else if (field === "progress") {
-          aVal = a2.progress;
-          bVal = b2.progress;
+          const aTot = a2.anime?.episodes || 1;
+          const bTot = b2.anime?.episodes || 1;
+          aVal = a2.progress / aTot;
+          bVal = b2.progress / bTot;
         }
-        if (aVal === null || bVal === null) return 0;
         if (aVal < bVal) return dir === "asc" ? -1 : 1;
         if (aVal > bVal) return dir === "asc" ? 1 : -1;
         return 0;
       });
     });
+    const totalCount = computed(() => Object.values(props.counts).reduce((n2, c2) => n2 + c2, 0));
+    const stats = computed(() => {
+      const watching = props.counts?.watching ?? 0;
+      const completed = props.counts?.completed ?? 0;
+      const scored = props.entries.filter((e2) => e2.display_score != null && e2.display_score > 0);
+      const avg = scored.length ? scored.reduce((n2, e2) => n2 + e2.display_score, 0) / scored.length : 0;
+      const totalEp = props.entries.reduce((n2, e2) => n2 + e2.progress, 0);
+      const days = Math.round(totalEp * 24 / 60 / 24 * 10) / 10;
+      return { watching, completed, avg, totalEp, days };
+    });
+    const tabs = computed(() => {
+      const base = [
+        { key: "all", label: "All", count: totalCount.value }
+      ];
+      const statuses = ["watching", "completed", "plan_to_watch", "on_hold", "dropped"];
+      statuses.forEach((s2) => base.push({ key: s2, label: LIST_STATUS_LABELS[s2], count: props.counts?.[s2] ?? 0 }));
+      return base;
+    });
+    const allGenres = computed(() => {
+      const s2 = /* @__PURE__ */ new Set();
+      props.entries.forEach((e2) => (e2.anime?.genres ?? []).forEach((g2) => s2.add(g2.name)));
+      return [...s2].sort();
+    });
     const page = usePage();
     const user = computed(() => page.props.auth.user);
+    const username = computed(() => user.value?.username ?? "you");
     const publicUrl = computed(() => {
       if (!user.value?.list_is_public || !user.value?.username) return null;
       return `${window.location.origin}/user/${user.value.username}/list`;
@@ -8887,18 +5315,15 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
       }, { preserveState: true, preserveScroll: true });
     }
     const copied = ref(false);
-    const { updateMutation, destroyMutation } = useListMutations();
+    const { updateMutation } = useListMutations();
     function reloadProps() {
       router.reload({ only: ["entries", "counts"] });
     }
-    function handleUpdate(id, patch) {
-      updateMutation.mutate(
-        { id, ...patch },
-        { onSuccess: reloadProps }
-      );
-    }
-    function handleDelete(id) {
-      destroyMutation.mutate(id, { onSuccess: reloadProps });
+    function handleProgress(entry, delta) {
+      const total = entry.anime?.episodes;
+      const next = Math.max(0, total != null ? Math.min(total, entry.progress + delta) : entry.progress + delta);
+      if (next === entry.progress) return;
+      updateMutation.mutate({ id: entry.id, progress: next }, { onSuccess: reloadProps });
     }
     const editingEntry = ref(null);
     const showEditModal = ref(false);
@@ -8907,24 +5332,24 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
       showEditModal.value = true;
     }
     const sortOptions = [
-      { label: "Last Updated", value: "-updated_at" },
-      { label: "Score", value: "-score" },
-      { label: "Title", value: "title" },
+      { label: "Recently updated", value: "-updated_at" },
+      { label: "My score", value: "-score" },
+      { label: "Title A–Z", value: "title" },
       { label: "Progress", value: "-progress" }
     ];
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
       const _component_Link = resolveComponent("Link");
       _push(`<!--[-->`);
-      _push(ssrRenderComponent(_component_Head, { title: "My List" }, null, _parent));
-      _push(`<div class="space-y-4"><div class="flex items-center justify-between"><h1 class="text-2xl font-bold">My Anime List</h1><div class="flex items-center gap-3"><div class="flex items-center gap-2">`);
+      _push(ssrRenderComponent(_component_Head, { title: "Library" }, null, _parent));
+      _push(`<div class="space-y-6"><div><div class="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500"> Library · @${ssrInterpolate(username.value)}</div><h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl"> Your collection </h1><p class="mt-2 max-w-2xl text-sm text-gray-400">${ssrInterpolate(totalCount.value)} titles · ${ssrInterpolate(stats.value.totalEp.toLocaleString())} episodes watched · ${ssrInterpolate(stats.value.days)} days of your life. </p></div><div class="flex flex-wrap items-center gap-3 border-b border-gray-800 pb-5"><div class="flex items-center gap-2">`);
       _push(ssrRenderComponent(unref(ToggleSwitch), {
         modelValue: listIsPublic.value,
         "onUpdate:modelValue": [($event) => listIsPublic.value = $event, togglePublic]
       }, null, _parent));
       _push(`<span class="text-sm text-gray-400">Public</span></div>`);
       if (publicUrl.value) {
-        _push(`<button class="${ssrRenderClass([copied.value ? "text-green-400" : "text-gray-300", "flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-sm transition hover:border-gray-600 hover:bg-gray-750"])}">`);
+        _push(`<button class="${ssrRenderClass([copied.value ? "border-green-500/50 text-green-400" : "border-gray-700 text-gray-300 hover:border-gray-600", "flex items-center gap-1.5 rounded-lg border bg-gray-800 px-3 py-1.5 text-sm transition"])}">`);
         if (!copied.value) {
           _push(`<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path></svg>`);
         } else {
@@ -8934,62 +5359,106 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(`<a${ssrRenderAttr("href", _ctx.route("list.export"))} class="text-sm text-gray-400 hover:text-gray-200 transition"> Export XML </a>`);
+      _push(`<a${ssrRenderAttr("href", _ctx.route("list.export"))} class="text-sm text-gray-400 transition hover:text-gray-200">Export XML</a>`);
       _push(ssrRenderComponent(_component_Link, {
         href: _ctx.route("import"),
-        class: "text-sm text-gray-400 hover:text-gray-200 transition"
+        class: "text-sm text-gray-400 transition hover:text-gray-200"
       }, {
         default: withCtx((_2, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(` Import `);
+            _push2(`Import`);
           } else {
             return [
-              createTextVNode(" Import ")
+              createTextVNode("Import")
             ];
           }
         }),
         _: 1
       }, _parent));
-      _push(`</div></div>`);
-      _push(ssrRenderComponent(_sfc_main$n, {
-        "active-status": activeStatus.value,
-        counts: __props.counts,
-        onChange: ($event) => activeStatus.value = $event
-      }, null, _parent));
-      _push(`<div class="flex items-center justify-between"><select class="rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm text-gray-300"><!--[-->`);
+      _push(`</div><div class="grid grid-cols-2 gap-3 sm:grid-cols-4"><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4"><p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Watching</p><p class="text-2xl font-bold text-primary-400">${ssrInterpolate(stats.value.watching)}</p><p class="mt-1 text-[11px] text-gray-500">currently</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4"><p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Completed</p><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(stats.value.completed)}</p><p class="mt-1 text-[11px] text-gray-500">all time</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4"><p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Avg score</p><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(stats.value.avg ? stats.value.avg.toFixed(1) : "—")}</p><p class="mt-1 text-[11px] text-gray-500">on scored entries</p></div><div class="rounded-lg border border-gray-800 bg-gray-900/50 p-4"><p class="mb-2 font-mono text-[11px] uppercase tracking-wider text-gray-500">Time spent</p><p class="text-2xl font-bold text-gray-100">${ssrInterpolate(stats.value.days)}d</p><p class="mt-1 text-[11px] text-gray-500">${ssrInterpolate(stats.value.totalEp)} episodes</p></div></div><div class="flex items-center gap-1 overflow-x-auto border-b border-gray-800"><!--[-->`);
+      ssrRenderList(tabs.value, (t3) => {
+        _push(`<button class="${ssrRenderClass([activeStatus.value === t3.key ? "border-primary-400 font-medium text-primary-400" : "border-transparent text-gray-400 hover:text-gray-200", "-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm transition"])}">`);
+        if (t3.key !== "all") {
+          _push(`<span class="${ssrRenderClass([unref(statusDotClass)(t3.key), "h-1.5 w-1.5 rounded-full"])}"></span>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(` ${ssrInterpolate(t3.label)} <span class="font-mono text-[11px] text-gray-500">${ssrInterpolate(t3.count)}</span></button>`);
+      });
+      _push(`<!--]--></div><div class="flex flex-wrap items-center gap-2"><div class="flex min-w-[220px] max-w-[340px] flex-1 items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-gray-400 focus-within:border-gray-600"><svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg><input${ssrRenderAttr("value", filterText.value)} type="text" placeholder="Filter your list…" class="flex-1 border-0 bg-transparent text-sm text-gray-100 outline-none placeholder:text-gray-500"></div><select class="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-sm text-gray-300"><!--[-->`);
       ssrRenderList(sortOptions, (opt) => {
         _push(`<option${ssrRenderAttr("value", opt.value)}${ssrIncludeBooleanAttr(Array.isArray(sortField.value) ? ssrLooseContain(sortField.value, opt.value) : ssrLooseEqual(sortField.value, opt.value)) ? " selected" : ""}>${ssrInterpolate(opt.label)}</option>`);
       });
-      _push(`<!--]--></select><div class="flex items-center gap-1"><!--[-->`);
-      ssrRenderList(["table", "card", "compact"], (mode) => {
-        _push(`<button class="${ssrRenderClass([viewMode.value === mode ? "bg-gray-700 text-gray-200" : "text-gray-500 hover:text-gray-300", "rounded px-2 py-1 text-xs transition"])}">${ssrInterpolate(mode.charAt(0).toUpperCase() + mode.slice(1))}</button>`);
+      _push(`<!--]--></select><div class="flex-1"></div><div class="flex overflow-hidden rounded-lg border border-gray-700 bg-gray-800"><!--[-->`);
+      ssrRenderList([["card", "Grid"], ["compact", "Rows"], ["table", "Table"]], ([key, label]) => {
+        _push(`<button class="${ssrRenderClass([[
+          viewMode.value === key ? "bg-gray-700 text-gray-100" : "text-gray-500 hover:text-gray-300",
+          key !== "table" ? "border-r border-gray-700" : ""
+        ], "flex items-center justify-center px-2.5 py-1.5 transition"])}"${ssrRenderAttr("title", label)}>`);
+        if (key === "card") {
+          _push(`<svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path d="M3 3h6v6H3V3zm8 0h6v6h-6V3zm-8 8h6v6H3v-6zm8 0h6v6h-6v-6z"></path></svg>`);
+        } else if (key === "compact") {
+          _push(`<svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path d="M3 4h14v3H3V4zm0 5h14v3H3V9zm0 5h14v3H3v-3z"></path></svg>`);
+        } else {
+          _push(`<svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path d="M3 4h14v2H3V4zm0 4h14v2H3V8zm0 4h14v2H3v-2zm0 4h14v2H3v-2z"></path></svg>`);
+        }
+        _push(`</button>`);
       });
       _push(`<!--]--></div></div>`);
-      if (viewMode.value === "table") {
-        _push(ssrRenderComponent(_sfc_main$m, {
-          entries: filteredEntries.value,
-          onUpdate: handleUpdate,
-          onDelete: handleDelete,
-          onEdit: openEdit
-        }, null, _parent));
+      if (allGenres.value.length > 0) {
+        _push(`<div class="flex flex-wrap gap-1.5"><!--[-->`);
+        ssrRenderList(allGenres.value.slice(0, 14), (g2) => {
+          _push(`<button class="${ssrRenderClass([selectedGenres.value.includes(g2) ? "border-primary-400 bg-primary-400/10 text-primary-300" : "border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200", "rounded-full border px-3 py-1 text-xs transition"])}">${ssrInterpolate(g2)}</button>`);
+        });
+        _push(`<!--]-->`);
+        if (selectedGenres.value.length) {
+          _push(`<button class="rounded-full border border-dashed border-gray-700 px-3 py-1 text-xs text-gray-500 hover:text-gray-300">Clear</button>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (filteredEntries.value.length === 0) {
+        _push(`<div class="rounded-xl border border-dashed border-gray-700 bg-gray-900/30 px-6 py-16 text-center"><p class="text-lg font-medium text-gray-200">Nothing here yet</p><p class="mt-1 text-sm text-gray-500">`);
+        if (filterText.value || selectedGenres.value.length) {
+          _push(`<!--[-->No entries match your filters.<!--]-->`);
+        } else {
+          _push(`<!--[-->Start by searching for an anime or importing from MAL.<!--]-->`);
+        }
+        _push(`</p></div>`);
       } else if (viewMode.value === "card") {
-        _push(ssrRenderComponent(_sfc_main$l, {
+        _push(ssrRenderComponent(_sfc_main$r, {
           entries: filteredEntries.value,
-          onEdit: openEdit
+          onEdit: openEdit,
+          onProgress: handleProgress
+        }, null, _parent));
+      } else if (viewMode.value === "compact") {
+        _push(ssrRenderComponent(_sfc_main$q, {
+          entries: filteredEntries.value,
+          onEdit: openEdit,
+          onProgress: handleProgress
         }, null, _parent));
       } else {
-        _push(ssrRenderComponent(_sfc_main$k, {
+        _push(ssrRenderComponent(_sfc_main$p, {
           entries: filteredEntries.value,
-          onUpdate: handleUpdate
+          onEdit: openEdit
         }, null, _parent));
       }
       if (showEditModal.value && editingEntry.value?.anime) {
-        _push(ssrRenderComponent(_sfc_main$F, {
+        _push(ssrRenderComponent(_sfc_main$G, {
           anime: editingEntry.value.anime,
           entry: editingEntry.value,
           onClose: ($event) => showEditModal.value = false,
-          onSaved: ($event) => showEditModal.value = false,
-          onDeleted: ($event) => showEditModal.value = false
+          onSaved: () => {
+            showEditModal.value = false;
+            reloadProps();
+          },
+          onDeleted: () => {
+            showEditModal.value = false;
+            reloadProps();
+          }
         }, null, _parent));
       } else {
         _push(`<!---->`);
@@ -8998,18 +5467,18 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$j = _sfc_main$j.setup;
-_sfc_main$j.setup = (props, ctx) => {
+const _sfc_setup$o = _sfc_main$o.setup;
+_sfc_main$o.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/MyListPage.vue");
-  return _sfc_setup$j ? _sfc_setup$j(props, ctx) : void 0;
+  return _sfc_setup$o ? _sfc_setup$o(props, ctx) : void 0;
 };
-const __vite_glob_0_10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$j
+  default: _sfc_main$o
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$i = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$n = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "NotFoundPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -9038,18 +5507,18 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$i = _sfc_main$i.setup;
-_sfc_main$i.setup = (props, ctx) => {
+const _sfc_setup$n = _sfc_main$n.setup;
+_sfc_main$n.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/NotFoundPage.vue");
-  return _sfc_setup$i ? _sfc_setup$i(props, ctx) : void 0;
+  return _sfc_setup$n ? _sfc_setup$n(props, ctx) : void 0;
 };
-const __vite_glob_0_11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$i
+  default: _sfc_main$n
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$h = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$m = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PeopleIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -9144,7 +5613,7 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
         _push(`<div class="py-16 text-center"><p class="text-gray-500">No voice actors found.</p></div>`);
       }
       _push(`<div class="mt-8">`);
-      _push(ssrRenderComponent(_sfc_main$M, {
+      _push(ssrRenderComponent(_sfc_main$Q, {
         "current-page": __props.people.meta.current_page,
         "last-page": __props.people.meta.last_page,
         total: __props.people.meta.total
@@ -9153,18 +5622,18 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$h = _sfc_main$h.setup;
-_sfc_main$h.setup = (props, ctx) => {
+const _sfc_setup$m = _sfc_main$m.setup;
+_sfc_main$m.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PeopleIndexPage.vue");
-  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
+  return _sfc_setup$m ? _sfc_setup$m(props, ctx) : void 0;
 };
-const __vite_glob_0_12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$h
+  default: _sfc_main$m
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$l = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PersonDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -9173,9 +5642,9 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
     og: {}
   },
   setup(__props) {
-    function formatLabel(format2) {
-      if (!format2) return "";
-      return format2.replace(/_/g, " ");
+    function formatLabel(format) {
+      if (!format) return "";
+      return format.replace(/_/g, " ");
     }
     function animeUrl(anime) {
       if (!anime) return "#";
@@ -9312,7 +5781,7 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 if (role.anime) {
-                  _push2(ssrRenderComponent(_sfc_main$K, {
+                  _push2(ssrRenderComponent(_sfc_main$H, {
                     score: role.anime.average_score,
                     size: "sm"
                   }, null, _parent2, _scopeId));
@@ -9348,7 +5817,7 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
                     createVNode("div", { class: "mt-0.5 flex items-center gap-2 text-xs text-gray-500" }, [
                       role.anime?.format ? (openBlock(), createBlock("span", { key: 0 }, toDisplayString(formatLabel(role.anime.format)), 1)) : createCommentVNode("", true),
                       role.anime?.season_year ? (openBlock(), createBlock("span", { key: 1 }, "· " + toDisplayString(role.anime.season_year), 1)) : createCommentVNode("", true),
-                      role.anime ? (openBlock(), createBlock(_sfc_main$K, {
+                      role.anime ? (openBlock(), createBlock(_sfc_main$H, {
                         key: 2,
                         score: role.anime.average_score,
                         size: "sm"
@@ -9380,7 +5849,7 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
           }, _parent));
         });
         _push(`<!--]--></div><div class="mt-8">`);
-        _push(ssrRenderComponent(_sfc_main$M, {
+        _push(ssrRenderComponent(_sfc_main$Q, {
           "current-page": __props.roles.meta.current_page,
           "last-page": __props.roles.meta.last_page,
           total: __props.roles.meta.total
@@ -9393,18 +5862,18 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$g = _sfc_main$g.setup;
-_sfc_main$g.setup = (props, ctx) => {
+const _sfc_setup$l = _sfc_main$l.setup;
+_sfc_main$l.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PersonDetailPage.vue");
-  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
+  return _sfc_setup$l ? _sfc_setup$l(props, ctx) : void 0;
 };
-const __vite_glob_0_13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$g
+  default: _sfc_main$l
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$f = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$k = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PlaylistDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -9532,15 +6001,15 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$f = _sfc_main$f.setup;
-_sfc_main$f.setup = (props, ctx) => {
+const _sfc_setup$k = _sfc_main$k.setup;
+_sfc_main$k.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistDetailPage.vue");
-  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
+  return _sfc_setup$k ? _sfc_setup$k(props, ctx) : void 0;
 };
-const __vite_glob_0_14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$f
+  default: _sfc_main$k
 }, Symbol.toStringTag, { value: "Module" }));
 function usePlaylistMutations() {
   const storeMutation = useMutation({
@@ -9592,8 +6061,8 @@ function usePlaylistMutations() {
     reorderMutation
   };
 }
-const _sfc_main$e = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$j = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PlaylistEditPage",
   __ssrInlineRender: true,
   props: {
@@ -9785,18 +6254,18 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$e = _sfc_main$e.setup;
-_sfc_main$e.setup = (props, ctx) => {
+const _sfc_setup$j = _sfc_main$j.setup;
+_sfc_main$j.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistEditPage.vue");
-  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
+  return _sfc_setup$j ? _sfc_setup$j(props, ctx) : void 0;
 };
-const __vite_glob_0_15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$e
+  default: _sfc_main$j
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$i = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PlaylistsIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -9888,18 +6357,18 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$d = _sfc_main$d.setup;
-_sfc_main$d.setup = (props, ctx) => {
+const _sfc_setup$i = _sfc_main$i.setup;
+_sfc_main$i.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PlaylistsIndexPage.vue");
-  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
+  return _sfc_setup$i ? _sfc_setup$i(props, ctx) : void 0;
 };
-const __vite_glob_0_16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$d
+  default: _sfc_main$i
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$h = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PrivacyPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -9929,18 +6398,18 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$c = _sfc_main$c.setup;
-_sfc_main$c.setup = (props, ctx) => {
+const _sfc_setup$h = _sfc_main$h.setup;
+_sfc_main$h.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PrivacyPage.vue");
-  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
+  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
 };
-const __vite_glob_0_17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$c
+  default: _sfc_main$h
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$b = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$g = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "ProfilePage",
   __ssrInlineRender: true,
   props: {
@@ -10015,7 +6484,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="max-w-4xl mx-auto"><div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-6"><div class="flex items-center gap-6">`);
-      _push(ssrRenderComponent(_sfc_main$T, {
+      _push(ssrRenderComponent(_sfc_main$W, {
         name: __props.profile.name,
         "avatar-url": __props.profile.avatar_url,
         size: "lg"
@@ -10070,18 +6539,322 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$b = _sfc_main$b.setup;
-_sfc_main$b.setup = (props, ctx) => {
+const _sfc_setup$g = _sfc_main$g.setup;
+_sfc_main$g.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/ProfilePage.vue");
-  return _sfc_setup$b ? _sfc_setup$b(props, ctx) : void 0;
+  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
 };
-const __vite_glob_0_18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$b
+  default: _sfc_main$g
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$f = /* @__PURE__ */ defineComponent({
+  __name: "ListStatusTabs",
+  __ssrInlineRender: true,
+  props: {
+    activeStatus: {},
+    counts: {}
+  },
+  emits: ["change"],
+  setup(__props, { emit: __emit }) {
+    const statuses = ["all", "watching", "completed", "plan_to_watch", "on_hold", "dropped"];
+    function label(status) {
+      return status === "all" ? "All" : LIST_STATUS_LABELS[status];
+    }
+    function count(status, counts) {
+      if (status === "all") {
+        return Object.values(counts).reduce((sum, c2) => sum + c2, 0);
+      }
+      return counts[status] ?? 0;
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex gap-1 overflow-x-auto border-b border-gray-800 pb-px" }, _attrs))}><!--[-->`);
+      ssrRenderList(statuses, (s2) => {
+        _push(`<button class="${ssrRenderClass([__props.activeStatus === s2 ? "border-b-2 border-primary-400 text-primary-400" : "text-gray-400 hover:text-gray-200", "flex items-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium transition"])}">${ssrInterpolate(label(s2))} <span class="text-xs text-gray-500">(${ssrInterpolate(count(s2, __props.counts))})</span></button>`);
+      });
+      _push(`<!--]--></div>`);
+    };
+  }
+});
+const _sfc_setup$f = _sfc_main$f.setup;
+_sfc_main$f.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListStatusTabs.vue");
+  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
+};
+const _sfc_main$e = /* @__PURE__ */ defineComponent({
+  __name: "ListTableView",
+  __ssrInlineRender: true,
+  props: {
+    entries: {},
+    readonly: { type: Boolean }
+  },
+  emits: ["update", "delete", "edit"],
+  setup(__props, { emit: __emit }) {
+    const emit = __emit;
+    const statusOptions = Object.entries(LIST_STATUS_LABELS).map(([value, label]) => ({ value, label }));
+    function displayTitle(entry) {
+      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
+    }
+    function handleStatusChange(entry, status) {
+      emit("update", entry.id, { status });
+    }
+    function canIncrementProgress(entry) {
+      const total = entry.anime?.episodes;
+      return total == null || entry.progress < total;
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "overflow-x-auto" }, _attrs))}><table class="w-full text-sm"><thead><tr class="border-b border-gray-800 text-left text-gray-400"><th class="w-12 py-3 pr-2"></th><th class="py-3 pr-4">Title</th><th class="w-40 py-3 pr-4">Status</th><th class="w-20 py-3 pr-4">Score</th><th class="w-32 py-3 pr-4">Progress</th><th class="w-20 py-3 pr-4">Type</th><th class="w-24 py-3">Updated</th></tr></thead><tbody><!--[-->`);
+      ssrRenderList(__props.entries, (entry) => {
+        _push(`<tr class="border-b border-gray-800/50 hover:bg-gray-900/50 transition"><td class="py-2 pr-2">`);
+        if (entry.anime?.cover_image_medium) {
+          _push(`<img${ssrRenderAttr("src", entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="h-10 w-7 rounded object-cover" loading="lazy">`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</td><td class="py-2 pr-4">`);
+        if (entry.anime) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
+            class: "text-gray-200 hover:text-primary-400 transition"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(displayTitle(entry))}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(displayTitle(entry)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</td><td class="py-2 pr-4">`);
+        if (!__props.readonly) {
+          _push(ssrRenderComponent(unref(Select), {
+            "model-value": entry.status,
+            options: unref(statusOptions),
+            "option-label": "label",
+            "option-value": "value",
+            class: "w-full text-xs",
+            "onUpdate:modelValue": (v2) => handleStatusChange(entry, v2)
+          }, null, _parent));
+        } else {
+          _push(`<span class="text-gray-300 text-xs">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
+        }
+        _push(`</td><td class="py-2 pr-4">`);
+        if (!__props.readonly) {
+          _push(`<input type="number" min="0" max="10" step="0.5"${ssrRenderAttr("value", entry.display_score ?? "")} class="w-16 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-center text-gray-200 text-xs">`);
+        } else {
+          _push(`<span class="text-gray-300 text-xs">${ssrInterpolate(entry.display_score ?? "-")}</span>`);
+        }
+        _push(`</td><td class="py-2 pr-4"><div class="flex items-center gap-1"><span class="text-gray-300">${ssrInterpolate(entry.progress)}</span><span class="text-gray-500">/</span><span class="text-gray-500">${ssrInterpolate(entry.anime?.episodes ?? "?")}</span>`);
+        if (!__props.readonly) {
+          _push(`<button class="ml-1 rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300 hover:bg-gray-600 transition disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-gray-700"${ssrIncludeBooleanAttr(!canIncrementProgress(entry)) ? " disabled" : ""}${ssrRenderAttr("title", canIncrementProgress(entry) ? "Add one episode" : "Already at total episode count")}> + </button>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div></td><td class="py-2 pr-4 text-gray-400">${ssrInterpolate(entry.anime?.format?.replace(/_/g, " ") ?? "-")}</td><td class="py-2 text-gray-500 text-xs">${ssrInterpolate(new Date(entry.updated_at).toLocaleDateString())}</td></tr>`);
+      });
+      _push(`<!--]--></tbody></table>`);
+      if (__props.entries.length === 0) {
+        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup$e = _sfc_main$e.setup;
+_sfc_main$e.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListTableView.vue");
+  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
+};
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
+  __name: "ListCardView",
+  __ssrInlineRender: true,
+  props: {
+    entries: {},
+    readonly: { type: Boolean }
+  },
+  emits: ["edit"],
+  setup(__props, { emit: __emit }) {
+    function displayTitle(entry) {
+      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
+    }
+    const statusColors = {
+      watching: "border-blue-500",
+      completed: "border-green-500",
+      on_hold: "border-yellow-500",
+      dropped: "border-red-500",
+      plan_to_watch: "border-gray-600"
+    };
+    const statusBadgeColors = {
+      watching: "bg-blue-500/20 text-blue-400",
+      completed: "bg-green-500/20 text-green-400",
+      on_hold: "bg-yellow-500/20 text-yellow-400",
+      dropped: "bg-red-500/20 text-red-400",
+      plan_to_watch: "bg-gray-700 text-gray-400"
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(`<!--[--><div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"><!--[-->`);
+      ssrRenderList(__props.entries, (entry) => {
+        _push(`<div class="${ssrRenderClass([statusColors[entry.status] ?? "border-gray-700", "group relative overflow-hidden rounded-lg bg-gray-800 border-2"])}">`);
+        if (entry.anime) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
+            class: "block"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                if (entry.anime.cover_image_large || entry.anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", entry.anime.cover_image_large || entry.anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(entry))} class="aspect-[3/4] w-full object-cover" loading="lazy"${_scopeId}>`);
+                } else {
+                  _push2(`<div class="aspect-[3/4] w-full bg-gray-700 flex items-center justify-center"${_scopeId}><span class="text-gray-500 text-xs"${_scopeId}>No image</span></div>`);
+                }
+              } else {
+                return [
+                  entry.anime.cover_image_large || entry.anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                    key: 0,
+                    src: entry.anime.cover_image_large || entry.anime.cover_image_medium,
+                    alt: displayTitle(entry),
+                    class: "aspect-[3/4] w-full object-cover",
+                    loading: "lazy"
+                  }, null, 8, ["src", "alt"])) : (openBlock(), createBlock("div", {
+                    key: 1,
+                    class: "aspect-[3/4] w-full bg-gray-700 flex items-center justify-center"
+                  }, [
+                    createVNode("span", { class: "text-gray-500 text-xs" }, "No image")
+                  ]))
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 via-gray-900/70 to-transparent p-2 pt-8"><p class="text-xs font-medium text-gray-200 line-clamp-2 mb-1">${ssrInterpolate(displayTitle(entry))}</p><div class="flex items-center justify-between"><span class="${ssrRenderClass([statusBadgeColors[entry.status] ?? "bg-gray-700 text-gray-400", "text-[10px] px-1.5 py-0.5 rounded-full font-medium"])}">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
+        if (entry.display_score) {
+          _push(`<span class="text-[10px] text-primary-400">${ssrInterpolate(entry.display_score)}</span>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><div class="text-[10px] text-gray-500 mt-0.5">${ssrInterpolate(entry.progress)}${ssrInterpolate(entry.anime?.episodes ? ` / ${entry.anime.episodes}` : "")} eps </div></div>`);
+        if (!__props.readonly) {
+          _push(`<button class="absolute top-1 right-1 rounded bg-gray-900/80 p-1 text-gray-400 opacity-0 group-hover:opacity-100 transition hover:text-gray-200"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div>`);
+      });
+      _push(`<!--]--></div>`);
+      if (__props.entries.length === 0) {
+        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<!--]-->`);
+    };
+  }
+});
+const _sfc_setup$d = _sfc_main$d.setup;
+_sfc_main$d.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCardView.vue");
+  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
+};
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
+  __name: "ListCompactView",
+  __ssrInlineRender: true,
+  props: {
+    entries: {},
+    readonly: { type: Boolean }
+  },
+  emits: ["update"],
+  setup(__props, { emit: __emit }) {
+    const emit = __emit;
+    const statusOptions = Object.entries(LIST_STATUS_LABELS).map(([value, label]) => ({ value, label }));
+    function displayTitle(entry) {
+      return entry.anime?.title_english || entry.anime?.title_romaji || "Unknown";
+    }
+    function handleStatusChange(entry, status) {
+      emit("update", entry.id, { status });
+    }
+    function canIncrementProgress(entry) {
+      const total = entry.anime?.episodes;
+      return total == null || entry.progress < total;
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Link = resolveComponent("Link");
+      _push(`<!--[--><div class="divide-y divide-gray-800/50"><!--[-->`);
+      ssrRenderList(__props.entries, (entry) => {
+        _push(`<div class="flex items-center gap-3 py-1.5 hover:bg-gray-900/30 transition text-xs">`);
+        if (entry.anime) {
+          _push(ssrRenderComponent(_component_Link, {
+            href: entry.anime?.slug ? _ctx.route("anime.show", { anime: entry.anime.slug }) : "#",
+            class: "flex-1 min-w-0 text-gray-200 hover:text-primary-400 transition truncate"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(displayTitle(entry))}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(displayTitle(entry)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        } else {
+          _push(`<!---->`);
+        }
+        if (!__props.readonly) {
+          _push(ssrRenderComponent(unref(Select), {
+            "model-value": entry.status,
+            options: unref(statusOptions),
+            "option-label": "label",
+            "option-value": "value",
+            class: "w-32 text-xs",
+            "onUpdate:modelValue": (v2) => handleStatusChange(entry, v2)
+          }, null, _parent));
+        } else {
+          _push(`<span class="w-32 text-gray-300 text-xs">${ssrInterpolate(unref(LIST_STATUS_LABELS)[entry.status])}</span>`);
+        }
+        _push(`<span class="w-12 text-center text-gray-400">${ssrInterpolate(entry.display_score ?? "-")}</span><div class="flex items-center gap-1 w-20"><span class="text-gray-300">${ssrInterpolate(entry.progress)}</span><span class="text-gray-600">/${ssrInterpolate(entry.anime?.episodes ?? "?")}</span>`);
+        if (!__props.readonly) {
+          _push(`<button class="rounded bg-gray-700 px-1 text-gray-300 hover:bg-gray-600 transition disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-gray-700"${ssrIncludeBooleanAttr(!canIncrementProgress(entry)) ? " disabled" : ""}${ssrRenderAttr("title", canIncrementProgress(entry) ? "Add one episode" : "Already at total episode count")}>+</button>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><span class="w-16 text-gray-500">${ssrInterpolate(entry.anime?.format?.replace(/_/g, " ") ?? "-")}</span></div>`);
+      });
+      _push(`<!--]--></div>`);
+      if (__props.entries.length === 0) {
+        _push(`<p class="py-8 text-center text-gray-500"> No entries found. </p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<!--]-->`);
+    };
+  }
+});
+const _sfc_setup$c = _sfc_main$c.setup;
+_sfc_main$c.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ListCompactView.vue");
+  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
+};
+const _sfc_main$b = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "PublicListPage",
   __ssrInlineRender: true,
   props: {
@@ -10224,7 +6997,7 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
           _: 1
         }, _parent));
         _push(`&#39;s Anime List </h1></div>`);
-        _push(ssrRenderComponent(_sfc_main$n, {
+        _push(ssrRenderComponent(_sfc_main$f, {
           "active-status": activeStatus.value,
           counts: __props.counts,
           onChange: ($event) => activeStatus.value = $event
@@ -10239,17 +7012,17 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
         });
         _push(`<!--]--></div></div>`);
         if (viewMode.value === "table") {
-          _push(ssrRenderComponent(_sfc_main$m, {
+          _push(ssrRenderComponent(_sfc_main$e, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
         } else if (viewMode.value === "card") {
-          _push(ssrRenderComponent(_sfc_main$l, {
+          _push(ssrRenderComponent(_sfc_main$d, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
         } else {
-          _push(ssrRenderComponent(_sfc_main$k, {
+          _push(ssrRenderComponent(_sfc_main$c, {
             entries: filteredEntries.value,
             readonly: ""
           }, null, _parent));
@@ -10260,18 +7033,18 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$a = _sfc_main$a.setup;
-_sfc_main$a.setup = (props, ctx) => {
+const _sfc_setup$b = _sfc_main$b.setup;
+_sfc_main$b.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/PublicListPage.vue");
-  return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
+  return _sfc_setup$b ? _sfc_setup$b(props, ctx) : void 0;
 };
-const __vite_glob_0_19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$a
+  default: _sfc_main$b
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$a = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "RegisterPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -10331,17 +7104,17 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$9 = _sfc_main$9.setup;
-_sfc_main$9.setup = (props, ctx) => {
+const _sfc_setup$a = _sfc_main$a.setup;
+_sfc_main$a.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/RegisterPage.vue");
-  return _sfc_setup$9 ? _sfc_setup$9(props, ctx) : void 0;
+  return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
 };
-const __vite_glob_0_20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_25 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$9
+  default: _sfc_main$a
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   __name: "ScheduleDayColumn",
   __ssrInlineRender: true,
   props: {
@@ -10395,7 +7168,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
                   _push2(`<!---->`);
                 }
                 _push2(`</div><div class="min-w-0 flex-1"${_scopeId}><p class="line-clamp-2 text-xs font-medium text-gray-200 group-hover:text-primary-400 transition"${_scopeId}>${ssrInterpolate(displayTitle(slot))}</p><p class="mt-0.5 text-[10px] text-gray-500"${_scopeId}> EP ${ssrInterpolate(slot.episode)} · ${ssrInterpolate(unref(formatLocalTime)(slot.airs_at, timezone.value))}</p><p class="text-[10px] font-medium text-primary-400"${_scopeId}>${ssrInterpolate(unref(formatCountdown)(slot.airs_at))}</p></div>`);
-                _push2(ssrRenderComponent(_sfc_main$K, {
+                _push2(ssrRenderComponent(_sfc_main$H, {
                   score: slot.anime.average_score,
                   size: "sm",
                   class: "shrink-0"
@@ -10416,7 +7189,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
                     createVNode("p", { class: "mt-0.5 text-[10px] text-gray-500" }, " EP " + toDisplayString(slot.episode) + " · " + toDisplayString(unref(formatLocalTime)(slot.airs_at, timezone.value)), 1),
                     createVNode("p", { class: "text-[10px] font-medium text-primary-400" }, toDisplayString(unref(formatCountdown)(slot.airs_at)), 1)
                   ]),
-                  createVNode(_sfc_main$K, {
+                  createVNode(_sfc_main$H, {
                     score: slot.anime.average_score,
                     size: "sm",
                     class: "shrink-0"
@@ -10435,14 +7208,14 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$8 = _sfc_main$8.setup;
-_sfc_main$8.setup = (props, ctx) => {
+const _sfc_setup$9 = _sfc_main$9.setup;
+_sfc_main$9.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ScheduleDayColumn.vue");
-  return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
+  return _sfc_setup$9 ? _sfc_setup$9(props, ctx) : void 0;
 };
-const _sfc_main$7 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "SchedulePage",
   __ssrInlineRender: true,
   props: {
@@ -10499,7 +7272,7 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
       }
       _push(`<div class="flex items-center gap-1"><button${ssrIncludeBooleanAttr(__props.weekOffset === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-sm text-gray-400 transition hover:text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"> This Week </button><button${ssrIncludeBooleanAttr(__props.weekOffset === 1) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-sm text-gray-400 transition hover:text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"> Next Week </button></div></div></div><div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7"><!--[-->`);
       ssrRenderList(orderedDays.value, (day) => {
-        _push(ssrRenderComponent(_sfc_main$8, {
+        _push(ssrRenderComponent(_sfc_main$9, {
           key: day.utcDate,
           "utc-date": day.utcDate,
           slots: __props.days[day.utcDate] ?? [],
@@ -10516,17 +7289,17 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$7 = _sfc_main$7.setup;
-_sfc_main$7.setup = (props, ctx) => {
+const _sfc_setup$8 = _sfc_main$8.setup;
+_sfc_main$8.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SchedulePage.vue");
-  return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
+  return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
 };
-const __vite_glob_0_21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$7
+  default: _sfc_main$8
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "SeasonSelector",
   __ssrInlineRender: true,
   props: {
@@ -10576,14 +7349,14 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$6 = _sfc_main$6.setup;
-_sfc_main$6.setup = (props, ctx) => {
+const _sfc_setup$7 = _sfc_main$7.setup;
+_sfc_main$7.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/SeasonSelector.vue");
-  return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
+  return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "SeasonalPage",
   __ssrInlineRender: true,
   props: {
@@ -10596,9 +7369,9 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
     function seasonLabel(season) {
       return season.charAt(0) + season.slice(1).toLowerCase();
     }
-    function formatLabel(format2) {
-      if (format2 === "OTHER") return "Other";
-      return format2.replace(/_/g, " ");
+    function formatLabel(format) {
+      if (format === "OTHER") return "Other";
+      return format.replace(/_/g, " ");
     }
     return (_ctx, _push, _parent, _attrs) => {
       const _component_Head = resolveComponent("Head");
@@ -10641,7 +7414,7 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
         _: 1
       }, _parent));
       _push(`<div class="space-y-8"><div class="flex flex-col items-center gap-4"><h1 class="text-3xl font-bold text-gray-100">Seasonal Anime</h1>`);
-      _push(ssrRenderComponent(_sfc_main$6, {
+      _push(ssrRenderComponent(_sfc_main$7, {
         year: __props.year,
         season: __props.season,
         "adjacent-seasons": __props.adjacentSeasons
@@ -10668,18 +7441,18 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$5 = _sfc_main$5.setup;
-_sfc_main$5.setup = (props, ctx) => {
+const _sfc_setup$6 = _sfc_main$6.setup;
+_sfc_main$6.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SeasonalPage.vue");
-  return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
+  return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const __vite_glob_0_22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$5
+  default: _sfc_main$6
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$4 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "SettingsPage",
   __ssrInlineRender: true,
   props: {
@@ -11070,18 +7843,18 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$4 = _sfc_main$4.setup;
-_sfc_main$4.setup = (props, ctx) => {
+const _sfc_setup$5 = _sfc_main$5.setup;
+_sfc_main$5.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/SettingsPage.vue");
-  return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
+  return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
 };
-const __vite_glob_0_23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$4
+  default: _sfc_main$5
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$3 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$4 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "StudioDetailPage",
   __ssrInlineRender: true,
   props: {
@@ -11177,7 +7950,7 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
           }, null, _parent));
         });
         _push(`<!--]--></div><div class="mt-8">`);
-        _push(ssrRenderComponent(_sfc_main$M, {
+        _push(ssrRenderComponent(_sfc_main$Q, {
           "current-page": __props.anime.meta.current_page,
           "last-page": __props.anime.meta.last_page,
           total: __props.anime.meta.total
@@ -11190,18 +7963,18 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$3 = _sfc_main$3.setup;
-_sfc_main$3.setup = (props, ctx) => {
+const _sfc_setup$4 = _sfc_main$4.setup;
+_sfc_main$4.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/StudioDetailPage.vue");
-  return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
+  return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
 };
-const __vite_glob_0_24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$3
+  default: _sfc_main$4
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$2 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "StudioIndexPage",
   __ssrInlineRender: true,
   props: {
@@ -11284,7 +8057,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
         _push(`<div class="py-16 text-center"><p class="text-gray-500">${ssrInterpolate(labels.value.empty)}</p></div>`);
       }
       _push(`<div class="mt-8">`);
-      _push(ssrRenderComponent(_sfc_main$M, {
+      _push(ssrRenderComponent(_sfc_main$Q, {
         "current-page": __props.studios.meta.current_page,
         "last-page": __props.studios.meta.last_page,
         total: __props.studios.meta.total
@@ -11293,18 +8066,18 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$2 = _sfc_main$2.setup;
-_sfc_main$2.setup = (props, ctx) => {
+const _sfc_setup$3 = _sfc_main$3.setup;
+_sfc_main$3.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/StudioIndexPage.vue");
-  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
+  return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-const __vite_glob_0_25 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$2
+  default: _sfc_main$3
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$1 = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$2 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "TermsPage",
   __ssrInlineRender: true,
   setup(__props) {
@@ -11334,18 +8107,18 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_setup$1 = _sfc_main$1.setup;
-_sfc_main$1.setup = (props, ctx) => {
+const _sfc_setup$2 = _sfc_main$2.setup;
+_sfc_main$2.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TermsPage.vue");
-  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const __vite_glob_0_26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$1
+  default: _sfc_main$2
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ layout: _sfc_main$Q },
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+  ...{ layout: _sfc_main$T },
   __name: "TopAnimePage",
   __ssrInlineRender: true,
   props: {
@@ -11356,9 +8129,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     function displayTitle(anime) {
       return anime.title_english || anime.title_romaji;
     }
-    function formatLabel(format2) {
-      if (!format2) return "";
-      return format2.replace(/_/g, " ");
+    function formatLabel(format) {
+      if (!format) return "";
+      return format.replace(/_/g, " ");
     }
     function animeUrl(anime) {
       if (anime.slug) {
@@ -11475,7 +8248,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               _push2(`</div></div><div class="flex shrink-0 items-center gap-4"${_scopeId}>`);
               if (__props.metric === "rated") {
                 _push2(`<div class="text-right"${_scopeId}>`);
-                _push2(ssrRenderComponent(_sfc_main$K, {
+                _push2(ssrRenderComponent(_sfc_main$H, {
                   score: item.bayesian_score ?? item.average_score,
                   size: "md"
                 }, null, _parent2, _scopeId));
@@ -11492,7 +8265,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               if (__props.metric === "rated") {
                 _push2(`<span class="text-xs text-gray-500"${_scopeId}>${ssrInterpolate(item.popularity?.toLocaleString())} pop</span>`);
               } else {
-                _push2(ssrRenderComponent(_sfc_main$K, {
+                _push2(ssrRenderComponent(_sfc_main$H, {
                   score: item.bayesian_score ?? item.average_score,
                   size: "sm"
                 }, null, _parent2, _scopeId));
@@ -11528,7 +8301,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     key: 0,
                     class: "text-right"
                   }, [
-                    createVNode(_sfc_main$K, {
+                    createVNode(_sfc_main$H, {
                       score: item.bayesian_score ?? item.average_score,
                       size: "md"
                     }, null, 8, ["score"])
@@ -11544,7 +8317,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     __props.metric === "rated" ? (openBlock(), createBlock("span", {
                       key: 0,
                       class: "text-xs text-gray-500"
-                    }, toDisplayString(item.popularity?.toLocaleString()) + " pop", 1)) : (openBlock(), createBlock(_sfc_main$K, {
+                    }, toDisplayString(item.popularity?.toLocaleString()) + " pop", 1)) : (openBlock(), createBlock(_sfc_main$H, {
                       key: 1,
                       score: item.bayesian_score ?? item.average_score,
                       size: "sm"
@@ -11561,13 +8334,357 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
+const _sfc_setup$1 = _sfc_main$1.setup;
+_sfc_main$1.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TopAnimePage.vue");
+  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+};
+const __vite_glob_0_32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$1
+}, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "WelcomePage",
+  __ssrInlineRender: true,
+  props: {
+    featuredAnime: {},
+    totalAnime: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const { query, results, isLoading } = useAnimeSearch();
+    const displayed = computed(() => {
+      if (query.value.trim().length >= 2) {
+        return results.value.slice(0, 12);
+      }
+      return props.featuredAnime;
+    });
+    const showingSearch = computed(() => query.value.trim().length >= 2);
+    function displayTitle(anime) {
+      return anime.title_english || anime.title_romaji;
+    }
+    function animeUrl(anime) {
+      if (anime.slug) {
+        return route("anime.show", { anime: anime.slug });
+      }
+      if (anime.anilist_id) {
+        return route("anime.show.anilist", { anilistId: anime.anilist_id });
+      }
+      return "#";
+    }
+    function progressLabel(anime) {
+      if (anime.episodes) {
+        return `${anime.episodes} ep`;
+      }
+      if (anime.format) {
+        return anime.format.replace(/_/g, " ");
+      }
+      return "";
+    }
+    const features = [
+      {
+        label: "01 / Track",
+        title: "Never lose your place",
+        body: "One tap to mark an episode watched. Your progress syncs instantly across every device you sign in on, so picking up where you left off is friction-free."
+      },
+      {
+        label: "02 / Discover",
+        title: "Find your next favourite",
+        body: "Browse what is airing this season, what is trending right now, and what reviewers actually rate. Real-time countdowns tell you when the next episode drops."
+      },
+      {
+        label: "03 / Share",
+        title: "Compare lists with friends",
+        body: "Public profiles, shareable watchlists, and side-by-side comparisons. Find out who in your circle has the best taste — and who needs an intervention."
+      }
+    ];
+    const animeStat = computed(() => {
+      if (props.totalAnime >= 1e3) {
+        const thousands = Math.floor(props.totalAnime / 1e3);
+        return `${thousands}K+`;
+      }
+      return `${props.totalAnime}+`;
+    });
+    const stats = computed(() => [
+      { value: animeStat.value, label: "Anime in database" },
+      { value: "100%", label: "Free, forever" },
+      { value: "0", label: "Ads, ever" },
+      { value: "<30s", label: "To get set up" }
+    ]);
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_Head = resolveComponent("Head");
+      const _component_Link = resolveComponent("Link");
+      _push(`<!--[-->`);
+      _push(ssrRenderComponent(_component_Head, { title: "Track every anime you watch" }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<meta name="description" content="AniTrack is a free anime tracker. Build your watchlist, mark episodes watched, follow seasonal releases, and sync across devices. No ads, no paywall."${_scopeId}><meta name="robots" content="index,follow"${_scopeId}><link rel="canonical"${ssrRenderAttr("href", _ctx.route("welcome"))}${_scopeId}><meta property="og:title" content="AniTrack — Track every anime you watch"${_scopeId}><meta property="og:description" content="Free anime tracker. No ads, no paywall, ever. Built by anime fans, for anime fans."${_scopeId}><meta property="og:type" content="website"${_scopeId}><meta name="twitter:card" content="summary"${_scopeId}>`);
+          } else {
+            return [
+              createVNode("meta", {
+                name: "description",
+                content: "AniTrack is a free anime tracker. Build your watchlist, mark episodes watched, follow seasonal releases, and sync across devices. No ads, no paywall."
+              }),
+              createVNode("meta", {
+                name: "robots",
+                content: "index,follow"
+              }),
+              createVNode("link", {
+                rel: "canonical",
+                href: _ctx.route("welcome")
+              }, null, 8, ["href"]),
+              createVNode("meta", {
+                property: "og:title",
+                content: "AniTrack — Track every anime you watch"
+              }),
+              createVNode("meta", {
+                property: "og:description",
+                content: "Free anime tracker. No ads, no paywall, ever. Built by anime fans, for anime fans."
+              }),
+              createVNode("meta", {
+                property: "og:type",
+                content: "website"
+              }),
+              createVNode("meta", {
+                name: "twitter:card",
+                content: "summary"
+              })
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="min-h-screen bg-gray-950 text-gray-100 dark"><nav class="sticky top-0 z-50 border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm"><div class="container mx-auto flex h-14 items-center justify-between px-4">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("welcome"),
+        class: "flex items-center gap-2 text-lg font-bold"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<span class="inline-block h-5 w-5 rounded-md bg-gradient-to-br from-primary-400 to-primary-700"${_scopeId}></span><span class="text-primary-400"${_scopeId}>AniTrack</span>`);
+          } else {
+            return [
+              createVNode("span", { class: "inline-block h-5 w-5 rounded-md bg-gradient-to-br from-primary-400 to-primary-700" }),
+              createVNode("span", { class: "text-primary-400" }, "AniTrack")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("login"),
+        class: "text-sm text-gray-400 transition hover:text-gray-100"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Sign in`);
+          } else {
+            return [
+              createTextVNode("Sign in")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div></nav><main><section class="relative overflow-hidden"><div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_-10%,rgba(99,102,241,0.18),transparent_70%)]"></div><div class="container relative mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-16"><div class="mx-auto max-w-3xl text-center"><span class="inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-3 py-1 text-xs font-medium text-primary-300"><span class="h-1.5 w-1.5 rounded-full bg-primary-400"></span> Free anime tracker. No paywall, ever. </span><h1 class="mt-6 text-4xl font-bold leading-tight tracking-tight text-gray-50 sm:text-5xl md:text-6xl"> Track every anime you watch. <span class="block bg-gradient-to-r from-primary-300 via-primary-400 to-fuchsia-400 bg-clip-text text-transparent"> All in one place. </span></h1><p class="mx-auto mt-5 max-w-2xl text-base text-gray-400 sm:text-lg"> Build a watchlist, mark episodes watched, and keep up with seasonal releases. Get notified when new episodes drop and pick up where you left off on any device. </p><div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("register"),
+        class: "rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg shadow-primary-950/50 transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Sign up free `);
+          } else {
+            return [
+              createTextVNode(" Sign up free ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("login"),
+        class: "rounded-lg border border-gray-700 bg-gray-900/60 px-6 py-3 font-semibold text-gray-200 transition hover:border-gray-600 hover:bg-gray-800"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` I already have an account `);
+          } else {
+            return [
+              createTextVNode(" I already have an account ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div><ul class="mx-auto mt-5 flex max-w-lg flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-gray-400"><!--[-->`);
+      ssrRenderList(["Free forever", "No credit card", "No ads, ever"], (claim) => {
+        _push(`<li class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-primary-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> ${ssrInterpolate(claim)}</li>`);
+      });
+      _push(`<!--]--></ul></div></div></section><section class="container mx-auto px-4 pb-16 sm:pb-24"><div class="mx-auto max-w-5xl"><div class="mb-5 text-center"><p class="text-xs font-semibold uppercase tracking-wider text-primary-400">Try it now</p><h2 class="mt-2 text-2xl font-bold text-gray-50 sm:text-3xl"> Search ${ssrInterpolate(animeStat.value)} anime in our database </h2><p class="mt-2 text-sm text-gray-400"> Find a show, then sign up to add it to your list. </p></div><div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/60"><div class="border-b border-gray-800 bg-gray-950/60 p-3 sm:p-4"><div class="relative"><svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg><input${ssrRenderAttr("value", unref(query))} type="search" placeholder="Search Frieren, Solo Leveling, anything..." class="w-full rounded-lg border border-gray-700 bg-gray-900 py-3 pl-10 pr-4 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div></div><div class="p-4 sm:p-6">`);
+      if (showingSearch.value && unref(isLoading) && displayed.value.length === 0) {
+        _push(`<div class="py-12 text-center text-sm text-gray-500"> Searching... </div>`);
+      } else if (showingSearch.value && displayed.value.length === 0) {
+        _push(`<div class="py-12 text-center text-sm text-gray-500"> No anime matched &quot;${ssrInterpolate(unref(query))}&quot;. Try another title. </div>`);
+      } else {
+        _push(`<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6"><!--[-->`);
+        ssrRenderList(displayed.value, (anime) => {
+          _push(ssrRenderComponent(_component_Link, {
+            key: anime.id ?? anime.anilist_id,
+            href: animeUrl(anime),
+            class: "group block rounded-lg border border-gray-800 bg-gray-950/40 p-2 transition hover:border-primary-500/40 hover:bg-gray-900"
+          }, {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<div class="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-800"${_scopeId}>`);
+                if (anime.cover_image_medium) {
+                  _push2(`<img${ssrRenderAttr("src", anime.cover_image_medium)}${ssrRenderAttr("alt", displayTitle(anime))} loading="lazy" class="h-full w-full object-cover transition group-hover:scale-105"${_scopeId}>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                if (anime.average_score) {
+                  _push2(`<span class="absolute right-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-primary-300 backdrop-blur"${_scopeId}>${ssrInterpolate(anime.average_score.toFixed(1))}</span>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`</div><p class="mt-2 line-clamp-1 px-1 text-xs font-medium text-gray-100"${_scopeId}>${ssrInterpolate(displayTitle(anime))}</p><p class="mt-0.5 line-clamp-1 px-1 text-[11px] text-gray-500"${_scopeId}>${ssrInterpolate(progressLabel(anime))}</p>`);
+              } else {
+                return [
+                  createVNode("div", { class: "relative aspect-[3/4] overflow-hidden rounded-md bg-gray-800" }, [
+                    anime.cover_image_medium ? (openBlock(), createBlock("img", {
+                      key: 0,
+                      src: anime.cover_image_medium,
+                      alt: displayTitle(anime),
+                      loading: "lazy",
+                      class: "h-full w-full object-cover transition group-hover:scale-105"
+                    }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
+                    anime.average_score ? (openBlock(), createBlock("span", {
+                      key: 1,
+                      class: "absolute right-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-primary-300 backdrop-blur"
+                    }, toDisplayString(anime.average_score.toFixed(1)), 1)) : createCommentVNode("", true)
+                  ]),
+                  createVNode("p", { class: "mt-2 line-clamp-1 px-1 text-xs font-medium text-gray-100" }, toDisplayString(displayTitle(anime)), 1),
+                  createVNode("p", { class: "mt-0.5 line-clamp-1 px-1 text-[11px] text-gray-500" }, toDisplayString(progressLabel(anime)), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div></div><p class="mt-4 text-center text-xs text-gray-500"> Found something to watch? `);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("register"),
+        class: "font-semibold text-primary-400 hover:text-primary-300"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Create a free account`);
+          } else {
+            return [
+              createTextVNode("Create a free account")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(` to start tracking. </p></div></section><section class="container mx-auto px-4 pb-16 sm:pb-24"><div class="mx-auto max-w-5xl rounded-2xl border border-gray-800 bg-gray-950"><div class="grid grid-cols-1 divide-y divide-gray-800 md:grid-cols-3 md:divide-x md:divide-y-0"><!--[-->`);
+      ssrRenderList(features, (feature) => {
+        _push(`<div class="p-8 sm:p-10"><p class="text-xs font-semibold uppercase tracking-wider text-primary-400">${ssrInterpolate(feature.label)}</p><div class="mt-4 flex h-9 w-9 items-center justify-center rounded-lg border border-gray-800 bg-gray-900 text-primary-400">`);
+        if (feature.label.startsWith("01")) {
+          _push(`<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`);
+        } else if (feature.label.startsWith("02")) {
+          _push(`<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>`);
+        } else {
+          _push(`<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.97 5.97 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>`);
+        }
+        _push(`</div><h3 class="mt-4 text-lg font-semibold text-gray-100">${ssrInterpolate(feature.title)}</h3><p class="mt-2 text-sm leading-relaxed text-gray-400">${ssrInterpolate(feature.body)}</p></div>`);
+      });
+      _push(`<!--]--></div></div></section><section class="container mx-auto px-4 pb-16 sm:pb-24"><div class="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"><div class="grid grid-cols-1 items-center gap-8 p-8 sm:p-10 md:grid-cols-5"><div class="md:col-span-3"><p class="text-xs font-semibold uppercase tracking-wider text-primary-400">Switching from MyAnimeList?</p><h2 class="mt-3 text-2xl font-bold tracking-tight text-gray-50 sm:text-3xl"> Bring your watchlist with you in <span class="bg-gradient-to-r from-primary-300 to-fuchsia-400 bg-clip-text text-transparent">under a minute.</span></h2><p class="mt-3 text-sm leading-relaxed text-gray-400 sm:text-base"> Export your list from MAL, drop the XML file into our importer, and we will match every title, preserve your scores, status and episode progress, and keep your dates intact. Years of tracking, moved over in a couple of clicks. </p><ul class="mt-5 grid grid-cols-1 gap-2 text-sm text-gray-300 sm:grid-cols-2"><!--[-->`);
+      ssrRenderList(["Scores and statuses preserved", "Episode progress carried over", "Start dates and finish dates kept", "Preview matches before committing"], (bullet) => {
+        _push(`<li class="flex items-center gap-2"><svg class="h-4 w-4 flex-shrink-0 text-primary-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> ${ssrInterpolate(bullet)}</li>`);
+      });
+      _push(`<!--]--></ul></div><div class="md:col-span-2"><div class="flex items-center justify-center gap-3 rounded-xl border border-gray-800 bg-gray-950/60 p-5"><div class="flex h-14 w-14 items-center justify-center rounded-lg border border-gray-800 bg-gray-900 text-xs font-bold tracking-wider text-gray-400"> MAL </div><svg class="h-5 w-5 flex-shrink-0 text-primary-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg><div class="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold tracking-wider text-white"> AT </div></div><p class="mt-3 text-center text-xs text-gray-500">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("register"),
+        class: "font-semibold text-primary-400 hover:text-primary-300"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Sign up`);
+          } else {
+            return [
+              createTextVNode("Sign up")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(` then head to Import. Done in about a minute. </p></div></div></div></section><section class="container mx-auto px-4 pb-16 sm:pb-24"><div class="mx-auto max-w-3xl text-center"><p class="text-xs font-semibold uppercase tracking-wider text-primary-400">Why we are different</p><h2 class="mt-3 text-3xl font-bold tracking-tight text-gray-50 sm:text-4xl"> Free forever isn&#39;t a <span class="bg-gradient-to-r from-primary-300 to-fuchsia-400 bg-clip-text text-transparent">marketing line.</span></h2><p class="mt-5 text-base leading-relaxed text-gray-400 sm:text-lg"> AniTrack has no ads, no premium tier, and no plan to add either. It is built by anime fans for anime fans, and run on a few friends&#39; spare evenings. The whole project exists because the older trackers feel ancient and the newer ones want a subscription. We just wanted a fast, modern place to keep our lists. So we made one, and we are sharing it. </p></div></section><section class="border-y border-gray-800 bg-gray-950"><div class="container mx-auto px-4 py-10"><div class="grid grid-cols-2 gap-6 text-center sm:grid-cols-4"><!--[-->`);
+      ssrRenderList(stats.value, (stat) => {
+        _push(`<div><p class="text-3xl font-bold text-gray-50 sm:text-4xl">${ssrInterpolate(stat.value)}</p><p class="mt-1 text-xs uppercase tracking-wider text-gray-500">${ssrInterpolate(stat.label)}</p></div>`);
+      });
+      _push(`<!--]--></div></div></section><section class="container mx-auto px-4 py-20 sm:py-28"><div class="mx-auto max-w-2xl text-center"><h2 class="text-3xl font-bold tracking-tight text-gray-50 sm:text-5xl"> Start tracking. <span class="bg-gradient-to-r from-primary-300 to-fuchsia-400 bg-clip-text text-transparent">It&#39;s free.</span></h2><div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("register"),
+        class: "rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white shadow-lg shadow-primary-950/50 transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Create your account `);
+          } else {
+            return [
+              createTextVNode(" Create your account ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div><p class="mt-4 text-sm text-gray-500"> Under thirty seconds. No card, no trial, no catch. </p></div></section></main><footer class="border-t border-gray-800 bg-gray-950"><div class="container mx-auto flex flex-col items-center justify-between gap-3 px-4 py-6 font-mono text-xs text-gray-600 sm:flex-row"><p>© ${ssrInterpolate((/* @__PURE__ */ new Date()).getFullYear())} AniTrack</p><ul class="flex items-center gap-5"><li>`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("privacy"),
+        class: "transition hover:text-gray-300"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Privacy`);
+          } else {
+            return [
+              createTextVNode("Privacy")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li><li>`);
+      _push(ssrRenderComponent(_component_Link, {
+        href: _ctx.route("terms"),
+        class: "transition hover:text-gray-300"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Terms`);
+          } else {
+            return [
+              createTextVNode("Terms")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li><li><a href="mailto:hello@anitrack.app" class="transition hover:text-gray-300">Contact</a></li></ul></div></footer></div><!--]-->`);
+    };
+  }
+});
 const _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/TopAnimePage.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/WelcomePage.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const __vite_glob_0_27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main
 }, Symbol.toStringTag, { value: "Module" }));
@@ -11967,7 +9084,7 @@ createServer(
     render: renderToString,
     title: (title) => title ? `${title} — AniTrack` : "AniTrack",
     resolve: (name) => {
-      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/DashboardPage.vue": __vite_glob_0_0, "./Pages/Admin/FeatureFlagsPage.vue": __vite_glob_0_1, "./Pages/Admin/UsersPage.vue": __vite_glob_0_2, "./Pages/AnimeDetailPage.vue": __vite_glob_0_3, "./Pages/AnimeIndexPage.vue": __vite_glob_0_4, "./Pages/DevelopersPage.vue": __vite_glob_0_5, "./Pages/ErrorPage.vue": __vite_glob_0_6, "./Pages/HomePage.vue": __vite_glob_0_7, "./Pages/ImportPage.vue": __vite_glob_0_8, "./Pages/LoginPage.vue": __vite_glob_0_9, "./Pages/MyListPage.vue": __vite_glob_0_10, "./Pages/NotFoundPage.vue": __vite_glob_0_11, "./Pages/PeopleIndexPage.vue": __vite_glob_0_12, "./Pages/PersonDetailPage.vue": __vite_glob_0_13, "./Pages/PlaylistDetailPage.vue": __vite_glob_0_14, "./Pages/PlaylistEditPage.vue": __vite_glob_0_15, "./Pages/PlaylistsIndexPage.vue": __vite_glob_0_16, "./Pages/PrivacyPage.vue": __vite_glob_0_17, "./Pages/ProfilePage.vue": __vite_glob_0_18, "./Pages/PublicListPage.vue": __vite_glob_0_19, "./Pages/RegisterPage.vue": __vite_glob_0_20, "./Pages/SchedulePage.vue": __vite_glob_0_21, "./Pages/SeasonalPage.vue": __vite_glob_0_22, "./Pages/SettingsPage.vue": __vite_glob_0_23, "./Pages/StudioDetailPage.vue": __vite_glob_0_24, "./Pages/StudioIndexPage.vue": __vite_glob_0_25, "./Pages/TermsPage.vue": __vite_glob_0_26, "./Pages/TopAnimePage.vue": __vite_glob_0_27 });
+      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/AnimeEditPage.vue": __vite_glob_0_0, "./Pages/Admin/AnimeListPage.vue": __vite_glob_0_1, "./Pages/Admin/DashboardPage.vue": __vite_glob_0_2, "./Pages/Admin/FeatureFlagsPage.vue": __vite_glob_0_3, "./Pages/Admin/JobsPage.vue": __vite_glob_0_4, "./Pages/Admin/RolesPage.vue": __vite_glob_0_5, "./Pages/Admin/UsersPage.vue": __vite_glob_0_6, "./Pages/AlternativesPage.vue": __vite_glob_0_7, "./Pages/AnimeDetailPage.vue": __vite_glob_0_8, "./Pages/AnimeIndexPage.vue": __vite_glob_0_9, "./Pages/DevelopersPage.vue": __vite_glob_0_10, "./Pages/DiscoverPage.vue": __vite_glob_0_11, "./Pages/ErrorPage.vue": __vite_glob_0_12, "./Pages/ImportPage.vue": __vite_glob_0_13, "./Pages/LoginPage.vue": __vite_glob_0_14, "./Pages/MyListPage.vue": __vite_glob_0_15, "./Pages/NotFoundPage.vue": __vite_glob_0_16, "./Pages/PeopleIndexPage.vue": __vite_glob_0_17, "./Pages/PersonDetailPage.vue": __vite_glob_0_18, "./Pages/PlaylistDetailPage.vue": __vite_glob_0_19, "./Pages/PlaylistEditPage.vue": __vite_glob_0_20, "./Pages/PlaylistsIndexPage.vue": __vite_glob_0_21, "./Pages/PrivacyPage.vue": __vite_glob_0_22, "./Pages/ProfilePage.vue": __vite_glob_0_23, "./Pages/PublicListPage.vue": __vite_glob_0_24, "./Pages/RegisterPage.vue": __vite_glob_0_25, "./Pages/SchedulePage.vue": __vite_glob_0_26, "./Pages/SeasonalPage.vue": __vite_glob_0_27, "./Pages/SettingsPage.vue": __vite_glob_0_28, "./Pages/StudioDetailPage.vue": __vite_glob_0_29, "./Pages/StudioIndexPage.vue": __vite_glob_0_30, "./Pages/TermsPage.vue": __vite_glob_0_31, "./Pages/TopAnimePage.vue": __vite_glob_0_32, "./Pages/WelcomePage.vue": __vite_glob_0_33 });
       const page2 = pages[`./Pages/${name}.vue`];
       if (!page2) return pages["./Pages/ErrorPage.vue"];
       return page2;
@@ -12000,7 +9117,3 @@ createServer(
     }
   })
 );
-export {
-  br as b,
-  qn as q
-};

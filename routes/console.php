@@ -46,6 +46,17 @@ Schedule::command('sync:anime --finished')
         Log::error('Scheduled FINISHED incremental anime sync failed');
     });
 
+// Chip away at the stale-data backlog nightly. Anime that have clearly
+// settled (long finished, or gone from AniList) are flagged out of the sweep
+// as they are refreshed, so the backlog shrinks instead of cycling.
+Schedule::command('anime:refresh-stale')
+    ->dailyAt('01:00')
+    ->timezone('UTC')
+    ->withoutOverlapping(360)
+    ->onFailure(function () {
+        Log::error('Scheduled stale anime refresh failed');
+    });
+
 Schedule::command('sync:schedule')
     ->hourly()
     ->withoutOverlapping(55)

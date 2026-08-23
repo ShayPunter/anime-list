@@ -5,8 +5,10 @@ namespace App\Jobs;
 use App\Exceptions\AniListServiceUnavailableException;
 use App\Models\AiringSchedule;
 use App\Models\Anime;
+use App\Models\SyncRun;
 use App\Services\AniListClient;
 use App\Services\AniListQueryBuilder;
+use App\Services\SyncRunTracker;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,17 +24,41 @@ class SyncAiringSchedulePage implements ShouldQueue
 
     public int $timeout = 120;
 
-    public int $tries = 3;
+    /**
+     * Attempts are bounded by retryUntil() rather than a fixed count: the job
+     * releases itself back onto the queue while AniList is unavailable, and
+     * every one of those releases would otherwise burn an attempt and kill the
+     * whole page chain with MaxAttemptsExceededException.
+     */
+    public int $tries = 0;
+
+    /**
+     * Genuine errors (as opposed to outage releases) still fail fast.
+     */
+    public int $maxExceptions = 3;
 
     public function __construct(
         public readonly int $page,
         public readonly int $airingAtGreater,
         public readonly int $airingAtLesser,
         public readonly int $perPage = 50,
+        public readonly ?int $syncRunId = null,
     ) {}
 
-    public function handle(AniListClient $client): void
+    /**
+     * Long enough to sit out several AniList circuit-breaker windows
+     * (900s each by default) before giving up on the page.
+     */
+    public function retryUntil(): \DateTimeInterface
     {
+        return now()->addHours(4);
+    }
+
+    public function handle(AniListClient $client, SyncRunTracker $tracker): void
+    {
+        $run = $tracker->find($this->syncRunId)
+            ?? $tracker->start(SyncRun::MODE_SCHEDULE);
+
         try {
             $data = $client->query(AniListQueryBuilder::airingSchedulePage(), [
                 'page' => $this->page,
@@ -41,7 +67,7 @@ class SyncAiringSchedulePage implements ShouldQueue
                 'airingAt_lesser' => $this->airingAtLesser,
             ]);
         } catch (AniListServiceUnavailableException $e) {
-            $this->pauseForOutage($e);
+            $this->pauseForOutage($tracker, $run, $e);
 
             return;
         }
@@ -110,14 +136,13 @@ class SyncAiringSchedulePage implements ShouldQueue
             );
         }
 
-        // Update progress
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:schedule:progress', [
-            'last_completed_page' => $this->page,
-            'last_page' => $pageInfo['lastPage'] ?? 0,
-            'total' => $pageInfo['total'] ?? 0,
-            'started_at' => Cache::get('sync:schedule:progress')['started_at'] ?? now()->toIso8601String(),
-        ], $progressTtl);
+        $tracker->advance(
+            run: $run,
+            page: $this->page,
+            lastPage: (int) ($pageInfo['lastPage'] ?? 0),
+            totalItems: (int) ($pageInfo['total'] ?? 0),
+            processedDelta: count($rows),
+        );
 
         // Chain next page or finalize
         if ($pageInfo['hasNextPage'] ?? false) {
@@ -126,18 +151,18 @@ class SyncAiringSchedulePage implements ShouldQueue
                 $this->airingAtGreater,
                 $this->airingAtLesser,
                 $this->perPage,
+                $run->id,
             )->onQueue('sync');
         } else {
             $this->invalidateScheduleCaches();
-            Cache::put('sync:schedule:status', 'completed', $progressTtl);
+            $tracker->complete($run);
             Log::info('Airing schedule sync complete', ['total_pages' => $this->page]);
         }
     }
 
-    private function pauseForOutage(AniListServiceUnavailableException $e): void
+    private function pauseForOutage(SyncRunTracker $tracker, SyncRun $run, AniListServiceUnavailableException $e): void
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:schedule:status', 'paused', $progressTtl);
+        $tracker->pause($run, $e->getMessage());
 
         Log::warning('SyncAiringSchedulePage paused: AniList unavailable', [
             'page' => $this->page,
@@ -159,8 +184,12 @@ class SyncAiringSchedulePage implements ShouldQueue
 
     public function failed(\Throwable $e): void
     {
-        $progressTtl = config('anilist.sync.progress_cache_ttl', 86400);
-        Cache::put('sync:schedule:status', 'failed', $progressTtl);
+        $tracker = app(SyncRunTracker::class);
+        $run = $tracker->find($this->syncRunId);
+
+        if ($run !== null) {
+            $tracker->fail($run, $e);
+        }
 
         Log::error('SyncAiringSchedulePage failed', [
             'page' => $this->page,

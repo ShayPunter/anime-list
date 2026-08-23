@@ -217,6 +217,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/jobs', [AdminJobObservabilityController::class, 'index'])->name('jobs');
     Route::post('/jobs/anime', [AdminJobObservabilityController::class, 'enqueueAnime'])->name('jobs.enqueue-anime');
     Route::post('/jobs/sync/incremental', [AdminJobObservabilityController::class, 'enqueueIncrementalSync'])->name('jobs.sync.incremental');
+    Route::post('/jobs/sync/stale-refresh', [AdminJobObservabilityController::class, 'enqueueStaleRefresh'])->name('jobs.sync.stale-refresh');
+    Route::delete('/jobs/refresh-exclusions', [AdminJobObservabilityController::class, 'clearRefreshExclusions'])->name('jobs.refresh-exclusions.clear');
     Route::post('/jobs/failed/{uuid}/retry', [AdminJobObservabilityController::class, 'retryFailed'])->name('jobs.failed.retry');
     Route::delete('/jobs/failed/{uuid}', [AdminJobObservabilityController::class, 'forgetFailed'])->name('jobs.failed.forget');
 });
