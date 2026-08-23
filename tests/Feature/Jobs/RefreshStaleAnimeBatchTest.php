@@ -115,6 +115,35 @@ class RefreshStaleAnimeBatchTest extends TestCase
         $this->assertSame(SyncRun::STATUS_COMPLETED, $run->fresh()->status);
     }
 
+    public function test_progress_totals_stay_consistent_when_rows_are_dropped_as_missing(): void
+    {
+        Queue::fake();
+        config(['anilist.refresh.batch_size' => 2]);
+
+        Anime::factory()->create([
+            'anilist_id' => 520,
+            'status' => 'RELEASING',
+            'synced_at' => now()->subDays(90),
+        ]);
+        Anime::factory()->create([
+            'anilist_id' => 521,
+            'status' => 'RELEASING',
+            'synced_at' => now()->subDays(80),
+        ]);
+
+        $run = app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+
+        // Only one of the two requested ids comes back; the other is gone from
+        // AniList. Both left the backlog, so both must count as handled or the
+        // "x of y processed" readout can never reach its total.
+        $this->runBatch($run, [$this->minimalMedia(520, status: 'RELEASING')]);
+
+        $run->refresh();
+        $this->assertSame(2, $run->processed_items);
+        $this->assertSame(2, $run->total_items);
+        $this->assertSame(SyncRun::STATUS_COMPLETED, $run->status);
+    }
+
     public function test_already_excluded_anime_are_never_selected(): void
     {
         Queue::fake();
@@ -193,6 +222,70 @@ class RefreshStaleAnimeBatchTest extends TestCase
 
         Queue::assertNotPushed(RefreshStaleAnimeBatch::class);
         $this->assertSame(SyncRun::STATUS_COMPLETED, $run->fresh()->status);
+    }
+
+    public function test_a_single_batch_run_reports_itself_as_complete_not_as_one_page_of_many(): void
+    {
+        Queue::fake();
+        config(['anilist.refresh.batch_size' => 1]);
+
+        // A large backlog: without capping the estimate, a one-batch run would
+        // render as page 1 of hundreds and sit at 0% forever.
+        Anime::factory()->count(5)->create([
+            'status' => 'RELEASING',
+            'synced_at' => now()->subDays(90),
+        ]);
+        $first = Anime::query()->orderBy('synced_at')->firstOrFail();
+
+        $run = app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+
+        $this->runBatch(
+            $run,
+            [$this->minimalMedia($first->anilist_id, status: 'RELEASING')],
+            new RefreshStaleAnimeBatch(batchNumber: 1, maxBatches: 1, syncRunId: $run->id),
+        );
+
+        $run->refresh();
+        $this->assertSame(1, $run->current_page);
+        $this->assertSame(1, $run->last_page);
+        $this->assertSame(SyncRun::STATUS_COMPLETED, $run->status);
+    }
+
+    public function test_a_second_single_batch_run_picks_up_where_the_first_left_off(): void
+    {
+        Queue::fake();
+        config(['anilist.refresh.batch_size' => 1]);
+
+        $oldest = Anime::factory()->create([
+            'anilist_id' => 601,
+            'status' => 'RELEASING',
+            'synced_at' => now()->subDays(90),
+        ]);
+        $next = Anime::factory()->create([
+            'anilist_id' => 602,
+            'status' => 'RELEASING',
+            'synced_at' => now()->subDays(60),
+        ]);
+
+        $firstRun = app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+        $this->runBatch(
+            $firstRun,
+            [$this->minimalMedia(601, status: 'RELEASING')],
+            new RefreshStaleAnimeBatch(batchNumber: 1, maxBatches: 1, syncRunId: $firstRun->id),
+        );
+
+        // The refreshed anime has left the stale set, so a fresh run selects
+        // the next one rather than repeating the first.
+        $secondRun = app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+        $this->runBatch(
+            $secondRun,
+            [$this->minimalMedia(602, status: 'RELEASING')],
+            new RefreshStaleAnimeBatch(batchNumber: 1, maxBatches: 1, syncRunId: $secondRun->id),
+        );
+
+        $this->assertTrue($oldest->fresh()->synced_at->isToday());
+        $this->assertTrue($next->fresh()->synced_at->isToday());
+        $this->assertSame(0, Anime::query()->refreshable()->stale(30)->count());
     }
 
     public function test_an_anilist_outage_pauses_the_run_instead_of_failing_it(): void
