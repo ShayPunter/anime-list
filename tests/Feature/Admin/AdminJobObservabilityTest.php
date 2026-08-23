@@ -165,6 +165,51 @@ class AdminJobObservabilityTest extends TestCase
         );
     }
 
+    public function test_admin_can_step_through_the_backlog_one_batch_at_a_time(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+
+        Anime::factory()->count(3)->create(['synced_at' => now()->subDays(90)]);
+
+        $this->post('/admin/jobs/sync/stale-refresh', ['batches' => 1])->assertRedirect();
+
+        Queue::assertPushed(
+            RefreshStaleAnimeBatch::class,
+            fn (RefreshStaleAnimeBatch $job) => $job->maxBatches === 1 && $job->batchNumber === 1,
+        );
+    }
+
+    public function test_a_full_sweep_leaves_the_batch_cap_to_config(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+
+        $this->post('/admin/jobs/sync/stale-refresh')->assertRedirect();
+
+        Queue::assertPushed(
+            RefreshStaleAnimeBatch::class,
+            fn (RefreshStaleAnimeBatch $job) => $job->maxBatches === null,
+        );
+    }
+
+    public function test_the_batch_cap_is_validated(): void
+    {
+        Queue::fake();
+        $this->actingAsAdmin();
+
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+
+        $this->from('/admin/jobs')
+            ->post('/admin/jobs/sync/stale-refresh', ['batches' => 0])
+            ->assertRedirect('/admin/jobs')
+            ->assertSessionHasErrors('batches');
+
+        Queue::assertNothingPushed();
+    }
+
     public function test_stale_refresh_is_not_dispatched_while_one_is_running(): void
     {
         Queue::fake();

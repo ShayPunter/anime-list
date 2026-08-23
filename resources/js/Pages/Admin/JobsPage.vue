@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import AdminNav from '@/Components/AdminNav.vue'
@@ -67,6 +67,8 @@ interface JobMetrics {
     refresh_excluded: number
     refresh_excluded_by_reason: ExclusionCount[]
     stale_after_days: number
+    refresh_batch_size: number
+    refresh_max_batches: number
 }
 
 const props = defineProps<{
@@ -110,11 +112,11 @@ function dispatchIncremental() {
     )
 }
 
-function dispatchStaleRefresh() {
-    dispatching.value = 'stale'
+function dispatchStaleRefresh(batches: number | null = null) {
+    dispatching.value = batches === null ? 'stale' : 'stale-batch'
     router.post(
         route('admin.jobs.sync.stale-refresh'),
-        {},
+        batches === null ? {} : { batches },
         {
             preserveScroll: true,
             onFinish: () => { dispatching.value = null },
@@ -171,6 +173,49 @@ function runTitle(run: SyncRun): string {
     const mode = run.mode.replace(/_/g, ' ')
     return run.label ? `${mode} · ${run.label}` : mode
 }
+
+// The stale sweep walks batches of anime; the other modes walk AniList pages.
+function unitFor(run: SyncRun): string {
+    return run.mode === 'stale_refresh' ? 'Batch' : 'Page'
+}
+
+function processedLabel(run: SyncRun): string | null {
+    if (run.total_items <= 0) return null
+    return `${run.processed_items.toLocaleString()} of ${run.total_items.toLocaleString()} processed`
+}
+
+// Progress only moves while a worker is writing heartbeats, so poll for as
+// long as something is actually running and stop as soon as it settles.
+const POLL_MS = 5000
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
+function stopPolling() {
+    if (pollTimer !== null) {
+        clearInterval(pollTimer)
+        pollTimer = null
+    }
+}
+
+function startPolling() {
+    if (pollTimer !== null) return
+    pollTimer = setInterval(() => {
+        // Don't keep hitting the endpoint for a tab nobody is looking at.
+        if (document.visibilityState !== 'visible') return
+        router.reload({ only: ['metrics', 'syncRuns'] })
+    }, POLL_MS)
+}
+
+function syncPolling() {
+    if (syncRunsInProgress.value) {
+        startPolling()
+    } else {
+        stopPolling()
+    }
+}
+
+onMounted(syncPolling)
+onBeforeUnmount(stopPolling)
+watch(syncRunsInProgress, syncPolling)
 
 function syncStatusColor(status: string): string {
     if (status === 'completed') return 'text-green-400'
@@ -379,6 +424,12 @@ function progressPercent(run: SyncRun): number | null {
                 <span class="ml-2 text-xs font-normal normal-case text-gray-600">
                     latest run per mode
                 </span>
+                <span
+                    v-if="syncRunsInProgress"
+                    class="ml-2 text-xs font-normal normal-case text-yellow-400"
+                >
+                    · live, refreshing every {{ POLL_MS / 1000 }}s
+                </span>
             </h2>
             <div v-if="syncRuns.length === 0" class="py-6 text-center text-sm text-gray-500">
                 No sync has run yet.
@@ -400,8 +451,11 @@ function progressPercent(run: SyncRun): number | null {
                     </div>
 
                     <div class="mt-2 text-xs text-gray-500">
-                        Page {{ run.current_page }}/{{ run.last_page || '?' }}
-                        <span v-if="run.processed_items">
+                        {{ unitFor(run) }} {{ run.current_page }}/{{ run.last_page || '?' }}
+                        <span v-if="processedLabel(run)">
+                            · {{ processedLabel(run) }}
+                        </span>
+                        <span v-else-if="run.processed_items">
                             · {{ run.processed_items.toLocaleString() }} items
                         </span>
                     </div>
@@ -521,21 +575,34 @@ function progressPercent(run: SyncRun): number | null {
             <div class="mt-4 flex flex-wrap gap-2">
                 <button
                     type="button"
-                    :disabled="dispatching === 'stale'"
+                    :disabled="dispatching !== null || metrics.stale_sync === 0"
                     class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
-                    @click="dispatchStaleRefresh"
+                    @click="dispatchStaleRefresh(1)"
                 >
-                    {{ dispatching === 'stale' ? 'Dispatching…' : 'Refresh stale anime' }}
+                    {{ dispatching === 'stale-batch' ? 'Dispatching…' : `Run one batch (${metrics.refresh_batch_size})` }}
                 </button>
                 <button
                     type="button"
-                    :disabled="dispatching === 'exclusions' || metrics.refresh_excluded === 0"
+                    :disabled="dispatching !== null || metrics.stale_sync === 0"
+                    class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-primary-500 hover:text-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    @click="dispatchStaleRefresh()"
+                >
+                    {{ dispatching === 'stale' ? 'Dispatching…' : `Run full sweep (up to ${metrics.refresh_max_batches * metrics.refresh_batch_size})` }}
+                </button>
+                <button
+                    type="button"
+                    :disabled="dispatching !== null || metrics.refresh_excluded === 0"
                     class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600 hover:text-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                     @click="clearExclusions"
                 >
                     {{ dispatching === 'exclusions' ? 'Clearing…' : 'Clear exclusions' }}
                 </button>
             </div>
+            <p class="mt-2 text-[11px] text-gray-600">
+                One batch is a single AniList request covering {{ metrics.refresh_batch_size }} anime. Each run picks
+                up where the last left off, so you can step through the backlog a batch at a time — the counter above
+                drops as they are refreshed or flagged.
+            </p>
             <p v-if="syncRunsInProgress" class="mt-2 text-[11px] text-gray-600">
                 A sync is already in progress; a refresh sweep will queue behind it on the sync worker.
             </p>

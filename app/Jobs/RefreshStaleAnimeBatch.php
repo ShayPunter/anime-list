@@ -141,14 +141,24 @@ class RefreshStaleAnimeBatch implements ShouldQueue
         $settledCount = $policy->applyTo($refreshed);
 
         $remaining = Anime::query()->refreshable()->stale($staleDays)->count();
-        $estimatedBatches = $this->batchNumber + (int) ceil($remaining / $batchSize);
+        // Progress is reported against what *this* run will do, not the whole
+        // backlog — a run capped at one batch is finished at one batch.
+        $estimatedBatches = min(
+            $maxBatches,
+            $this->batchNumber + (int) ceil($remaining / $batchSize),
+        );
+
+        // Rows excluded as missing upstream count as handled: they left the
+        // backlog too, and leaving them out would make processed + remaining
+        // shrink over the run, so the progress readout would never reach 100%.
+        $handled = count($mediaItems) + $missingCount;
 
         $tracker->advance(
             run: $run,
             page: $this->batchNumber,
             lastPage: $estimatedBatches,
-            totalItems: $run->processed_items + count($mediaItems) + $remaining,
-            processedDelta: count($mediaItems),
+            totalItems: $run->processed_items + $handled + $remaining,
+            processedDelta: $handled,
         );
 
         Log::info('RefreshStaleAnimeBatch processed', [

@@ -1,4 +1,4 @@
-import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, unref, watch, onUnmounted, toDisplayString, onScopeDispose, createVNode, withDirectives, vModelText, openBlock, createBlock, onMounted, onBeforeUnmount, createCommentVNode, resolveDynamicComponent, Fragment, renderList, reactive, createSSRApp, h as h$1 } from "vue";
+import { defineComponent, computed, mergeProps, useSSRContext, ref, resolveComponent, withCtx, createTextVNode, unref, watch, onUnmounted, toDisplayString, onScopeDispose, onMounted, onBeforeUnmount, createVNode, withDirectives, vModelText, openBlock, createBlock, createCommentVNode, resolveDynamicComponent, Fragment, renderList, reactive, createSSRApp, h as h$1 } from "vue";
 import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent, ssrRenderSlot, ssrRenderList, ssrRenderAttr, ssrIncludeBooleanAttr, ssrRenderClass, ssrLooseContain, ssrRenderStyle, ssrRenderVNode, ssrLooseEqual, renderToString } from "vue/server-renderer";
 import { usePage, useForm, router, Link, createInertiaApp, Head } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
@@ -1077,6 +1077,7 @@ const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   __proto__: null,
   default: _sfc_main$M
 }, Symbol.toStringTag, { value: "Module" }));
+const POLL_MS = 5e3;
 const _sfc_main$L = /* @__PURE__ */ defineComponent({
   ...{ layout: _sfc_main$T },
   __name: "JobsPage",
@@ -1110,6 +1111,37 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       const mode = run.mode.replace(/_/g, " ");
       return run.label ? `${mode} · ${run.label}` : mode;
     }
+    function unitFor(run) {
+      return run.mode === "stale_refresh" ? "Batch" : "Page";
+    }
+    function processedLabel(run) {
+      if (run.total_items <= 0) return null;
+      return `${run.processed_items.toLocaleString()} of ${run.total_items.toLocaleString()} processed`;
+    }
+    let pollTimer = null;
+    function stopPolling() {
+      if (pollTimer !== null) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+      }
+    }
+    function startPolling() {
+      if (pollTimer !== null) return;
+      pollTimer = setInterval(() => {
+        if (document.visibilityState !== "visible") return;
+        router.reload({ only: ["metrics", "syncRuns"] });
+      }, POLL_MS);
+    }
+    function syncPolling() {
+      if (syncRunsInProgress.value) {
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    }
+    onMounted(syncPolling);
+    onBeforeUnmount(stopPolling);
+    watch(syncRunsInProgress, syncPolling);
     function syncStatusColor(status) {
       if (status === "completed") return "text-green-400";
       if (status === "running") return "text-yellow-400";
@@ -1183,14 +1215,22 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       ssrRenderList(__props.metrics.failed_by_queue, (row) => {
         _push(`<div class="flex items-center justify-between border-b border-gray-800/60 pb-1.5 text-sm last:border-b-0"><span class="font-mono text-gray-300">${ssrInterpolate(row.queue)}</span><span class="${ssrRenderClass(row.count > 0 ? "text-red-400" : "text-gray-600")}">${ssrInterpolate(row.count.toLocaleString())}</span></div>`);
       });
-      _push(`<!--]--></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400"> Sync runs <span class="ml-2 text-xs font-normal normal-case text-gray-600"> latest run per mode </span></h2>`);
+      _push(`<!--]--></div></div></div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400"> Sync runs <span class="ml-2 text-xs font-normal normal-case text-gray-600"> latest run per mode </span>`);
+      if (syncRunsInProgress.value) {
+        _push(`<span class="ml-2 text-xs font-normal normal-case text-yellow-400"> · live, refreshing every ${ssrInterpolate(POLL_MS / 1e3)}s </span>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</h2>`);
       if (__props.syncRuns.length === 0) {
         _push(`<div class="py-6 text-center text-sm text-gray-500"> No sync has run yet. </div>`);
       } else {
         _push(`<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"><!--[-->`);
         ssrRenderList(__props.syncRuns, (run) => {
-          _push(`<div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><div class="flex items-start justify-between gap-2"><span class="text-sm font-medium capitalize text-gray-200">${ssrInterpolate(runTitle(run))}</span><span class="${ssrRenderClass([run.stalled ? "text-orange-400" : syncStatusColor(run.status), "shrink-0 text-xs font-medium capitalize"])}">${ssrInterpolate(statusLabel(run))}</span></div><div class="mt-2 text-xs text-gray-500"> Page ${ssrInterpolate(run.current_page)}/${ssrInterpolate(run.last_page || "?")} `);
-          if (run.processed_items) {
+          _push(`<div class="rounded-lg border border-gray-800 bg-gray-950 p-3"><div class="flex items-start justify-between gap-2"><span class="text-sm font-medium capitalize text-gray-200">${ssrInterpolate(runTitle(run))}</span><span class="${ssrRenderClass([run.stalled ? "text-orange-400" : syncStatusColor(run.status), "shrink-0 text-xs font-medium capitalize"])}">${ssrInterpolate(statusLabel(run))}</span></div><div class="mt-2 text-xs text-gray-500">${ssrInterpolate(unitFor(run))} ${ssrInterpolate(run.current_page)}/${ssrInterpolate(run.last_page || "?")} `);
+          if (processedLabel(run)) {
+            _push(`<span> · ${ssrInterpolate(processedLabel(run))}</span>`);
+          } else if (run.processed_items) {
             _push(`<span> · ${ssrInterpolate(run.processed_items.toLocaleString())} items </span>`);
           } else {
             _push(`<!---->`);
@@ -1238,7 +1278,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(`</div></div><div class="mt-4 flex flex-wrap gap-2"><button type="button"${ssrIncludeBooleanAttr(dispatching.value === "stale") ? " disabled" : ""} class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "stale" ? "Dispatching…" : "Refresh stale anime")}</button><button type="button"${ssrIncludeBooleanAttr(dispatching.value === "exclusions" || __props.metrics.refresh_excluded === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600 hover:text-gray-100 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "exclusions" ? "Clearing…" : "Clear exclusions")}</button></div>`);
+      _push(`</div></div><div class="mt-4 flex flex-wrap gap-2"><button type="button"${ssrIncludeBooleanAttr(dispatching.value !== null || __props.metrics.stale_sync === 0) ? " disabled" : ""} class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "stale-batch" ? "Dispatching…" : `Run one batch (${__props.metrics.refresh_batch_size})`)}</button><button type="button"${ssrIncludeBooleanAttr(dispatching.value !== null || __props.metrics.stale_sync === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-primary-500 hover:text-primary-400 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "stale" ? "Dispatching…" : `Run full sweep (up to ${__props.metrics.refresh_max_batches * __props.metrics.refresh_batch_size})`)}</button><button type="button"${ssrIncludeBooleanAttr(dispatching.value !== null || __props.metrics.refresh_excluded === 0) ? " disabled" : ""} class="rounded-lg border border-gray-700 bg-gray-950 px-4 py-2 text-sm text-gray-300 transition hover:border-gray-600 hover:text-gray-100 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(dispatching.value === "exclusions" ? "Clearing…" : "Clear exclusions")}</button></div><p class="mt-2 text-[11px] text-gray-600"> One batch is a single AniList request covering ${ssrInterpolate(__props.metrics.refresh_batch_size)} anime. Each run picks up where the last left off, so you can step through the backlog a batch at a time — the counter above drops as they are refreshed or flagged. </p>`);
       if (syncRunsInProgress.value) {
         _push(`<p class="mt-2 text-[11px] text-gray-600"> A sync is already in progress; a refresh sweep will queue behind it on the sync worker. </p>`);
       } else {

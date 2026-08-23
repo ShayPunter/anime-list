@@ -121,6 +121,8 @@ class AdminJobObservabilityController extends Controller
                 'refresh_excluded' => Anime::query()->refreshExcluded()->count(),
                 'refresh_excluded_by_reason' => $this->exclusionBreakdown(),
                 'stale_after_days' => $staleDays,
+                'refresh_batch_size' => (int) config('anilist.refresh.batch_size', 50),
+                'refresh_max_batches' => (int) config('anilist.refresh.max_batches_per_run', 200),
             ],
             'recentFailed' => $recentFailed,
             'recentlyAdded' => $recentlyAdded,
@@ -175,8 +177,14 @@ class AdminJobObservabilityController extends Controller
         return back()->with('message', 'Incremental sync dispatched.');
     }
 
-    public function enqueueStaleRefresh(): RedirectResponse
+    public function enqueueStaleRefresh(Request $request): RedirectResponse
     {
+        $validated = $request->validate([
+            // Cap this run at N batches. Omitted means the configured
+            // per-run cap, i.e. run the sweep until the backlog drains.
+            'batches' => ['nullable', 'integer', 'min:1', 'max:1000'],
+        ]);
+
         if ($this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH)) {
             return back()->withErrors([
                 'sync' => 'A stale refresh is already in progress.',
@@ -190,9 +198,23 @@ class AdminJobObservabilityController extends Controller
             return back()->with('message', 'Nothing to refresh — no stale anime outside the exclusion list.');
         }
 
+        $batches = $validated['batches'] ?? null;
         $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);
 
-        RefreshStaleAnimeBatch::dispatch(syncRunId: $run->id)->onQueue('sync');
+        RefreshStaleAnimeBatch::dispatch(
+            maxBatches: $batches,
+            syncRunId: $run->id,
+        )->onQueue('sync');
+
+        if ($batches !== null) {
+            $size = (int) config('anilist.refresh.batch_size', 50);
+            $covered = min($pending, $batches * $size);
+
+            return back()->with(
+                'message',
+                "Dispatched {$batches} batch(es) — up to {$covered} of {$pending} stale anime. Run it again for the next batch.",
+            );
+        }
 
         return back()->with('message', "Stale refresh dispatched for {$pending} anime.");
     }

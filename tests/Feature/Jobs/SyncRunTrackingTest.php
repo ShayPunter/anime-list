@@ -144,6 +144,55 @@ class SyncRunTrackingTest extends TestCase
         $this->assertSame(SyncRun::STATUS_PAUSED, $run->fresh()->status);
     }
 
+    /**
+     * Jobs already sitting on the queue when a deploy lands were serialized
+     * against the previous class definition. A promoted constructor property
+     * carries no class-level default, so those payloads unserialize with
+     * $syncRunId uninitialized and failed() died reading it — which is exactly
+     * what production hit after the sync_runs deploy.
+     *
+     * @return array<string, array{0: object, 1: array<string, mixed>}>
+     */
+    public static function legacyPayloadProvider(): array
+    {
+        return [
+            'anime page' => [
+                new SyncAnimePage(page: 1),
+                ['page' => 3, 'perPage' => 50, 'mode' => 'full'],
+            ],
+            'airing schedule page' => [
+                new SyncAiringSchedulePage(page: 1, airingAtGreater: 0, airingAtLesser: 1),
+                ['page' => 3, 'airingAtGreater' => 0, 'airingAtLesser' => 1, 'perPage' => 50],
+            ],
+            'recommendations page' => [
+                new SyncRecommendationsPage(page: 1),
+                ['page' => 3, 'perPage' => 50],
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $legacyProperties
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('legacyPayloadProvider')]
+    public function test_a_payload_queued_before_run_tracking_still_fails_cleanly(
+        object $prototype,
+        array $legacyProperties,
+    ): void {
+        // Rebuild the job the way unserialize() does — no constructor call —
+        // populating only the properties the old payload carried.
+        $reflection = new \ReflectionClass($prototype);
+        $job = $reflection->newInstanceWithoutConstructor();
+
+        foreach ($legacyProperties as $name => $value) {
+            $reflection->getProperty($name)->setValue($job, $value);
+        }
+
+        $this->assertNull($job->syncRunId);
+
+        $job->failed(new \RuntimeException('queued before the deploy'));
+    }
+
     public function test_a_failed_page_marks_its_run_failed_with_the_reason(): void
     {
         $run = app(SyncRunTracker::class)->start(SyncRun::MODE_FULL);
