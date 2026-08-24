@@ -96,6 +96,19 @@ class SyncRunTracker
             ? $error::class.': '.$error->getMessage()
             : $error;
 
+        // A run that gives up while paused failed *because of* whatever it was
+        // waiting on. The queue reports that as MaxAttemptsExceededException,
+        // which is the symptom — and reads like the very bug these jobs were
+        // changed to avoid. Keep the reason the run was paused for.
+        if ($run->status === SyncRun::STATUS_PAUSED && $run->last_error !== null) {
+            $message = sprintf(
+                'Gave up after %s waiting on: %s (queue reported %s)',
+                $this->waitedFor($run),
+                $run->last_error,
+                $message,
+            );
+        }
+
         $run->forceFill([
             'status' => SyncRun::STATUS_FAILED,
             'heartbeat_at' => now(),
@@ -109,6 +122,28 @@ class SyncRunTracker
             'label' => $run->label,
             'page' => $run->current_page,
         ]);
+    }
+
+    /**
+     * How long a run has been going, in words, for error messages.
+     */
+    private function waitedFor(SyncRun $run): string
+    {
+        $seconds = $run->durationSeconds();
+
+        if ($seconds === null) {
+            return 'an unknown time';
+        }
+
+        if ($seconds < 60) {
+            return "{$seconds}s";
+        }
+
+        if ($seconds < 3600) {
+            return floor($seconds / 60).'m';
+        }
+
+        return floor($seconds / 3600).'h '.floor(($seconds % 3600) / 60).'m';
     }
 
     /**
@@ -156,6 +191,11 @@ class SyncRunTracker
     /**
      * Whether a sweep of this mode is already under way, so callers can avoid
      * racing a second chain against the same mode.
+     *
+     * Runs whose heartbeat has gone cold do not count. A worker lost mid-sweep
+     * (a deploy, an OOM) leaves its row "running" forever, and without this a
+     * single lost job would block every future sweep of that mode silently.
+     * A genuinely paused run keeps beating: it re-pauses on each retry.
      */
     public function hasRunInProgress(string $mode, ?string $label = null): bool
     {
@@ -163,6 +203,11 @@ class SyncRunTracker
             ->where('mode', $mode)
             ->when($label !== null, fn ($q) => $q->where('label', $label))
             ->inProgress()
+            ->where(
+                fn ($q) => $q
+                    ->where('heartbeat_at', '>=', now()->subSeconds(SyncRun::HEARTBEAT_TIMEOUT_SECONDS))
+                    ->orWhereNull('heartbeat_at')
+            )
             ->exists();
     }
 }
