@@ -273,6 +273,64 @@ class AdminJobObservabilityTest extends TestCase
         $this->assertDatabaseMissing('failed_jobs', ['uuid' => 'forget-me']);
     }
 
+    public function test_admin_can_clear_all_failed_jobs(): void
+    {
+        $this->actingAsAdmin();
+
+        foreach (['a', 'b', 'c'] as $uuid) {
+            DB::table('failed_jobs')->insert([
+                'uuid' => $uuid,
+                'connection' => 'redis',
+                'queue' => 'sync',
+                'payload' => '{}',
+                'exception' => 'boom',
+                'failed_at' => now(),
+            ]);
+        }
+
+        $this->delete('/admin/jobs/failed')->assertRedirect();
+
+        $this->assertSame(0, DB::table('failed_jobs')->count());
+    }
+
+    public function test_clearing_failed_jobs_is_harmless_when_there_are_none(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->delete('/admin/jobs/failed')
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+    }
+
+    public function test_clearing_all_does_not_collide_with_forgetting_one(): void
+    {
+        $this->actingAsAdmin();
+
+        DB::table('failed_jobs')->insert([
+            'uuid' => 'keep-me',
+            'connection' => 'redis',
+            'queue' => 'sync',
+            'payload' => '{}',
+            'exception' => 'boom',
+            'failed_at' => now(),
+        ]);
+        DB::table('failed_jobs')->insert([
+            'uuid' => 'drop-me',
+            'connection' => 'redis',
+            'queue' => 'sync',
+            'payload' => '{}',
+            'exception' => 'boom',
+            'failed_at' => now(),
+        ]);
+
+        // The single-job route must still resolve rather than being swallowed
+        // by the new collection-level DELETE.
+        $this->delete('/admin/jobs/failed/drop-me')->assertRedirect();
+
+        $this->assertDatabaseMissing('failed_jobs', ['uuid' => 'drop-me']);
+        $this->assertDatabaseHas('failed_jobs', ['uuid' => 'keep-me']);
+    }
+
     public function test_non_admin_cannot_access_jobs_routes(): void
     {
         $user = \App\Models\User::factory()->create(['is_admin' => false]);
@@ -280,6 +338,7 @@ class AdminJobObservabilityTest extends TestCase
         $this->actingAs($user)->get('/admin/jobs')->assertForbidden();
         $this->actingAs($user)->post('/admin/jobs/anime', ['anilist_id' => 1])->assertForbidden();
         $this->actingAs($user)->post('/admin/jobs/sync/stale-refresh')->assertForbidden();
+        $this->actingAs($user)->delete('/admin/jobs/failed')->assertForbidden();
         $this->actingAs($user)->delete('/admin/jobs/refresh-exclusions')->assertForbidden();
     }
 }
