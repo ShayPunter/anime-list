@@ -205,6 +205,25 @@ class SyncRunTrackingTest extends TestCase
         $this->assertStringContainsString('missing Page key', $run->last_error);
     }
 
+    public function test_a_job_that_gives_up_mid_outage_still_reports_the_outage(): void
+    {
+        $tracker = app(SyncRunTracker::class);
+        $run = $tracker->start(SyncRun::MODE_SCHEDULE);
+        $tracker->pause($run, 'AniList API temporarily unavailable: severe stability issues');
+
+        // What the worker does once retryUntil lapses on a released job.
+        (new SyncAiringSchedulePage(
+            page: 1,
+            airingAtGreater: 0,
+            airingAtLesser: 1,
+            syncRunId: $run->id,
+        ))->failed(new \Illuminate\Queue\MaxAttemptsExceededException(
+            'App\Jobs\SyncAiringSchedulePage has been attempted too many times.'
+        ));
+
+        $this->assertStringContainsString('severe stability issues', $run->fresh()->last_error);
+    }
+
     public function test_a_chained_page_stays_attached_to_the_same_run(): void
     {
         Queue::fake();
