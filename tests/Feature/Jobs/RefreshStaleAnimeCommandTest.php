@@ -38,16 +38,37 @@ class RefreshStaleAnimeCommandTest extends TestCase
         $this->assertSame(0, SyncRun::where('mode', SyncRun::MODE_STALE_REFRESH)->count());
     }
 
-    public function test_it_refuses_to_start_alongside_a_running_sweep(): void
+    public function test_it_skips_cleanly_alongside_a_running_sweep(): void
     {
         Queue::fake();
 
         Anime::factory()->create(['synced_at' => now()->subDays(90)]);
         app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
 
-        $this->artisan('anime:refresh-stale')->assertFailed();
+        // Exiting non-zero here made the scheduler raise "Scheduled command
+        // ... failed with exit code [1]" whenever an AniList outage kept the
+        // previous sweep paused past the next nightly run. A skip is not a
+        // failure.
+        $this->artisan('anime:refresh-stale')
+            ->expectsOutputToContain('already in progress')
+            ->assertSuccessful();
 
         Queue::assertNothingPushed();
+    }
+
+    public function test_a_sweep_whose_worker_died_does_not_block_the_nightly_run(): void
+    {
+        Queue::fake();
+
+        Anime::factory()->create(['synced_at' => now()->subDays(90)]);
+        $abandoned = app(SyncRunTracker::class)->start(SyncRun::MODE_STALE_REFRESH);
+        $abandoned->forceFill([
+            'heartbeat_at' => now()->subSeconds(SyncRun::HEARTBEAT_TIMEOUT_SECONDS + 60),
+        ])->save();
+
+        $this->artisan('anime:refresh-stale')->assertSuccessful();
+
+        Queue::assertPushed(RefreshStaleAnimeBatch::class);
     }
 
     public function test_force_starts_a_sweep_even_when_one_is_running(): void
