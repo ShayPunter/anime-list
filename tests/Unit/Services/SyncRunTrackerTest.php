@@ -108,6 +108,64 @@ class SyncRunTrackerTest extends TestCase
         );
     }
 
+    public function test_giving_up_while_paused_keeps_the_reason_it_was_waiting_on(): void
+    {
+        $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);
+        $run->forceFill(['started_at' => now()->subHours(6)])->save();
+        $this->tracker->pause($run, 'AniList API temporarily unavailable: severe stability issues');
+
+        // What the queue reports once retryUntil lapses. On its own it reads
+        // like the attempt-exhaustion bug rather than the outage behind it.
+        $this->tracker->fail($run, new \Illuminate\Queue\MaxAttemptsExceededException(
+            'App\Jobs\RefreshStaleAnimeBatch has been attempted too many times.'
+        ));
+
+        $run->refresh();
+        $this->assertSame(SyncRun::STATUS_FAILED, $run->status);
+        $this->assertStringContainsString('severe stability issues', $run->last_error);
+        $this->assertStringContainsString('6h', $run->last_error);
+        $this->assertStringContainsString('attempted too many times', $run->last_error);
+    }
+
+    public function test_a_failure_that_was_not_paused_reports_only_its_own_error(): void
+    {
+        $run = $this->tracker->start(SyncRun::MODE_FULL);
+        $this->tracker->advance($run, page: 2, lastPage: 10, totalItems: 100, processedDelta: 50);
+
+        $this->tracker->fail($run, new \RuntimeException('missing Page key'));
+
+        $this->assertStringNotContainsString('Gave up after', $run->fresh()->last_error);
+        $this->assertStringContainsString('missing Page key', $run->fresh()->last_error);
+    }
+
+    public function test_a_run_whose_worker_died_stops_blocking_new_sweeps(): void
+    {
+        $abandoned = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);
+
+        $this->assertTrue($this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH));
+
+        // Worker lost mid-sweep: the row stays "running" but nothing is
+        // beating for it. Without this, one lost job blocks the mode forever.
+        $abandoned->forceFill([
+            'heartbeat_at' => now()->subSeconds(SyncRun::HEARTBEAT_TIMEOUT_SECONDS + 60),
+        ])->save();
+
+        $this->assertFalse($this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH));
+        $this->assertTrue($abandoned->fresh()->isStalled());
+    }
+
+    public function test_a_paused_run_keeps_beating_and_still_blocks(): void
+    {
+        $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);
+        $run->forceFill(['heartbeat_at' => now()->subHours(3)])->save();
+
+        // Each outage retry re-pauses, which refreshes the heartbeat.
+        $this->tracker->pause($run, 'AniList unavailable');
+
+        $this->assertTrue($this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH));
+        $this->assertFalse($run->fresh()->isStalled());
+    }
+
     public function test_has_run_in_progress_ignores_finished_runs(): void
     {
         $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);

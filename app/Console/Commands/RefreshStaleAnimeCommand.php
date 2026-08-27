@@ -65,9 +65,13 @@ class RefreshStaleAnimeCommand extends Command
         }
 
         if (! $this->option('force') && $this->tracker->hasRunInProgress(SyncRun::MODE_STALE_REFRESH)) {
-            $this->error('A stale refresh is already in progress. Use --force to start another anyway.');
+            // Not a failure: the previous sweep is still going, or paused
+            // waiting on AniList. Exiting non-zero made the scheduler raise
+            // "Scheduled command ... failed with exit code [1]" every night an
+            // outage outlasted the run.
+            $this->comment('A stale refresh is already in progress — skipping this run. Use --force to start another anyway.');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         $run = $this->tracker->start(SyncRun::MODE_STALE_REFRESH);

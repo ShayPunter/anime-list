@@ -243,6 +243,20 @@ class AdminJobObservabilityController extends Controller
         return back()->with('message', "Retrying failed job {$uuid}.");
     }
 
+    /**
+     * Drop every failed job. Equivalent to queue:flush, from the panel.
+     */
+    public function flushFailed(): RedirectResponse
+    {
+        $deleted = DB::table('failed_jobs')->delete();
+
+        if ($deleted === 0) {
+            return back()->with('message', 'No failed jobs to clear.');
+        }
+
+        return back()->with('message', "Cleared {$deleted} failed job(s).");
+    }
+
     public function forgetFailed(string $uuid): RedirectResponse
     {
         $deleted = DB::table('failed_jobs')->where('uuid', $uuid)->delete();

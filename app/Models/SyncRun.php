@@ -29,6 +29,13 @@ class SyncRun extends Model
     /** Replaced by a newer run of the same mode before it finished. */
     public const STATUS_SUPERSEDED = 'superseded';
 
+    /**
+     * How long an in-progress run may go without a heartbeat before it is
+     * treated as abandoned. Generous enough to cover the AniList circuit
+     * breaker backoff plus time queued behind other jobs on the sync worker.
+     */
+    public const HEARTBEAT_TIMEOUT_SECONDS = 7200;
+
     public const MODE_FULL = 'full';
 
     public const MODE_INCREMENTAL = 'incremental';
@@ -111,7 +118,7 @@ class SyncRun extends Model
      * An in-progress run whose worker stopped writing heartbeats. Paused runs
      * are excluded: they are waiting on the AniList circuit breaker by design.
      */
-    public function isStalled(int $thresholdSeconds = 3600): bool
+    public function isStalled(int $thresholdSeconds = self::HEARTBEAT_TIMEOUT_SECONDS): bool
     {
         if ($this->status !== self::STATUS_RUNNING) {
             return false;

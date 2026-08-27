@@ -157,6 +157,22 @@ function retryJob(uuid: string) {
     )
 }
 
+const flushingFailed = ref(false)
+
+function flushFailedJobs() {
+    if (!window.confirm(
+        `Clear all ${props.metrics.failed_total} failed job(s)? They cannot be retried afterwards.`,
+    )) {
+        return
+    }
+
+    flushingFailed.value = true
+    router.delete(route('admin.jobs.failed.flush'), {
+        preserveScroll: true,
+        onFinish: () => { flushingFailed.value = false },
+    })
+}
+
 function forgetJob(uuid: string) {
     forgettingUuid.value = uuid
     router.delete(route('admin.jobs.failed.forget', { uuid }), {
@@ -610,10 +626,23 @@ function progressPercent(run: SyncRun): number | null {
 
         <!-- Recent failed jobs -->
         <div class="rounded-xl border border-gray-800 bg-gray-900 p-5">
-            <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                Recent failures
-                <span class="ml-2 text-xs font-normal text-gray-600">{{ recentFailed.length }} shown</span>
-            </h2>
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">
+                    Recent failures
+                    <span class="ml-2 text-xs font-normal normal-case text-gray-600">
+                        {{ recentFailed.length }} of {{ metrics.failed_total.toLocaleString() }} shown
+                    </span>
+                </h2>
+                <button
+                    v-if="metrics.failed_total > 0"
+                    type="button"
+                    :disabled="flushingFailed"
+                    class="rounded-lg border border-red-800/60 bg-red-950/30 px-3 py-1.5 text-xs text-red-300 transition hover:border-red-700 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    @click="flushFailedJobs"
+                >
+                    {{ flushingFailed ? 'Clearing…' : `Clear all (${metrics.failed_total.toLocaleString()})` }}
+                </button>
+            </div>
             <div v-if="recentFailed.length === 0" class="py-6 text-center text-sm text-gray-500">
                 No recent failures.
             </div>

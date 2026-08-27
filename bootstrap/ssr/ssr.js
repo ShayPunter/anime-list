@@ -1104,6 +1104,7 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
     const dispatching = ref(null);
     const retryingUuid = ref(null);
     const forgettingUuid = ref(null);
+    const flushingFailed = ref(false);
     const syncRunsInProgress = computed(
       () => props.syncRuns.some((run) => run.status === "running" || run.status === "paused")
     );
@@ -1284,7 +1285,13 @@ const _sfc_main$L = /* @__PURE__ */ defineComponent({
       } else {
         _push(`<!---->`);
       }
-      _push(`</div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400"> Recent failures <span class="ml-2 text-xs font-normal text-gray-600">${ssrInterpolate(__props.recentFailed.length)} shown</span></h2>`);
+      _push(`</div><div class="rounded-xl border border-gray-800 bg-gray-900 p-5"><div class="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400"> Recent failures <span class="ml-2 text-xs font-normal normal-case text-gray-600">${ssrInterpolate(__props.recentFailed.length)} of ${ssrInterpolate(__props.metrics.failed_total.toLocaleString())} shown </span></h2>`);
+      if (__props.metrics.failed_total > 0) {
+        _push(`<button type="button"${ssrIncludeBooleanAttr(flushingFailed.value) ? " disabled" : ""} class="rounded-lg border border-red-800/60 bg-red-950/30 px-3 py-1.5 text-xs text-red-300 transition hover:border-red-700 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50">${ssrInterpolate(flushingFailed.value ? "Clearing…" : `Clear all (${__props.metrics.failed_total.toLocaleString()})`)}</button>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
       if (__props.recentFailed.length === 0) {
         _push(`<div class="py-6 text-center text-sm text-gray-500"> No recent failures. </div>`);
       } else {
